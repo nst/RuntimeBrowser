@@ -1,0 +1,47 @@
+
+RuntimeBrowser
+To do list (ToDo.txt).
+======================
+    April 30, 2002
+
+Add:
+
+    Preferences Panel:
+	Filename prefix 
+	BOOL: show NSFramework_... classes
+	BOOL: use typedefs for structs
+  	variable names for:  arguments, categories, struct/union variables
+
+    Find:
+ 	Find class by name: if the Browser is the 1st responder -- add a "Search Results" to the root array and handle it specially.  Double-click on browser: if on a Search Result(s) select the corresponding Class in its regular location in the browser (as Search Results displays classes out of their hierarchy: no sub classes, etc.)
+
+    Save Subclasses:
+	Confirm if of a root class (might be lots of classes)
+	Save to a directory -- show progress
+
+    Save All:
+	Confirm (lots of classes)
+	Save to a directory -- show progress
+
+    About:
+	Needs a proper About panel.
+
+    Help:
+	How to use RB.
+	COPYING, etc. -- ad a help page with the GPL
+
+    Structs:
+  	Implement the typedefs && generalization (and formatting) code for structs/unions and output the structs as typedefs early in the header and reference them in other parts by name -- unique by structure of the struct (NSString uniquing -- basically a reverse dictionary with the struct def string as the key and the struct name as the value).
+
+
+NOTES:
+
+bit fields have a modified format -- implement support if we're on a system that uses the new format.
+
+category names -- are property of a private cache...
+protocols -- seem not to load on this version (NT)... try elsewhere
+
+empty categories -- BUG? classes w/out methods show their first category methods as class methods.
+
+
+Search for PENDING and fix what needs fixing.
