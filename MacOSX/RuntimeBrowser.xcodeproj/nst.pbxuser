@@ -21,7 +21,7 @@
 		argumentStrings = (
 		);
 		autoAttachOnCrash = 1;
-		breakpointsEnabled = 1;
+		breakpointsEnabled = 0;
 		configStateDict = {
 		};
 		customDataFormattersEnabled = 1;
@@ -164,25 +164,6 @@
 		vrLen = 1308;
 		vrLoc = 4185;
 	};
-	0312C6F813354BFF00E99BA4 /* XCBuildMessageTextBookmark */ = {
-		isa = PBXTextBookmark;
-		comments = "Potential leak of an object allocated on line 334 and stored into 'op'";
-		fRef = B73648730E3FCD710053523F /* AppController.m */;
-		fallbackIsa = XCBuildMessageTextBookmark;
-		rLen = 1;
-		rLoc = 371;
-		rType = 1;
-	};
-	0312C6F913354BFF00E99BA4 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = B73648730E3FCD710053523F /* AppController.m */;
-		name = "AppController.m: 330";
-		rLen = 0;
-		rLoc = 11147;
-		rType = 0;
-		vrLen = 1488;
-		vrLoc = 10768;
-	};
 	0315BDEE0E4768A500DFB2F3 /* NSTextView+SyntaxColoring.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1075, 484}}";
@@ -248,6 +229,26 @@
 			sepNavVisRange = "{0, 341}";
 		};
 	};
+	03607CAF1339749C00B62CA7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B73648730E3FCD710053523F /* AppController.m */;
+		name = "AppController.m: 330";
+		rLen = 0;
+		rLoc = 11147;
+		rType = 0;
+		vrLen = 758;
+		vrLoc = 10737;
+	};
+	03607CB21339750800B62CA7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B73648730E3FCD710053523F /* AppController.m */;
+		name = "AppController.m: 330";
+		rLen = 0;
+		rLoc = 11147;
+		rType = 0;
+		vrLen = 1491;
+		vrLoc = 10543;
+	};
 	037EDADA1307102300298C79 /* ClassStub.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1075, 1001}}";
@@ -270,7 +271,7 @@
 		};
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeBuildConfigurationName = Debug;
+		activeBuildConfigurationName = Release;
 		activeExecutable = 030F14FF12DEE5CB000180B1 /* RuntimeBrowser */;
 		activeTarget = 8D1107260486CEB800E47090 /* RuntimeBrowser */;
 		addToTargets = (
@@ -402,8 +403,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 322250946;
-			PBXWorkspaceStateSaveDate = 322250946;
+			PBXPerProjectTemplateStateSaveDate = 322532450;
+			PBXWorkspaceStateSaveDate = 322532450;
 		};
 		perUserProjectItems = {
 			0312C2CB132DAA6D00E99BA4 /* PBXTextBookmark */ = 0312C2CB132DAA6D00E99BA4 /* PBXTextBookmark */;
@@ -415,8 +416,8 @@
 			0312C2FD132DAC4000E99BA4 /* PBXTextBookmark */ = 0312C2FD132DAC4000E99BA4 /* PBXTextBookmark */;
 			0312C308132DAC6200E99BA4 /* PBXTextBookmark */ = 0312C308132DAC6200E99BA4 /* PBXTextBookmark */;
 			0312C343132DFE5900E99BA4 /* PBXTextBookmark */ = 0312C343132DFE5900E99BA4 /* PBXTextBookmark */;
-			0312C6F813354BFF00E99BA4 /* XCBuildMessageTextBookmark */ = 0312C6F813354BFF00E99BA4 /* XCBuildMessageTextBookmark */;
-			0312C6F913354BFF00E99BA4 /* PBXTextBookmark */ = 0312C6F913354BFF00E99BA4 /* PBXTextBookmark */;
+			03607CAF1339749C00B62CA7 /* PBXTextBookmark */ = 03607CAF1339749C00B62CA7 /* PBXTextBookmark */;
+			03607CB21339750800B62CA7 /* PBXTextBookmark */ = 03607CB21339750800B62CA7 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 030F150F12DEE5D8000180B1 /* Source Control */;
 		userBuildSettings = {
@@ -457,9 +458,9 @@
 	};
 	B73648730E3FCD710053523F /* AppController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1075, 8944}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1075, 8827}}";
 			sepNavSelRange = "{11147, 0}";
-			sepNavVisRange = "{10768, 1488}";
+			sepNavVisRange = "{10543, 1491}";
 		};
 	};
 }
