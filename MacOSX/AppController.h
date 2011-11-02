@@ -60,6 +60,8 @@ typedef enum {
 	IBOutlet NSSearchField *searchField;
     IBOutlet NSSegmentedControl *segmentedControl;
     
+//    BOOL canUseLionAPIs;
+    
 #ifdef DEBUG
     double searchStart;
 #endif    

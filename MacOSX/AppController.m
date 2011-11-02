@@ -91,9 +91,7 @@
 	
 	NSMutableArray *errors = [NSMutableArray array];
 	
-	for (NSURL *url in bundlesURLs) {
-        NSLog(@"------ %@ %@", url, [url class]);
-        
+	for (NSURL *url in bundlesURLs) {        
 		NSBundle *bundle = [NSBundle bundleWithURL:url];
 		NSError *error = nil;
 		loadedNew |= [bundle loadAndReturnError:&error];
@@ -180,9 +178,16 @@
 		
 		NSError *error = nil;
 		[[NSProcessInfo processInfo] disableSuddenTermination];
+//        if(canUseLionAPIs) {
+//            [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
+//        }
+        
 		BOOL success = [fileContents writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error];
 		[[NSProcessInfo processInfo] enableSuddenTermination];
-		
+//        if(canUseLionAPIs) {
+//            [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
+//		}
+        
 		if (success) {
 			self.saveDirURL = [fileURL URLByDeletingLastPathComponent];
 		} else {
@@ -218,6 +223,9 @@
                NSArray *classNames = [[[allClasses allClassStubsByName] allKeys] copy];
                
                [[NSProcessInfo processInfo] disableSuddenTermination];
+//               if(canUseLionAPIs) {
+//                   [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
+//               }
                
                for(NSString *className in classNames) {
                    NSString *filename = [NSString stringWithFormat:@"%@.h", className];
@@ -238,6 +246,9 @@
                }
                
                [[NSProcessInfo processInfo] enableSuddenTermination];
+//               if(canUseLionAPIs) {
+//                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
+//               }
                
                [classNames release];
                
@@ -456,14 +467,23 @@
 
 - (void)awakeFromNib {
 	[super awakeFromNib];
-	
     
-//    - (void)_really_setLionScrollerStyle:(int)arg1;
-//    - (void)setScrollerStyle:(int)arg1;
-    
-
-//    [headerTextView scroll
-    
+//    SInt32 MacVersion;
+//    
+//    if (Gestalt(gestaltSystemVersion, &MacVersion) == noErr) {
+//        canUseLionAPIs = MacVersion >= 0x1070;
+//    }
+//
+//    NSLog(@"-- canUseLionAPIs: %d", canUseLionAPIs);
+//    
+//    if(canUseLionAPIs) {
+//        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+//
+//    //    [mainWindow setRestorable:YES];
+//    //    [mainWindow setRestorationClass:[mainWindow class]];
+//        
+//        [[NSProcessInfo processInfo] setAutomaticTerminationSupportEnabled: YES];
+//    }
     
 	[mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
 	
@@ -652,9 +672,7 @@
 			
 			NSError *error = nil;
 			BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:&error];
-			
-			NSLog(@"-- %d", success);
-			
+						
 			if(success == NO) {
 				[[NSAlert alertWithError:error] runModal];
 				break;
