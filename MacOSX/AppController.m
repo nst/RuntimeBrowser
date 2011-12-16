@@ -42,8 +42,8 @@
 
 @implementation AppController
 
-@synthesize saveDir;
-@synthesize openDir;
+@synthesize saveDirURL;
+//@synthesize openDir;
 @synthesize keywords;
 @synthesize classes;
 @synthesize allClasses;
@@ -71,8 +71,8 @@
 }
 
 - (void)dealloc {
-	[openDir release];
-	[saveDir release];
+	//[openDir release];
+	[saveDirURL release];
 	[keywords release];
     [searchResultsNode release];
 	[mainWindow release];
@@ -86,13 +86,13 @@
 	return [item canBeSavedAsHeader];
 }
 
-- (void)loadBundles:(NSArray *)bundlesPaths {
+- (void)loadBundlesURLs:(NSArray *)bundlesURLs {
 	BOOL loadedNew = NO;
 	
 	NSMutableArray *errors = [NSMutableArray array];
 	
-	for (NSString *path in bundlesPaths) {
-		NSBundle *bundle = [NSBundle bundleWithPath:path];
+	for (NSURL *url in bundlesURLs) {        
+		NSBundle *bundle = [NSBundle bundleWithURL:url];
 		NSError *error = nil;
 		loadedNew |= [bundle loadAndReturnError:&error];
 		if(error) {
@@ -111,7 +111,8 @@
 		//[classBrowser scrollColumnToVisible:0];
 		[allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
 		[classBrowser loadColumnZero];
-		self.openDir = [[bundlesPaths lastObject] stringByDeletingLastPathComponent];
+        
+		//self.openDir = [[bundlesURLs lastObject] stringByDeletingLastPathComponent];
 		[label setStringValue:@"Select a Class"];
 		[headerTextView setString:@""];
 		
@@ -124,7 +125,15 @@
 }
 
 - (void)application:(NSApplication *)sender openFiles:(NSArray *)filenames {
-	[self loadBundles:filenames];
+    
+    NSMutableArray *urls = [NSMutableArray arrayWithCapacity:[filenames count]];
+    
+    for(NSString *path in filenames) {
+        NSURL *url = [NSURL URLWithString:path];
+        [urls addObject:url];
+    }
+    
+	[self loadBundlesURLs:urls];
 }
 
 - (NSArray *)acceptableExtensions {
@@ -139,12 +148,12 @@
     [oPanel setCanChooseDirectories:YES];
     [oPanel setCanChooseFiles:YES];
 	
-    NSInteger result = [oPanel runModalForDirectory:openDir file:nil types:[self acceptableExtensions]];
-    
-    if (result == NSOKButton) {
-        NSArray *bundlesToOpen = [oPanel filenames];
-		[self loadBundles:bundlesToOpen];
-    }
+    [oPanel beginSheetModalForWindow:mainWindow completionHandler:^(NSInteger result) {
+        if (result == NSOKButton) {
+            NSArray *urlsToOpen = [oPanel URLs];
+            [self loadBundlesURLs:urlsToOpen];
+        }
+    }];
 }
 
 - (IBAction)saveAction:(id)sender {
@@ -156,8 +165,8 @@
     }
 	
     NSSavePanel *sp = [NSSavePanel savePanel];
-	[sp setDirectory:[saveDir path]];
-	[sp setRequiredFileType:@"h"];
+	[sp setDirectoryURL:saveDirURL];
+	[sp setAllowedFileTypes:[NSArray arrayWithObject:@"h"]];
 	[sp setNameFieldStringValue:className];
 	
     [sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
@@ -169,11 +178,18 @@
 		
 		NSError *error = nil;
 		[[NSProcessInfo processInfo] disableSuddenTermination];
+//        if(canUseLionAPIs) {
+//            [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
+//        }
+        
 		BOOL success = [fileContents writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error];
 		[[NSProcessInfo processInfo] enableSuddenTermination];
-		
+//        if(canUseLionAPIs) {
+//            [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
+//		}
+        
 		if (success) {
-			self.saveDir = [fileURL URLByDeletingLastPathComponent];
+			self.saveDirURL = [fileURL URLByDeletingLastPathComponent];
 		} else {
 			NSString *message = [NSString stringWithFormat:@"Please try again, perhaps selecting a different file/directory. Error: %@", error];
 			NSRunAlertPanel(@"Save Failed :( !", message, @"OK", nil, nil);
@@ -207,6 +223,9 @@
                NSArray *classNames = [[[allClasses allClassStubsByName] allKeys] copy];
                
                [[NSProcessInfo processInfo] disableSuddenTermination];
+//               if(canUseLionAPIs) {
+//                   [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
+//               }
                
                for(NSString *className in classNames) {
                    NSString *filename = [NSString stringWithFormat:@"%@.h", className];
@@ -227,6 +246,9 @@
                }
                
                [[NSProcessInfo processInfo] enableSuddenTermination];
+//               if(canUseLionAPIs) {
+//                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
+//               }
                
                [classNames release];
                
@@ -410,9 +432,17 @@
             return [[self acceptableExtensions] containsObject:ext];
         }];
 
-		NSArray *bundlesToOpen = [files filteredArrayUsingPredicate:p];
+		NSArray *bundlePaths = [files filteredArrayUsingPredicate:p];
+        
+        NSMutableArray *bundleURLs = [NSMutableArray arrayWithCapacity:[bundlePaths count]];
+        
+        for(NSString *path in bundlePaths) {
+            NSURL *url = [NSURL fileURLWithPath:path];
+            [bundleURLs addObject:url];
+        }
+        
 		//NSLog(@"-- bundlesToOpen: %@", bundlesToOpen);
-		[self loadBundles:bundlesToOpen];
+		[self loadBundlesURLs:bundleURLs];
 
     }
     return YES;
@@ -437,7 +467,24 @@
 
 - (void)awakeFromNib {
 	[super awakeFromNib];
-	
+    
+//    SInt32 MacVersion;
+//    
+//    if (Gestalt(gestaltSystemVersion, &MacVersion) == noErr) {
+//        canUseLionAPIs = MacVersion >= 0x1070;
+//    }
+//
+//    NSLog(@"-- canUseLionAPIs: %d", canUseLionAPIs);
+//    
+//    if(canUseLionAPIs) {
+//        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+//
+//    //    [mainWindow setRestorable:YES];
+//    //    [mainWindow setRestorationClass:[mainWindow class]];
+//        
+//        [[NSProcessInfo processInfo] setAutomaticTerminationSupportEnabled: YES];
+//    }
+    
 	[mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
 	
 	[classBrowser setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
@@ -625,9 +672,7 @@
 			
 			NSError *error = nil;
 			BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:&error];
-			
-			NSLog(@"-- %d", success);
-			
+						
 			if(success == NO) {
 				[[NSAlert alertWithError:error] runModal];
 				break;

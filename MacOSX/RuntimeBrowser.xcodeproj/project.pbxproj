@@ -320,6 +320,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
+				SDKROOT = macosx10.6;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -344,6 +345,7 @@
 				OTHER_LDFLAGS = "-licucore";
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
+				SDKROOT = macosx10.6;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -363,6 +365,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
+				SDKROOT = macosx10.6;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};

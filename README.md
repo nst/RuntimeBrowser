@@ -22,4 +22,4 @@ The iPhone OS version features:
   * headers retrieval through HTTP
   * instantiations and basic methods invocations at runtime
 
-You can browser the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as seen by RuntimeBrowser.
+You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as seen by RuntimeBrowser.

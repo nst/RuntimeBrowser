@@ -60,6 +60,8 @@ typedef enum {
 	IBOutlet NSSearchField *searchField;
     IBOutlet NSSegmentedControl *segmentedControl;
     
+//    BOOL canUseLionAPIs;
+    
 #ifdef DEBUG
     double searchStart;
 #endif    
@@ -69,7 +71,7 @@ typedef enum {
 	AllClasses *allClasses;
     
 	NSString *openDir;
-	NSURL *saveDir;
+	NSURL *saveDirURL;
 	
 	NSArray *keywords;
 	NSArray *classes;
@@ -80,8 +82,8 @@ typedef enum {
 }
 
 @property (nonatomic, retain) NSWindow *mainWindow;
-@property (nonatomic, retain) NSString *openDir;
-@property (nonatomic, retain) NSURL *saveDir;
+//@property (nonatomic, retain) NSString *openDir;
+@property (nonatomic, retain) NSURL *saveDirURL;
 @property (nonatomic, retain) NSArray *keywords;
 @property (nonatomic, retain) AllClasses *allClasses;
 @property (nonatomic, retain) NSArray *classes;

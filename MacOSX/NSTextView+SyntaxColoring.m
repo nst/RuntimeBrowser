@@ -60,10 +60,10 @@ char **stringArrayFromNSArray(NSArray *a) {
 	NSColor *classesColor = [NSColor colorWithCalibratedRed:103.0/255 green:31.0/255 blue:155./255 alpha:1.0];
 	//NSColor *typesColor = [NSColor colorWithCalibratedRed:53.0/255 green:0.0/255 blue:111./255 alpha:1.0];
 	
-	NSMutableCharacterSet *kwCS1 = [[[NSCharacterSet alloc] init] autorelease];
-	NSMutableCharacterSet *kwCS2 = [[[NSCharacterSet alloc] init] autorelease];
-	NSMutableCharacterSet *clCS1 = [[[NSCharacterSet alloc] init] autorelease];
-	NSMutableCharacterSet *clCS2 = [[[NSCharacterSet alloc] init] autorelease];
+	NSMutableCharacterSet *kwCS1 = [[[NSMutableCharacterSet alloc] init] autorelease];
+	NSMutableCharacterSet *kwCS2 = [[[NSMutableCharacterSet alloc] init] autorelease];
+	NSMutableCharacterSet *clCS1 = [[[NSMutableCharacterSet alloc] init] autorelease];
+	NSMutableCharacterSet *clCS2 = [[[NSMutableCharacterSet alloc] init] autorelease];
 	
 	for(NSString *k in keywords) {
 		[kwCS1 addCharactersInString:[k substringWithRange:NSMakeRange(0, 1)]];
