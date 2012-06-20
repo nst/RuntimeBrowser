@@ -7,7 +7,6 @@
 //
 
 #import "BrowserCell.h"
-#import "BrowserNode.h"
 
 @implementation BrowserCell
 
