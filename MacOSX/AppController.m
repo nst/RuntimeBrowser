@@ -106,7 +106,7 @@
 		NSAlert *alert = [NSAlert alertWithError:error];
 		[alert runModal];
 	}
-		
+    
 	if (loadedNew) {
 		//[classBrowser scrollColumnToVisible:0];
 		[allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
@@ -157,7 +157,7 @@
 }
 
 - (IBAction)saveAction:(id)sender {
-		
+    
     NSString *className = [[classBrowser selectedCell] stringValue];
     if ([className length] == 0) {
         NSRunAlertPanel(nil, @"Select a class before saving.", @"OK", nil, nil);
@@ -178,15 +178,15 @@
 		
 		NSError *error = nil;
 		[[NSProcessInfo processInfo] disableSuddenTermination];
-//        if(canUseLionAPIs) {
-//            [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
-//        }
+        //        if(canUseLionAPIs) {
+        //            [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
+        //        }
         
 		BOOL success = [fileContents writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error];
 		[[NSProcessInfo processInfo] enableSuddenTermination];
-//        if(canUseLionAPIs) {
-//            [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
-//		}
+        //        if(canUseLionAPIs) {
+        //            [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
+        //		}
         
 		if (success) {
 			self.saveDirURL = [fileURL URLByDeletingLastPathComponent];
@@ -210,58 +210,58 @@
     [sp setPrompt:@"Save"];
 	
 	[sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
-				   
-           if ( result != NSOKButton ) return;
-           
-           NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-           [queue addOperationWithBlock:^{
-               
-               NSUInteger saved = 0;
-               NSUInteger failed = 0;
-               NSURL *dirURL = [sp URL];
-               
-               NSArray *classNames = [[[allClasses allClassStubsByName] allKeys] copy];
-               
-               [[NSProcessInfo processInfo] disableSuddenTermination];
-//               if(canUseLionAPIs) {
-//                   [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
-//               }
-               
-               for(NSString *className in classNames) {
-                   NSString *filename = [NSString stringWithFormat:@"%@.h", className];
-                   NSURL *url = [dirURL URLByAppendingPathComponent:filename];
-                   
-                   ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
-                   NSString *header = [cd header];
-                   
-                   NSError *error = nil;
-                   BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
-                   
-                   if (success) {
-                       ++saved;
-                   } else {
-                       ++failed;
-                       NSLog(@"-- error, could not save class %@ at URL %@, error %@", className, url, error);
-                   }
-               }
-               
-               [[NSProcessInfo processInfo] enableSuddenTermination];
-//               if(canUseLionAPIs) {
-//                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
-//               }
-               
-               [classNames release];
-               
-               NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %d classes saved. \n  %d classes failed to save.", [dirURL path], saved, failed];
-               
-               [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                   NSRunInformationalAlertPanel(@"Save All Finished", message, @"OK", nil, nil);
-               }];
-               
-           }];
+        
+        if ( result != NSOKButton ) return;
+        
+        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+        [queue addOperationWithBlock:^{
+            
+            NSUInteger saved = 0;
+            NSUInteger failed = 0;
+            NSURL *dirURL = [sp URL];
+            
+            NSArray *classNames = [[[allClasses allClassStubsByName] allKeys] copy];
+            
+            [[NSProcessInfo processInfo] disableSuddenTermination];
+            //               if(canUseLionAPIs) {
+            //                   [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
+            //               }
+            
+            for(NSString *className in classNames) {
+                NSString *filename = [NSString stringWithFormat:@"%@.h", className];
+                NSURL *url = [dirURL URLByAppendingPathComponent:filename];
+                
+                ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
+                NSString *header = [cd header];
+                
+                NSError *error = nil;
+                BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
+                
+                if (success) {
+                    ++saved;
+                } else {
+                    ++failed;
+                    NSLog(@"-- error, could not save class %@ at URL %@, error %@", className, url, error);
+                }
+            }
+            
+            [[NSProcessInfo processInfo] enableSuddenTermination];
+            //               if(canUseLionAPIs) {
+            //                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
+            //               }
+            
+            [classNames release];
+            
+            NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %d classes saved. \n  %d classes failed to save.", [dirURL path], saved, failed];
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                NSRunInformationalAlertPanel(@"Save All Finished", message, @"OK", nil, nil);
+            }];
+            
+        }];
         [queue release];
-               
-        }
+        
+    }
 	 ];
 }
 
@@ -290,7 +290,7 @@
     
 	NSBrowserColumnResizingType resizingType = viewType == RBBrowserViewTypeTree ? NSBrowserUserColumnResizing : NSBrowserAutoColumnResizing;
 	[classBrowser setColumnResizingType:resizingType];
-
+    
 	[classBrowser loadColumnZero];
 	
     id rootItem = [self rootItemForBrowser:classBrowser];
@@ -303,7 +303,7 @@
             rootTitle = @"No classes found";
         }
     }
-    	
+    
     if(viewType == RBBrowserViewTypeTree)   rootTitle = [NSString stringWithFormat:@"%d Root Classes", [[rootItem children] count]];
 	if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%d Images", [[rootItem children] count]];
 	
@@ -336,6 +336,8 @@
 	
     BOOL isInSearchMode = [self isInSearchMode];
     
+    [searchQueue cancelAllOperations];
+    
     if(isInSearchMode == NO) {
         [self changeViewTypeTo:RBBrowserViewTypeList];
         return;
@@ -349,26 +351,31 @@
     
     NSArray *classStubs = [[AllClasses sharedInstance] sortedClassStubs];
     
-    [searchQueue cancelAllOperations];
-
     self.searchQueue = [[[NSOperationQueue alloc] init] autorelease];
-
-//    NSUInteger maxConcurrentOperationCount = [[NSProcessInfo processInfo] processorCount] + 1;
     
-//    [searchQueue setMaxConcurrentOperationCount:maxConcurrentOperationCount];
+    //    NSUInteger maxConcurrentOperationCount = [[NSProcessInfo processInfo] processorCount] + 1;
+    
+    //    [searchQueue setMaxConcurrentOperationCount:maxConcurrentOperationCount];
     
     NSBlockOperation *op = [[NSBlockOperation alloc] init];
     
     for (id classStub in classStubs) {
+        
         [op addExecutionBlock:^{
-            
+
+            if([op isCancelled]) {
+                //NSLog(@"-- op isCancelled");
+                return;
+            }
+
             BOOL found = [classStub containsSearchString:searchString];
+            
             if(found) {
                 
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     
                     if([searchString isEqualToString:[searchField stringValue]] == NO) {
-                        NSLog(@"-- discard results for %@", searchString);
+                        //rNSLog(@"-- discard results for %@", searchString);
                         [op cancel];
                         return;
                     }
@@ -386,6 +393,7 @@
                 }];
             }
         }];
+        
     }
     
     [op setCompletionBlock:^{
@@ -398,25 +406,25 @@
             
             NSLog(@"-- finished searching for %@, %d results", searchString, [searchResults count]);
             
-			NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %d classes", searchString, [searchResults count]];
+            NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %d classes", searchString, [searchResults count]];
             [classBrowser setTitle:rootTitle ofColumn:0];
-
-		}];
+            
+        }];
     }];
     
     [searchQueue addOperation:op];
-	[op release];
-    	
+    [op release];
+    
     [segmentedControl setEnabled:!isInSearchMode forSegment:0];
     [segmentedControl setEnabled:!isInSearchMode forSegment:2];
     
-	[self changeViewTypeTo:RBBrowserViewTypeList];
+    [self changeViewTypeTo:RBBrowserViewTypeList];
 }
 
 #pragma mark NSDraggingDestination
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-
+    
 	NSPasteboard *pboard = [sender draggingPasteboard];
 	
 	if ([[pboard types] containsObject:NSFilenamesPboardType]) {
@@ -436,18 +444,18 @@
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-
+    
     NSPasteboard *pboard = [sender draggingPasteboard];
-
+    
 	if ([[pboard types] containsObject:NSFilenamesPboardType]) {
         NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
 		//NSLog(@"-- files: %@", files);
-
+        
 		NSPredicate *p = [NSPredicate predicateWithBlock: ^BOOL(id obj, NSDictionary *bind) {
 			NSString *ext = [[obj lastPathComponent] pathExtension];
             return [[self acceptableExtensions] containsObject:ext];
         }];
-
+        
 		NSArray *bundlePaths = [files filteredArrayUsingPredicate:p];
         
         NSMutableArray *bundleURLs = [NSMutableArray arrayWithCapacity:[bundlePaths count]];
@@ -459,7 +467,7 @@
         
 		//NSLog(@"-- bundlesToOpen: %@", bundlesToOpen);
 		[self loadBundlesURLs:bundleURLs];
-
+        
     }
     return YES;
 }
@@ -484,22 +492,22 @@
 - (void)awakeFromNib {
 	[super awakeFromNib];
     
-//    SInt32 MacVersion;
-//    
-//    if (Gestalt(gestaltSystemVersion, &MacVersion) == noErr) {
-//        canUseLionAPIs = MacVersion >= 0x1070;
-//    }
-//
-//    NSLog(@"-- canUseLionAPIs: %d", canUseLionAPIs);
-//    
-//    if(canUseLionAPIs) {
-//        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-//
-//    //    [mainWindow setRestorable:YES];
-//    //    [mainWindow setRestorationClass:[mainWindow class]];
-//        
-//        [[NSProcessInfo processInfo] setAutomaticTerminationSupportEnabled: YES];
-//    }
+    //    SInt32 MacVersion;
+    //    
+    //    if (Gestalt(gestaltSystemVersion, &MacVersion) == noErr) {
+    //        canUseLionAPIs = MacVersion >= 0x1070;
+    //    }
+    //
+    //    NSLog(@"-- canUseLionAPIs: %d", canUseLionAPIs);
+    //    
+    //    if(canUseLionAPIs) {
+    //        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+    //
+    //    //    [mainWindow setRestorable:YES];
+    //    //    [mainWindow setRestorationClass:[mainWindow class]];
+    //        
+    //        [[NSProcessInfo processInfo] setAutomaticTerminationSupportEnabled: YES];
+    //    }
     
 	[mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
 	
@@ -653,7 +661,7 @@
  */
 
 - (NSArray *)browser:(NSBrowser *)aBrowser namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column {
-
+    
 	NSArray *selectedIndexPaths = [classBrowser selectionIndexPaths];
 	
 	NSMutableArray *selectedItems = [NSMutableArray array];
@@ -668,7 +676,7 @@
 	NSMutableArray *filenames = [NSMutableArray array];
 	
 	NSString *directoryPath = [dropDestination path];
-
+    
 	for(id item in selectedItems) {
 		if([item isKindOfClass:[ClassStub class]]) {
 			ClassStub *cs = (ClassStub *)item;
@@ -688,17 +696,17 @@
 			
 			NSError *error = nil;
 			BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:&error];
-						
+            
 			if(success == NO) {
 				[[NSAlert alertWithError:error] runModal];
 				break;
 			}
 			
 			for(ClassStub *cs in [bn children]) {
-
+                
 				NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
 				NSString *path = [directoryPath stringByAppendingPathComponent:filename];
-
+                
 				[cs writeAtPath:path];
 				[filenames addObject:filename];				
 			}
@@ -723,10 +731,10 @@
  You can safely call the corresponding NSBrowser method.
  */
 - (NSImage *)browser:(NSBrowser *)browser draggingImageForRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column withEvent:(NSEvent *)event offset:(NSPointPointer)dragImageOffset {
-
+    
     NSIndexPath *ip = [classBrowser selectionIndexPath];
 	id item = [classBrowser itemAtIndexPath:ip];
-
+    
 	if([item isKindOfClass:[ClassStub class]]) {
 		return [[NSWorkspace sharedWorkspace] iconForFileType:@"public.c-header"];
 	} else if([item isKindOfClass:[BrowserNode class]]) {
