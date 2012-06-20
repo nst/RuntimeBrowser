@@ -404,7 +404,7 @@
                 return;
             }
             
-            NSLog(@"-- finished searching for %@, %d results", searchString, [searchResults count]);
+            NSLog(@"-- finished searching for %@, %ul results", searchString, [searchResults count]);
             
             NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %d classes", searchString, [searchResults count]];
             [classBrowser setTitle:rootTitle ofColumn:0];
