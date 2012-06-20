@@ -345,13 +345,17 @@
     
     self.searchResultsNode = [[[BrowserNode alloc] init] autorelease];
 	
-    NSString *searchString = [searchField stringValue];
+    NSString *searchString = [[[searchField stringValue] copy] autorelease];
     
     NSArray *classStubs = [[AllClasses sharedInstance] sortedClassStubs];
     
     [searchQueue cancelAllOperations];
 
     self.searchQueue = [[[NSOperationQueue alloc] init] autorelease];
+
+//    NSUInteger maxConcurrentOperationCount = [[NSProcessInfo processInfo] processorCount] + 1;
+    
+//    [searchQueue setMaxConcurrentOperationCount:maxConcurrentOperationCount];
     
     NSBlockOperation *op = [[NSBlockOperation alloc] init];
     
@@ -362,7 +366,13 @@
             if(found) {
                 
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-
+                    
+                    if([searchString isEqualToString:[searchField stringValue]] == NO) {
+                        NSLog(@"-- discard results for %@", searchString);
+                        [op cancel];
+                        return;
+                    }
+                    
                     if([searchResults containsObject:classStub]) return;
                     
                     [searchResults addObject:classStub];
@@ -380,8 +390,14 @@
     
     [op setCompletionBlock:^{
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            if([searchString isEqualToString:[searchField stringValue]] == NO) {
+                NSLog(@"-- discard all results for %@", searchString);
+                return;
+            }
+            
             NSLog(@"-- finished searching for %@, %d results", searchString, [searchResults count]);
-
+            
 			NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %d classes", searchString, [searchResults count]];
             [classBrowser setTitle:rootTitle ofColumn:0];
 
