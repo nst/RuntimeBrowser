@@ -1,4 +1,4 @@
-![Screenshot](https://github.com/nst/RuntimeBrowser/raw/master/art/screenshot.png "Screenshot")
+![Screenshot](https://github.com/nst/RuntimeBrowser/raw/master/art/screenshot.png "RuntimeBrowser Mac OS X")
 
 This is a class browser for the Objective-C runtime on Mac OS X. It gives you full access to all classes loaded in the runtime; allows you to dynamically load new modules and their classes; shows every method implemented on each class; and displays information in a header (.h) file format.
 
@@ -23,3 +23,5 @@ The iPhone OS version features:
   * instantiations and basic methods invocations at runtime
 
 You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as seen by RuntimeBrowser.
+
+![Screenshot](https://github.com/nst/RuntimeBrowser/raw/master/art/screenshot_iphone.png "RuntimeBrowser iPhone")

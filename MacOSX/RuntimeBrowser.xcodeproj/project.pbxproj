@@ -285,6 +285,7 @@
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-lgcov";
@@ -301,6 +302,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -321,7 +323,8 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
-				SDKROOT = macosx10.6;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.7;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -331,6 +334,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -347,7 +351,8 @@
 				OTHER_LDFLAGS = "-licucore";
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
-				SDKROOT = macosx10.6;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.7;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -357,6 +362,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -368,7 +374,8 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
-				SDKROOT = macosx10.6;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.7;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -379,6 +386,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG";
 				PREBINDING = NO;
@@ -397,6 +405,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PREBINDING = NO;
 				SDKROOT = macosx;
 				WARNING_CFLAGS = (
