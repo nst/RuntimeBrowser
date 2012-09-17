@@ -6,7 +6,7 @@ We have found this to be a useful development tool. Please note, however, that e
 
 The [original version](http://www.prajnait.com/source/src_RuntimeBrowser.html) was released in April 2002 by Ezra Epstein. The project is maintained by Nicolas Seriot since August, 2008.
 
-The Mac OS X version features:
+The OS X version features:
 
   * browse by class tree, image or indexed list
   * search in classes contents
@@ -15,7 +15,7 @@ The Mac OS X version features:
   
 Latest build: [http://seriot.ch/temp/runtimebrowser.zip](http://seriot.ch/temp/runtimebrowser.zip)
 
-The iPhone OS version features:
+The iOS version features:
 
   * browse by class tree, image or indexed list
   * search in classes names
