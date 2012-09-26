@@ -395,7 +395,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 - (NSDictionary *)typeEncParseStructOrUnionWithEncType:(NSString *)encType endCh:(char)endCh depth:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
 	//ivT = "?=i[3f]b128i3b131i2c}"; // http://gcc.gnu.org/onlinedocs/gcc-3.0.4/gcc_7.html#SEC130
     
-    NSString *typeS = nil;
+    NSString *typeS = @"";
     NSString *modifierS = @"";
     char *eqPos = strchr(ivT, '=');
     char *innerSPos = strchr(ivT, '{');
@@ -435,6 +435,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             ivT = tmp;
         }
     }
+    
     typeS = [encType stringByAppendingString:typeS];
     --(*depth);
     
