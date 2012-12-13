@@ -46,7 +46,7 @@
 	navigationBar.topItem.title = className;
 	
 	// FIXME: ??
-	NSArray *forbiddenClasses = [NSArray arrayWithObjects:@"NSMessageBuilder", /*, @"NSObject", @"NSProxy", */@"Object", @"_NSZombie_", nil];
+	NSArray *forbiddenClasses = @[@"NSMessageBuilder", /*, @"NSObject", @"NSProxy", */@"Object", @"_NSZombie_"];
 	
 	useButton.enabled = ![forbiddenClasses containsObject:className];
 }

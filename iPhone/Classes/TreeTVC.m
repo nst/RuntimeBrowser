@@ -91,7 +91,7 @@
 	}
 	
 	// Set up the cell
-	ClassStub *cs = [classStubs objectAtIndex:indexPath.row];
+	ClassStub *cs = classStubs[indexPath.row];
 	cell.label.text = cs.stubClassname;
 	cell.accessoryType = [[cs subclassesStubs] count] > 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 	
@@ -99,7 +99,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	ClassStub *cs = [classStubs objectAtIndex:indexPath.row];
+	ClassStub *cs = classStubs[indexPath.row];
 	
 	if([[cs subclassesStubs] count] == 0) return;
 	

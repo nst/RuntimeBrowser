@@ -23,7 +23,7 @@
 	[o retain];
 	object = o;
 	
-	self.methods = [NSArray array];
+	self.methods = [NSMutableArray array];
 	[self.tableView reloadData];
 
 	if(object == nil) return;
@@ -110,7 +110,7 @@
 	}
 	
 	// Set up the cell
-	NSString *method = [methods objectAtIndex:indexPath.row];
+	NSString *method = methods[indexPath.row];
 	cell.textLabel.text = [method substringToIndex:[method length]-1]; // remove terminating ';'
 	BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
 	cell.textLabel.textColor = hasParameters ? [UIColor grayColor] : [UIColor blackColor];
@@ -123,7 +123,7 @@
 	
 	if(indexPath.row > ([methods count]-1) ) return;
 	
-	NSString *method = [methods objectAtIndex:indexPath.row];
+	NSString *method = methods[indexPath.row];
 
 	BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
 

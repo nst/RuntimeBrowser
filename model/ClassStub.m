@@ -93,7 +93,7 @@ Boston, MA  02111-1307  USA
         for (i = 0; i < ivarListCount; ++i ) {
             Ivar rtIvar = ivarList[i];
 			const char* ivarName = ivar_getName(rtIvar);
-			if(ivarName) [ms addObject:[[NSString stringWithCString:ivarName encoding:NSUTF8StringEncoding] lowercaseString]];
+			if(ivarName) [ms addObject:[@(ivarName) lowercaseString]];
 		}
 	}
 	
@@ -113,7 +113,7 @@ Boston, MA  02111-1307  USA
     NSUInteger i;
 	for (i = 0; i < methodListCount; i++) {
 		Method currMethod = (methodList[i]);
-		NSString *mName = [NSString stringWithCString:(const char *)method_getName(currMethod) encoding:NSASCIIStringEncoding];
+		NSString *mName = @((const char *)method_getName(currMethod));
 		NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
 		for(NSString *mNamePart in mNameParts) {
 			[ms addObject:[mNamePart lowercaseString]];
@@ -149,7 +149,7 @@ Boston, MA  02111-1307  USA
         for(i = 0; i < protocolListCount; i++) {
 			Protocol *p = protocolList[i];
 			const char* protocolName = protocol_getName(p);
-			if(protocolName) [ms addObject:[[NSString stringWithCString:protocolName encoding:NSUTF8StringEncoding] lowercaseString]];
+			if(protocolName) [ms addObject:[@(protocolName) lowercaseString]];
 		}
 	}
 	free(protocolList);
@@ -193,7 +193,7 @@ Boston, MA  02111-1307  USA
 	
 	NSString *image = nil;
 	if(imageNameC) {
-		image = [NSString stringWithCString:imageNameC encoding:NSUTF8StringEncoding];	
+		image = @(imageNameC);	
 	} else {
 		NSLog(@"-- cannot find image for class %@", className);
 		//image = [[NSBundle bundleForClass:klass] bundlePath];

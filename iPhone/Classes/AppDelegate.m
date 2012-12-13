@@ -51,7 +51,7 @@
 }
 
 - (NSString *)myIPAddress {
-	NSString *myIP = [[[MyIP sharedInstance] ipsForInterfaces] objectForKey:@"en0"];
+	NSString *myIP = [[MyIP sharedInstance] ipsForInterfaces][@"en0"];
 	
 #if TARGET_IPHONE_SIMULATOR
 	if(!myIP) {
@@ -99,7 +99,7 @@
 
 - (void)startWebServer {
 	NSDictionary *ips = [[MyIP sharedInstance] ipsForInterfaces];
-	BOOL isConnectedThroughWifi = [ips objectForKey:@"en0"] != nil;
+	BOOL isConnectedThroughWifi = ips[@"en0"] != nil;
 	
 	if(isConnectedThroughWifi || TARGET_IPHONE_SIMULATOR) {
 		httpServer = [[HTTPServer alloc] init];

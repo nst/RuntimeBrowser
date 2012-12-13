@@ -39,8 +39,8 @@ static MyIP *sharedInstance = nil;
 			continue;
 		
 		struct sockaddr_in *addrStruct = (struct sockaddr_in *)cur->ifa_addr;
-		NSString *name = [NSString stringWithUTF8String:cur->ifa_name];
-		NSString *addr = [NSString stringWithUTF8String:inet_ntoa(addrStruct->sin_addr)];
+		NSString *name = @(cur->ifa_name);
+		NSString *addr = @(inet_ntoa(addrStruct->sin_addr));
 		[d setValue:addr forKey:name];
 	}
 	

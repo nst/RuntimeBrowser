@@ -84,7 +84,7 @@
 	}
 	
 	// Set up the cell
-	ClassStub *cs = [foundClasses objectAtIndex:indexPath.row];
+	ClassStub *cs = foundClasses[indexPath.row];
 	cell.label.text = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
@@ -138,7 +138,7 @@
 	}
 	
 	NSSortDescriptor *sd = [[NSSortDescriptor alloc] initWithKey:@"description" ascending:YES];
-	[foundClasses sortUsingDescriptors:[NSArray arrayWithObject:sd]];
+	[foundClasses sortUsingDescriptors:@[sd]];
 	[sd release];
 	
 	[tableView reloadData];
