@@ -175,8 +175,12 @@
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 	
+    UIWindow *win = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = win;
+    [win release];
+    
 	// Add the tab bar controller's current view as a subview of the window
-    [window addSubview:tabBarController.view];
+    self.window.rootViewController = tabBarController;
 	
 	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
 	NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
@@ -189,6 +193,8 @@
 	if(startWebServer) {
 		[self startWebServer];
 	}
+    
+    [self.window makeKeyAndVisible];
 }
 
 - (UInt16)serverPort {

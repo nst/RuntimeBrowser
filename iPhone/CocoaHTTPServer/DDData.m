@@ -32,10 +32,10 @@ static char encodingTable[64] = {
 	
     const unsigned char *dataBuffer = [self bytes];
     int i;
-    
+
     for (i = 0; i < [self length]; ++i)
 	{
-        [stringBuffer appendFormat:@"%02x", (unsigned long)dataBuffer[i]];
+        [stringBuffer appendFormat:@"%02lx", (unsigned long)dataBuffer[i]];
 	}
     
     return [[stringBuffer copy] autorelease];
