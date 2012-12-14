@@ -138,7 +138,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 				{
 					// Is there a given replacement for this key?
 					
-					NSString *value = [replacementDict objectForKey:key];
+					NSString *value = replacementDict[key];
 					if (value)
 					{
 						// Found the replacement value.

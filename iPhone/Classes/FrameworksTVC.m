@@ -52,9 +52,9 @@ static const NSUInteger kPrivateFrameworks = 1;
 	NSBundle *b = nil;
 	
 	if(indexPath.section == kPublicFrameworks) {
-		b = [publicFrameworks objectAtIndex:indexPath.row];
+		b = publicFrameworks[indexPath.row];
 	} else {
-		b = [privateFrameworks objectAtIndex:indexPath.row];
+		b = privateFrameworks[indexPath.row];
 	}
 	
 	NSString *name = [[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];
@@ -67,9 +67,9 @@ static const NSUInteger kPrivateFrameworks = 1;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	NSBundle *b = nil;
 	if(indexPath.section == kPublicFrameworks) {
-		b = [publicFrameworks objectAtIndex:indexPath.row];
+		b = publicFrameworks[indexPath.row];
 	} else {
-		b = [privateFrameworks objectAtIndex:indexPath.row];
+		b = privateFrameworks[indexPath.row];
 	}
 	
 	NSString *bundlePath = [b bundlePath];
@@ -102,7 +102,7 @@ static const NSUInteger kPrivateFrameworks = 1;
 	ListTVC *listTVC = [[ListTVC alloc] initWithNibName:@"ListTVC" bundle:nil];
 	NSArray *allStubsInImage = [allClasses.allClassStubsByImagePath valueForKey:imagePath];
 	if(allStubsInImage == nil)
-		allStubsInImage = [NSArray array];
+		allStubsInImage = @[];
 	listTVC.classStubs = [allStubsInImage sortedArrayUsingSelector:@selector(compare:)];
 	listTVC.frameworkName = name;
 

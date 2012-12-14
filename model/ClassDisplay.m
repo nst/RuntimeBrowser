@@ -115,14 +115,14 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 }
 
 - (NSDictionary *)typeEncWarning:(NSString *)inParse startingIVT:(const char*)startingIVT origResult:(NSDictionary *)origResult {
-    NSString *typeS = [origResult objectForKey:TYPE_LABEL];
-    NSString *modifierS = [origResult objectForKey:MODIFIER_LABEL];
+    NSString *typeS = origResult[TYPE_LABEL];
+    NSString *modifierS = origResult[MODIFIER_LABEL];
 	
     typeS = [NSString stringWithFormat:@"/* Warning: unhandled %@encoding: '%s' */ %@", inParse, startingIVT, typeS];
     currentWarning = YES;  // indicated that we've already issued a warning on this pass through the ivar parser.
     methodWarning = showUnhandledWarning = YES;
 	
-    return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+    return @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
 }
 
 // See the "Definitions of filer types" #define(s) in objc-class.h
@@ -269,11 +269,11 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         while (isdigit(*++ivT));       // skip the digits
         modifierS = [NSString stringWithFormat:@" : %d", sizeModifier]; // its a size modifier
         typeS = (spaceAfter ? @"unsigned int " : @"unsigned int"); // bit fields use unsigned int
-        result = [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+        result = @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
     } else {  // warn about badly formatted FILER type info.
         typeS = (spaceAfter ? @"unsigned int " : @"unsigned int");
         modifierS = @"/* : ? */";
-        result = [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+        result = @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
         if (!currentWarning)
             result = [self typeEncWarning:@"bit field" startingIVT:(ivT - 1) origResult:result];
         // to skip the rest, or not to skip ...
@@ -315,10 +315,10 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 		
         while (isdigit(*ivT)) ++ivT;      // move past the digits (size)
         innerTypeInfo = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:NO inLine:inLine inParam:inParam spaceAfter:spaceAfter]; // what TYPE of array
-        typeS = [innerTypeInfo objectForKey:TYPE_LABEL];  // get the inner type
+        typeS = innerTypeInfo[TYPE_LABEL];  // get the inner type
         // append a modifier that makes the type into an array of size 'sizeModifier'
         // NOTE: the array itself may be "modified" (e.g., nested arrays),  so append the inner modifier.
-        modifierS = [NSString stringWithFormat:@"[%d]%@", sizeModifier, [innerTypeInfo objectForKey:MODIFIER_LABEL]];
+        modifierS = [NSString stringWithFormat:@"[%d]%@", sizeModifier, innerTypeInfo[MODIFIER_LABEL]];
     } else {  // no size encoded ... handle bad or unrecognized encodings
         if (!currentWarning) {
             currentWarning = YES;
@@ -331,7 +331,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         modifierS = @"[ /* ? */ ]"; // size unknown.
     }
 	
-    return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+    return @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
 }
 
 - (NSDictionary *)typeEncParsePointerTo:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
@@ -346,11 +346,11 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     } else {
         NSDictionary *innerTypeInfo = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:NO inLine:inLine inParam:inParam spaceAfter:spaceAfter]; // Get the type
       
-        modifierS = [innerTypeInfo objectForKey:MODIFIER_LABEL];  // and it's modifier
-        typeS = [[innerTypeInfo objectForKey:TYPE_LABEL] stringByAppendingString:@"*"];  // make type a pointer
+        modifierS = innerTypeInfo[MODIFIER_LABEL];  // and it's modifier
+        typeS = [innerTypeInfo[TYPE_LABEL] stringByAppendingString:@"*"];  // make type a pointer
     }
 	
-    return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+    return @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
 }
 
 - (NSDictionary *)flatCTypeDeclForEncType {
@@ -383,9 +383,9 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         } else {
             partName = [NSString stringWithFormat:@"x%d", i]; // PENDING -- make var names a parameter
         }
-        [structS appendString:[structInfo objectForKey:TYPE_LABEL]];
+        [structS appendString:structInfo[TYPE_LABEL]];
         [structS appendString:partName];
-        [structS appendString:[structInfo objectForKey:MODIFIER_LABEL]];
+        [structS appendString:structInfo[MODIFIER_LABEL]];
         [structS appendString:@"; "];
     }
 	
@@ -420,7 +420,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                     // PENDING curly braces -- add 'em inside func.
                     typeS = [NSString stringWithFormat:@"{ %@} ", typeS];
 				} else {
-					NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+					NSString *s = @(ivT);
 					typeS = [s substringToIndex:tmp-ivT];
                     if (spaceAfter)
                         typeS = [typeS stringByAppendingString:@" {} "];
@@ -439,7 +439,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     typeS = [encType stringByAppendingString:typeS];
     --(*depth);
     
-    return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+    return @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
 }
 
 - (NSString *)parseStructOrUnionEndCh:(char)endCh depth:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
@@ -456,7 +456,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     const char *tmp = strchr(ivT, '=');
 	
     if (*ivT != '?') {
-		NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+		NSString *s = @(ivT);
 		name = [s substringToIndex:tmp-ivT]; // get the name
 	}
     
@@ -468,7 +468,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             ++ivT;
             tmp = strchr(ivT, '"');
 			
-			NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+			NSString *s = @(ivT);
 			partName = [s substringToIndex:tmp-ivT]; // get the name
             
             ivT = tmp + 1;
@@ -483,9 +483,9 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 [structS appendFormat:@"\n%@", IVAR_TAB];
                 [structS appendString:depthS];
             } 
-            [structS appendString:[structInfo objectForKey:TYPE_LABEL]];
+            [structS appendString:structInfo[TYPE_LABEL]];
             [structS appendString:partName];
-            [structS appendString:[structInfo objectForKey:MODIFIER_LABEL]];
+            [structS appendString:structInfo[MODIFIER_LABEL]];
             [structS appendString:@"; "];
         }
         if (!inLine)
@@ -499,7 +499,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         return [NSString stringWithFormat:fmt1, structS, depthS];
     else { // PENDING -- do typedefs and refer to structs by name
         tmpS = [NSString stringWithFormat:@" { %@%@}", structS, depthS];
-        [namedStructs setObject:tmpS forKey:name];
+        namedStructs[name] = tmpS;
     }
     
     return [name stringByAppendingFormat:fmt2, structS, depthS];
@@ -571,10 +571,10 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             } else {
 //                result = cTypeDeclForEncType(depth, sPart, inStruct, inLine, inParam, spaceAfter);
                 result = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:inStruct inLine:inLine inParam:inParam spaceAfter:spaceAfter];
-                type = [typeSpec stringByAppendingString:[result objectForKey:TYPE_LABEL]];                
-                modifier =[result objectForKey:MODIFIER_LABEL];
+                type = [typeSpec stringByAppendingString:result[TYPE_LABEL]];                
+                modifier =result[MODIFIER_LABEL];
             }
-            result = [NSDictionary dictionaryWithObjectsAndKeys:type, TYPE_LABEL, modifier, MODIFIER_LABEL, nil];
+            result = @{TYPE_LABEL: type, MODIFIER_LABEL: modifier};
             break;
     }
     if (closingChar != '\0') {
@@ -620,7 +620,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         tmp = strchr(ivT, '"');  // go to the end of the quoted class name
         if (tmp != NULL) {       // (should never happen) no end quote -- default to type 'id' and hope this is parsed elsewhere
             isUnnamedType = NO;    // NO --> this is a named class (type)
-			NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+			NSString *s = @(ivT);
 			typeS = [s substringToIndex:tmp-ivT]; // get the name
             [refdClasses addObject:typeS];  // make sure it gets added to the @class ... declaration.
             typeS = [typeS stringByAppendingString:@" *"];  // And, of course, id is a pointer to a class reference.
@@ -630,7 +630,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     if (isUnnamedType)
         typeS = (spaceAfter ? @"id " : @"id");
 	
-    return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
+    return @{TYPE_LABEL: typeS, MODIFIER_LABEL: modifierS};
 }
 
 - (NSDictionary *)flatCTypeDeclForEncType:(const char*)encType {
@@ -665,7 +665,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 		methodWarning = currentWarning = NO;
 		cTypeDeclInfo = [self flatCTypeDeclForEncType];
 		
-		[header appendFormat:@"%c (%@%@)", sign, [cTypeDeclInfo objectForKey:TYPE_LABEL], [cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+		[header appendFormat:@"%c (%@%@)", sign, cTypeDeclInfo[TYPE_LABEL], cTypeDeclInfo[MODIFIER_LABEL]];
 		
 		currentWarning = NO;
 		tmp = strchr(ivT, ':');
@@ -674,7 +674,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 		else
 			ivT += strlen(ivT);
 		
-		NSString *mName = [NSString stringWithCString:(const char *)method_getName(currMethod) encoding:NSASCIIStringEncoding];
+		NSString *mName = @((const char *)method_getName(currMethod));
 		NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
 		if ([mNameParts count] == 1) {
 			[header appendString:[mNameParts lastObject]];
@@ -685,9 +685,9 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 			currentWarning = NO;
 			cTypeDeclInfo = [self flatCTypeDeclForEncType];
 			[header appendFormat:@"%@:(%@%@)arg%d%s",
-			 [mNameParts objectAtIndex:i-1],
-			 [cTypeDeclInfo objectForKey:TYPE_LABEL],
-			 [cTypeDeclInfo objectForKey:MODIFIER_LABEL],
+			 mNameParts[i-1],
+			 cTypeDeclInfo[TYPE_LABEL],
+			 cTypeDeclInfo[MODIFIER_LABEL],
 			 i,
 			 ((i==([mNameParts count]-1))?"":" ")];
 		}
@@ -699,7 +699,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 	
 	free(methodList);
 	
-	return [NSArray arrayWithObject:header];
+	return @[header];
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
@@ -711,8 +711,8 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 }
 
 - (NSString *)propertyDescription:(objc_property_t)p {
-	NSString *name = [NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding];
-	NSString *attr = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
+	NSString *name = @(property_getName(p));
+	NSString *attr = @(property_getAttributes(p));
 	
 	NSString *getter = nil;
 	NSString *setter = nil;
@@ -882,13 +882,13 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                     [header appendFormat:@"\n  /* Error parsing encoded ivar type info: %s */\n", ivar_getTypeEncoding(rtIvar)];
 				
                 [header appendString:IVAR_TAB];
-                [header appendString:[cTypeDeclInfo objectForKey:TYPE_LABEL]];
+                [header appendString:cTypeDeclInfo[TYPE_LABEL]];
                 if (ivar_getName(rtIvar)) // compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
                     [header appendFormat:@"%s", ivar_getName(rtIvar)];
                 else
                     [header appendString:@"/* ? */"];
 				
-                [header appendString:[cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+                [header appendString:cTypeDeclInfo[MODIFIER_LABEL]];
 				
                 [header appendString:@";\n"];
                 if (currentWarning) [header appendString:@"\n"];
@@ -917,7 +917,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     classMethods = [self methodLinesWithSign:'+'];
     i = [classMethods count];
     if (i>0) {   // The last one in the list contains the original methods implemented by the class.
-        [header appendString:[classMethods objectAtIndex:(i-1)]];
+        [header appendString:classMethods[(i-1)]];
         [header appendString: @"\n"];
     }
 	
@@ -925,7 +925,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     instanceMethods = [self methodLinesWithSign:'-'];
     i = [instanceMethods count];
     if (i>0) {
-        [header appendString:[instanceMethods objectAtIndex:(i-1)]];
+        [header appendString:instanceMethods[(i-1)]];
         [header appendString: @"\n"];
     }
 		

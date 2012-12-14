@@ -103,7 +103,7 @@
 }
 
 - (IBAction)openWebSiteAction:(id)sender {
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://code.google.com/p/runtimebrowser/"]];
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/nst/RuntimeBrowser"]];
 }
 
 - (void)didReceiveMemoryWarning {

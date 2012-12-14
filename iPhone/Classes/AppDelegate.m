@@ -51,7 +51,7 @@
 }
 
 - (NSString *)myIPAddress {
-	NSString *myIP = [[[MyIP sharedInstance] ipsForInterfaces] objectForKey:@"en0"];
+	NSString *myIP = [[MyIP sharedInstance] ipsForInterfaces][@"en0"];
 	
 #if TARGET_IPHONE_SIMULATOR
 	if(!myIP) {
@@ -99,7 +99,7 @@
 
 - (void)startWebServer {
 	NSDictionary *ips = [[MyIP sharedInstance] ipsForInterfaces];
-	BOOL isConnectedThroughWifi = [ips objectForKey:@"en0"] != nil;
+	BOOL isConnectedThroughWifi = ips[@"en0"] != nil;
 	
 	if(isConnectedThroughWifi || TARGET_IPHONE_SIMULATOR) {
 		httpServer = [[HTTPServer alloc] init];
@@ -175,8 +175,12 @@
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 	
+    UIWindow *win = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = win;
+    [win release];
+    
 	// Add the tab bar controller's current view as a subview of the window
-    [window addSubview:tabBarController.view];
+    self.window.rootViewController = tabBarController;
 	
 	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
 	NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
@@ -189,6 +193,8 @@
 	if(startWebServer) {
 		[self startWebServer];
 	}
+    
+    [self.window makeKeyAndVisible];
 }
 
 - (UInt16)serverPort {

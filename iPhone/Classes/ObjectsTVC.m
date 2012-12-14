@@ -23,7 +23,7 @@
 	[o retain];
 	object = o;
 	
-	self.methods = [NSArray array];
+	self.methods = [NSMutableArray array];
 	[self.tableView reloadData];
 
 	if(object == nil) return;
@@ -61,7 +61,8 @@
 	return object;
 }
 
-- (void)viewWillAppear:(BOOL)animated {	
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
 	
 	if(!object) {
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No class!" 
@@ -80,18 +81,6 @@
 	
 	//Class metaCls = object->isa;
     //self.methods = [object rb_classMethods];	
-}
-
-- (void)didReceiveMemoryWarning {
-	// Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-	
-	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
 }
 
 - (void)dealloc {
@@ -121,7 +110,7 @@
 	}
 	
 	// Set up the cell
-	NSString *method = [methods objectAtIndex:indexPath.row];
+	NSString *method = methods[indexPath.row];
 	cell.textLabel.text = [method substringToIndex:[method length]-1]; // remove terminating ';'
 	BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
 	cell.textLabel.textColor = hasParameters ? [UIColor grayColor] : [UIColor blackColor];
@@ -134,7 +123,7 @@
 	
 	if(indexPath.row > ([methods count]-1) ) return;
 	
-	NSString *method = [methods objectAtIndex:indexPath.row];
+	NSString *method = methods[indexPath.row];
 
 	BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
 
@@ -182,6 +171,8 @@
 
 	if ([t isEqualToString:@"void"]) return;
 	
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
 	if(![t isEqualToString:@"id"]) {
 		if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
 			o = [NSString stringWithFormat:@"%d", o];			
@@ -193,7 +184,7 @@
 			o = [NSString stringWithFormat:@"%d", o]; // default
 		}
 	}		
-	
+#pragma clang diagnostic pop
 	if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
 		NSLog(@"-- %@", o);
 		

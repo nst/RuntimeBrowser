@@ -66,13 +66,9 @@
 - (void)viewWillAppear:(BOOL)animated {
 	if(!isSubLevel) {
 		self.classStubs = [allClasses rootClasses]; // classes might have changed because of dynamic loading
+        [self.tableView reloadData];
 	}
     [super viewWillAppear:animated];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
-    // Release anything that's not essential, such as cached data
 }
 
 #pragma mark Table view methods
@@ -95,7 +91,7 @@
 	}
 	
 	// Set up the cell
-	ClassStub *cs = [classStubs objectAtIndex:indexPath.row];
+	ClassStub *cs = classStubs[indexPath.row];
 	cell.label.text = cs.stubClassname;
 	cell.accessoryType = [[cs subclassesStubs] count] > 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 	
@@ -103,7 +99,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	ClassStub *cs = [classStubs objectAtIndex:indexPath.row];
+	ClassStub *cs = classStubs[indexPath.row];
 	
 	if([[cs subclassesStubs] count] == 0) return;
 	

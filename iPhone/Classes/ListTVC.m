@@ -61,8 +61,7 @@
 			BOOL letterChange = firstLetter != currentLetter;
 			
 			if(letterChange) {
-				NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterClassStubs
-															  forKey:[NSString stringWithFormat:@"%c", currentLetter]];
+				NSDictionary *d = @{[NSString stringWithFormat:@"%c", currentLetter]: currentLetterClassStubs};
 				[ma addObject:d];
 				[currentLetterClassStubs release];
 				currentLetterClassStubs = [[NSMutableArray alloc] init];
@@ -72,8 +71,7 @@
 			[currentLetterClassStubs addObject:cs];
 			
 			if(cs == [classStubs lastObject]) {
-				NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterClassStubs
-															  forKey:[NSString stringWithFormat:@"%c", currentLetter]];
+				NSDictionary *d = @{[NSString stringWithFormat:@"%c", currentLetter]: currentLetterClassStubs};
 				[ma addObject:d];
 			}
 		}
@@ -147,7 +145,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if(section >= [classStubsDictionaries count]) return 0;
 	
-	NSDictionary *d = [classStubsDictionaries objectAtIndex:section];
+	NSDictionary *d = classStubsDictionaries[section];
 	return [[[d allValues] lastObject] count];
 }
 
@@ -169,10 +167,10 @@
 		}
 	}
 	
-	NSDictionary *d = [classStubsDictionaries objectAtIndex:indexPath.section];
+	NSDictionary *d = classStubsDictionaries[indexPath.section];
 	NSArray *theClassStubs = [[d allValues] lastObject];
 	
-	ClassStub *cs = [theClassStubs objectAtIndex:indexPath.row];
+	ClassStub *cs = theClassStubs[indexPath.row];
 	cell.label.text = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
@@ -183,7 +181,7 @@
 	// The header for the section is the region name -- get this from the dictionary at the section index
 	if(section >= [classStubsDictionaries count]) return @"";
 	
-	NSDictionary *d = [classStubsDictionaries objectAtIndex:section];
+	NSDictionary *d = classStubsDictionaries[section];
 	
 	NSString *letter = [[d allKeys] lastObject];
 	NSUInteger i = [[[d allValues] lastObject] count];

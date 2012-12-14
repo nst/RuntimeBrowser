@@ -2593,39 +2593,39 @@ enum GCDAsyncSocketConfig
 
 - (NSError *)badConfigError:(NSString *)errMsg
 {
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketBadConfigError userInfo:userInfo];
 }
 
 - (NSError *)badParamError:(NSString *)errMsg
 {
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketBadParamError userInfo:userInfo];
 }
 
 - (NSError *)gaiError:(int)gai_error
 {
-	NSString *errMsg = [NSString stringWithCString:gai_strerror(gai_error) encoding:NSASCIIStringEncoding];
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSString *errMsg = @(gai_strerror(gai_error));
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:@"kCFStreamErrorDomainNetDB" code:gai_error userInfo:userInfo];
 }
 
 - (NSError *)errnoErrorWithReason:(NSString *)reason
 {
-	NSString *errMsg = [NSString stringWithUTF8String:strerror(errno)];
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:errMsg, NSLocalizedDescriptionKey,
-	                                                                    reason, NSLocalizedFailureReasonErrorKey, nil];
+	NSString *errMsg = @(strerror(errno));
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg,
+	                                                                    NSLocalizedFailureReasonErrorKey: reason};
 	
 	return [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:userInfo];
 }
 
 - (NSError *)errnoError
 {
-	NSString *errMsg = [NSString stringWithUTF8String:strerror(errno)];
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSString *errMsg = @(strerror(errno));
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:userInfo];
 }
@@ -2633,7 +2633,7 @@ enum GCDAsyncSocketConfig
 - (NSError *)sslError:(OSStatus)ssl_error
 {
 	NSString *msg = @"Error code definition can be found in Apple's SecureTransport.h";
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:msg forKey:NSLocalizedRecoverySuggestionErrorKey];
+	NSDictionary *userInfo = @{NSLocalizedRecoverySuggestionErrorKey: msg};
 	
 	return [NSError errorWithDomain:@"kCFStreamErrorDomainSSL" code:ssl_error userInfo:userInfo];
 }
@@ -2644,7 +2644,7 @@ enum GCDAsyncSocketConfig
 	                                                     @"GCDAsyncSocket", [NSBundle mainBundle],
 	                                                     @"Attempt to connect to host timed out", nil);
 	
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketConnectTimeoutError userInfo:userInfo];
 }
@@ -2658,7 +2658,7 @@ enum GCDAsyncSocketConfig
 														 @"GCDAsyncSocket", [NSBundle mainBundle],
 														 @"Read operation reached set maximum length", nil);
 	
-	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *info = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketReadMaxedOutError userInfo:info];
 }
@@ -2672,7 +2672,7 @@ enum GCDAsyncSocketConfig
 	                                                     @"GCDAsyncSocket", [NSBundle mainBundle],
 	                                                     @"Read operation timed out", nil);
 	
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketReadTimeoutError userInfo:userInfo];
 }
@@ -2686,7 +2686,7 @@ enum GCDAsyncSocketConfig
 	                                                     @"GCDAsyncSocket", [NSBundle mainBundle],
 	                                                     @"Write operation timed out", nil);
 	
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketWriteTimeoutError userInfo:userInfo];
 }
@@ -2697,14 +2697,14 @@ enum GCDAsyncSocketConfig
 	                                                     @"GCDAsyncSocket", [NSBundle mainBundle],
 	                                                     @"Socket closed by remote peer", nil);
 	
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketClosedError userInfo:userInfo];
 }
 
 - (NSError *)otherError:(NSString *)errMsg
 {
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errMsg};
 	
 	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketOtherError userInfo:userInfo];
 }
@@ -3598,7 +3598,7 @@ enum GCDAsyncSocketConfig
 		if ([readQueue count] > 0)
 		{
 			// Dequeue the next object in the write queue
-			currentRead = [[readQueue objectAtIndex:0] retain];
+			currentRead = [readQueue[0] retain];
 			[readQueue removeObjectAtIndex:0];
 			
 			
@@ -4518,7 +4518,7 @@ enum GCDAsyncSocketConfig
 		if ([writeQueue count] > 0)
 		{
 			// Dequeue the next object in the write queue
-			currentWrite = [[writeQueue objectAtIndex:0] retain];
+			currentWrite = [writeQueue[0] retain];
 			[writeQueue removeObjectAtIndex:0];
 			
 			
@@ -5075,7 +5075,7 @@ enum GCDAsyncSocketConfig
         // 
         // So we use an empty dictionary instead, which works perfectly.
         
-        tlsSettings = [NSDictionary dictionary];
+        tlsSettings = @{};
     }
 	
 	GCDAsyncSpecialPacket *packet = [[GCDAsyncSpecialPacket alloc] initWithTLSSettings:tlsSettings];
@@ -6221,7 +6221,7 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType ty
 		addrBuf[0] = '\0';
 	}
 	
-	return [NSString stringWithCString:addrBuf encoding:NSASCIIStringEncoding];
+	return @(addrBuf);
 }
 
 + (NSString *)hostFromAddress6:(struct sockaddr_in6 *)pSockaddr6
@@ -6233,7 +6233,7 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType ty
 		addrBuf[0] = '\0';
 	}
 	
-	return [NSString stringWithCString:addrBuf encoding:NSASCIIStringEncoding];
+	return @(addrBuf);
 }
 
 + (UInt16)portFromAddress4:(struct sockaddr_in *)pSockaddr4

@@ -94,7 +94,7 @@ static AllClasses *sharedInstance;
 		return nil;
 	}
 	
-	[allClassStubsByName setObject:cs forKey:klassName]; // Add it to our uniquing dictionary.
+	allClassStubsByName[klassName] = cs; // Add it to our uniquing dictionary.
 	
 	/* fill stubsForImage */
 	NSString *path = [cs imagePath];
