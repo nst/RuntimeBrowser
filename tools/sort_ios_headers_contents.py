@@ -1,5 +1,15 @@
 #!/usr/bin/python
 
+"""
+Overwrites the headers with their contents-sorted version.
+The goal is to ease comparision between versions.
+
+$ cd iOS-Runtime-Headers
+$ python sort_ios_headers_contents.py 
+"""
+
+import os
+
 def write_header_description(filepath, first_lines, ivars, properties, class_methods, instance_methods):
 
     with open (filepath, 'w') as f:
@@ -62,4 +72,13 @@ def sort_header(path_in, path_out):
 
     write_header_description(path_out, first_lines, ivars, properties, class_methods, instance_methods)
 
-sort_header("/Users/nst/Desktop/ACAccountCredential.h", "/Users/nst/Desktop/ACAccountCredential_.h")
+for root, dirs, files in os.walk('.'):
+    
+    headers = (f for f in files if f.endswith(".h"))
+    
+    for f in headers:
+        path = os.path.join(root, f)
+        print path
+        
+        sort_header(path, path)
+        
