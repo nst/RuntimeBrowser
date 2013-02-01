@@ -24,4 +24,4 @@ The iOS version features:
 
 You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as seen by RuntimeBrowser.
 
-![Screenshot](https://github.com/nst/RuntimeBrowser/raw/master/art/screenshot_iphone.png "RuntimeBrowser iPhone")
+![RuntimeBrowser](https://github.com/nst/RuntimeBrowser/raw/master/art/screenshot_iphone.png "RuntimeBrowser iPhone")
