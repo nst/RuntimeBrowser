@@ -1,8 +1,5 @@
 #!/usr/bin/python
 
-in_file = "/Users/nst/Desktop/ACAccountCredential.h"
-out_file = "/Users/nst/Desktop/ACAccountCredential_.h"
-
 def write_header_description(filepath, first_lines, ivars, properties, class_methods, instance_methods):
 
     with open (filepath, 'w') as f:
@@ -30,35 +27,39 @@ def write_header_description(filepath, first_lines, ivars, properties, class_met
 
         f.write("@end\n")
 
-ivars = []
-properties = []
-class_methods = []
-instance_methods = []
+def sort_header(path_in, path_out):
 
-first_lines = []
-has_seen_interface = False
+    ivars = []
+    properties = []
+    class_methods = []
+    instance_methods = []
+    
+    first_lines = []
+    has_seen_interface = False
+    
+    with open(path_in, 'r') as f:
+        for line in f:
+            
+            if not has_seen_interface:
+                first_lines.append(line)
+    
+            if line.startswith('@interface'):
+                has_seen_interface = True
+    
+            if line.startswith('    '):
+                ivars.append(line)
+            elif line.startswith('@property'):
+                properties.append(line)
+            elif line.startswith('+'):
+                class_methods.append(line)
+            elif line.startswith('-'):
+                instance_methods.append(line)
+    
+    ivars = sorted(ivars, key = lambda s: s.split(' ')[-1])
+    properties = sorted(properties, key = lambda s: s.split(' ')[-1])
+    class_methods = sorted(class_methods, key = lambda s: ')'.join(s.split(')')[1:]))
+    instance_methods = sorted(instance_methods, key = lambda s: ')'.join(s.split(')')[1:]))
 
-with open(in_file, 'r') as f:
-    for line in f:
-        
-        if not has_seen_interface:
-            first_lines.append(line)
+    write_header_description(path_out, first_lines, ivars, properties, class_methods, instance_methods)
 
-        if line.startswith('@interface'):
-            has_seen_interface = True
-
-        if line.startswith('    '):
-            ivars.append(line)
-        elif line.startswith('@property'):
-            properties.append(line)
-        elif line.startswith('+'):
-            class_methods.append(line)
-        elif line.startswith('-'):
-            instance_methods.append(line)
-
-ivars = sorted(ivars, key = lambda s: s.split(' ')[-1])
-properties = sorted(properties, key = lambda s: s.split(' ')[-1])
-class_methods = sorted(class_methods, key = lambda s: ')'.join(s.split(')')[1:]))
-instance_methods = sorted(instance_methods, key = lambda s: ')'.join(s.split(')')[1:]))
-
-write_header_description(out_file, first_lines, ivars, properties, class_methods, instance_methods)
+sort_header("/Users/nst/Desktop/ACAccountCredential.h", "/Users/nst/Desktop/ACAccountCredential_.h")
