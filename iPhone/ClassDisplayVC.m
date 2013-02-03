@@ -23,11 +23,15 @@
 	AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
 	[appDelegate useClass:className];
 	
-	[self dismissModalViewControllerAnimated:YES];	
+	[self dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 - (IBAction)dismissModalView:(id)sender {
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 - (void)viewDidLoad {

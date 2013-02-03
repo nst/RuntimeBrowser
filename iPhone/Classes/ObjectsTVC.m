@@ -63,6 +63,8 @@
 
 - (void)viewWillAppear:(BOOL)animated {	
 	
+    [super viewWillAppear:animated];
+    
 	if(!object) {
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No class!" 
 														message:@"Open a class header file\nand you'll be able to use it."
@@ -81,7 +83,7 @@
 	//Class metaCls = object->isa;
     //self.methods = [object rb_classMethods];	
 }
-
+/*
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
@@ -93,7 +95,7 @@
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
 }
-
+*/
 - (void)dealloc {
 	[object release];
 	[methods release];

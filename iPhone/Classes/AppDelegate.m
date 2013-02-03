@@ -173,10 +173,9 @@
 }
 */
 
-- (void)applicationDidFinishLaunching:(UIApplication *)application {
-	
-	// Add the tab bar controller's current view as a subview of the window
-    [window addSubview:tabBarController.view];
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    [self.window setFrame:[[UIScreen mainScreen] bounds]];
 	
 	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
 	NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
@@ -189,6 +188,11 @@
 	if(startWebServer) {
 		[self startWebServer];
 	}
+    
+    self.window.rootViewController = tabBarController;
+    [self.window makeKeyAndVisible];
+    
+    return YES;
 }
 
 - (UInt16)serverPort {
@@ -197,11 +201,15 @@
 
 - (void)showHeaderForClassName:(NSString *)className {
 	[self classDisplayVC].className = className;
-	[tabBarController presentModalViewController:classDisplayVC animated:YES];
+	[tabBarController presentViewController:classDisplayVC animated:YES completion:^{
+        //
+    }];
 }
 
-- (IBAction)dismissModalView:(id)sender {	
-	[tabBarController dismissModalViewControllerAnimated:YES];
+- (IBAction)dismissModalView:(id)sender {
+	[tabBarController dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 /*

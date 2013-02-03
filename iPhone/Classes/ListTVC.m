@@ -28,11 +28,15 @@
 
 - (void)showHeaderForClassName:(NSString *)className {
 	[self classDisplayVC].className = className;
-	[[self navigationController] presentModalViewController:[classDisplayVC navigationController] animated:YES];
+	[[self navigationController] presentViewController:[classDisplayVC navigationController] animated:YES completion:^{
+        //
+    }];
 }
 
 - (IBAction)dismissModalView:(id)sender {	
-	[[self navigationController] dismissModalViewControllerAnimated:YES];
+	[[self navigationController] dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 - (void)setupIndexedClassStubs {

@@ -15,6 +15,7 @@
 		0338788F13070993003AF5CE /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0338788E13070993003AF5CE /* ClassDisplay.m */; };
 		033C90430FE1B88F004DC8C7 /* ObjectsTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 033C90420FE1B88F004DC8C7 /* ObjectsTVC.m */; };
 		033C90A70FE1BB85004DC8C7 /* ObjectsTVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 033C90A60FE1BB85004DC8C7 /* ObjectsTVC.xib */; };
+		034FB64416BEDFD000CBAE5F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 034FB64316BEDFD000CBAE5F /* Default-568h@2x.png */; };
 		0353BB8A0F22E8110058DAC8 /* tab_framework.png in Resources */ = {isa = PBXBuildFile; fileRef = 0353BB890F22E8110058DAC8 /* tab_framework.png */; };
 		0353BBB90F22EEB20058DAC8 /* tab_tree.png in Resources */ = {isa = PBXBuildFile; fileRef = 0353BBB80F22EEB20058DAC8 /* tab_tree.png */; };
 		0353BBCA0F22F1670058DAC8 /* tab_list.png in Resources */ = {isa = PBXBuildFile; fileRef = 0353BBC90F22F1670058DAC8 /* tab_list.png */; };
@@ -87,6 +88,7 @@
 		033C90410FE1B88F004DC8C7 /* ObjectsTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectsTVC.h; sourceTree = "<group>"; };
 		033C90420FE1B88F004DC8C7 /* ObjectsTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectsTVC.m; sourceTree = "<group>"; };
 		033C90A60FE1BB85004DC8C7 /* ObjectsTVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ObjectsTVC.xib; sourceTree = "<group>"; };
+		034FB64316BEDFD000CBAE5F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		0353BB890F22E8110058DAC8 /* tab_framework.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_framework.png; sourceTree = "<group>"; };
 		0353BBB80F22EEB20058DAC8 /* tab_tree.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_tree.png; sourceTree = "<group>"; };
 		0353BBC90F22F1670058DAC8 /* tab_list.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_list.png; sourceTree = "<group>"; };
@@ -347,6 +349,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				034FB64316BEDFD000CBAE5F /* Default-568h@2x.png */,
 				0354B3E30FE5B554002B198C /* UIButtonBarInfo.png */,
 				0385F3400F2D2889007AA4D4 /* revision.txt */,
 				036C8B8C0F22838D00CCB286 /* ClassCell.xib */,
@@ -467,6 +470,7 @@
 				03F429DA132A9E3500F1B592 /* About_2.txt in Resources */,
 				03F42BE0132ACD3600F1B592 /* Icon@2x.png in Resources */,
 				0312C78113356AE900E99BA4 /* ListTVC.xib in Resources */,
+				034FB64416BEDFD000CBAE5F /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,8 +551,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = RuntimeBrowser_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = OCRuntime;
 				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -561,8 +567,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = RuntimeBrowser_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = OCRuntime;
 				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

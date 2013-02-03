@@ -19,7 +19,9 @@
 @synthesize webServerStatusLabel;
 
 - (IBAction)closeAction:(id)sender {
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 // http://landonf.bikemonkey.org/code/iphone/Determining_Available_Memory.20081203.html
@@ -103,7 +105,7 @@
 }
 
 - (IBAction)openWebSiteAction:(id)sender {
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://code.google.com/p/runtimebrowser/"]];
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/nst/RuntimeBrowser/"]];
 }
 
 - (void)didReceiveMemoryWarning {
