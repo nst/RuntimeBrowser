@@ -113,7 +113,7 @@ Boston, MA  02111-1307  USA
     NSUInteger i;
 	for (i = 0; i < methodListCount; i++) {
 		Method currMethod = (methodList[i]);
-		NSString *mName = [NSString stringWithCString:(const char *)method_getName(currMethod) encoding:NSASCIIStringEncoding];
+		NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
 		NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
 		for(NSString *mNamePart in mNameParts) {
 			[ms addObject:[mNamePart lowercaseString]];

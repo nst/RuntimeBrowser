@@ -674,7 +674,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 		else
 			ivT += strlen(ivT);
 		
-		NSString *mName = [NSString stringWithCString:(const char *)method_getName(currMethod) encoding:NSASCIIStringEncoding];
+		NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
 		NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
 		if ([mNameParts count] == 1) {
 			[header appendString:[mNameParts lastObject]];
