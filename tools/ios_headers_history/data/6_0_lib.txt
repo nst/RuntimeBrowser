@@ -1,4 +1,3 @@
-NSTemporaryObjectID_default.h
 libAWDProtobufFacetimeiMessage.dylib
 libAWDProtobufWifi.dylib
 libdispatch.dylib
