@@ -1,0 +1,9 @@
+NSTemporaryObjectID_default.h
+libAWDProtobufFacetimeiMessage.dylib
+libAWDProtobufWifi.dylib
+libdispatch.dylib
+libmecabra.dylib
+libobjc.A.dylib
+libsystem_blocks.dylib
+libsystem_network.dylib
+libxpc.dylib

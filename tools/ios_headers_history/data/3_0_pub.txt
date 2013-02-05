@@ -1,0 +1,16 @@
+AVFoundation.framework
+AddressBook.framework
+AddressBookUI.framework
+CoreData.framework
+CoreFoundation.framework
+CoreLocation.framework
+ExternalAccessory.framework
+Foundation.framework
+GameKit.framework
+MapKit.framework
+MediaPlayer.framework
+MessageUI.framework
+OpenGLES.framework
+QuartzCore.framework
+StoreKit.framework
+UIKit.framework
