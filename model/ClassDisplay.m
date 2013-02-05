@@ -684,7 +684,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 			while (isdigit (*++ivT));
 			currentWarning = NO;
 			cTypeDeclInfo = [self flatCTypeDeclForEncType];
-			[header appendFormat:@"%@:(%@%@)arg%d%s",
+			[header appendFormat:@"%@:(%@%@)arg%lu%s",
 			 [mNameParts objectAtIndex:i-1],
 			 [cTypeDeclInfo objectForKey:TYPE_LABEL],
 			 [cTypeDeclInfo objectForKey:MODIFIER_LABEL],

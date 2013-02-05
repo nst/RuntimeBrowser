@@ -11,7 +11,6 @@
 #import "ClassDisplay.h"
 
 // TODO: add properties types tests from http://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
-// TODO: add tests form http://nshipster.com/type-encodings/
 
 @implementation UnitTests
 
@@ -84,6 +83,10 @@
 }
 
 - (void)testComplicatedTypes {
+	STAssertEqualObjects([self decodeFlatCType:"^f"], @"float*", @"");
+	STAssertEqualObjects([self decodeFlatCType:"^v"], @"void*", @"");
+	STAssertEqualObjects([self decodeFlatCType:"^@"], @"id*", @"");
+
 	STAssertEqualObjects([self decodeIvarType:"[10i]"], @"int ", @"");
 	STAssertEqualObjects([self decodeIvarModifier:"[10i]"], @"[10]", @"");
 	
