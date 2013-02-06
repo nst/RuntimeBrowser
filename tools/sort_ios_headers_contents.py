@@ -67,7 +67,6 @@ def sort_header(path_in, path_out):
                     comps = map(lambda s:s.strip(' ' ), comps)
                     comps = filter(lambda s:len(s) > 0, comps)
                     comps.sort()
-                    print comps
                     line = "@class " + ', '.join(comps) + ";\n"
                 
                 if line.startswith('@interface'):
