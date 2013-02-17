@@ -111,7 +111,7 @@
 	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
 	NSString *generatedHeader = [cd header];
 	NSString *referenceHeader = [self contentsForResource:@"NSString" ofType:@"h"];
-	
+
 	[self assetLinesAreEqual:generatedHeader withString:referenceHeader];
 }
 
@@ -120,8 +120,7 @@
 	NSString *generatedHeader = [cd header];
 	NSString *referenceHeader = [self contentsForResource:@"CALayer" ofType:@"h"];;
 
-//	NSLog(@"-- generatedHeader:%@", generatedHeader);
-//	NSLog(@"-- referenceHeader:%@", referenceHeader);
+    [generatedHeader writeToFile:@"/tmp/asd.h" atomically:YES encoding:NSISOLatin1StringEncoding error:nil];
 
 	[self assetLinesAreEqual:generatedHeader withString:referenceHeader];
 }

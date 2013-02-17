@@ -688,7 +688,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 			 [mNameParts objectAtIndex:i-1],
 			 [cTypeDeclInfo objectForKey:TYPE_LABEL],
 			 [cTypeDeclInfo objectForKey:MODIFIER_LABEL],
-			 i,
+			 (int)i,
 			 ((i==([mNameParts count]-1))?"":" ")];
 		}
 		[header appendString:@";\n"];
