@@ -22,7 +22,7 @@
 	for(NSUInteger i = 0; i < [lines1 count]; i++) {
 		NSString *line1 = [lines1 objectAtIndex:i];
 		NSString *line2 = [lines2 objectAtIndex:i];
-		//NSLog(@"-- %@", line1);
+        //NSLog(@"-> %@", line1);
 		STAssertEqualObjects(line1, line2, @"");
 	}
 }
@@ -83,6 +83,10 @@
 }
 
 - (void)testComplicatedTypes {
+	STAssertEqualObjects([self decodeFlatCType:"^f"], @"float*", @"");
+	STAssertEqualObjects([self decodeFlatCType:"^v"], @"void*", @"");
+	STAssertEqualObjects([self decodeFlatCType:"^@"], @"id*", @"");
+
 	STAssertEqualObjects([self decodeIvarType:"[10i]"], @"int ", @"");
 	STAssertEqualObjects([self decodeIvarModifier:"[10i]"], @"[10]", @"");
 	
@@ -93,23 +97,12 @@
 	STAssertEqualObjects([self decodeIvarWithName:@"x" type:"^^{example}"], @"struct example {} **x;", @"");
 }
 
-/*
-- (void)testHeaderGenerationNSString {
-	NSString *generatedHeader = [[ClassDisplay sharedInstance] headerForClass:[NSString class]];
-	NSString *referenceHeader = [self contentsForResource:@"NSString" ofType:@"h"];;
-	STAssertEqualObjects(generatedHeader, referenceHeader, @"");
-}
-
-- (void)testHeaderGenerationCALayer {
-	NSString *generatedHeader = [[ClassDisplay sharedInstance] headerForClass:[CALayer class]];
-	NSString *referenceHeader = [self contentsForResource:@"CALayer" ofType:@"h"];
-	STAssertEqualObjects(generatedHeader, referenceHeader, @"");
-}
-*/
-
 - (void)testHeadersLinesNSString {
 	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
 	NSString *generatedHeader = [cd header];
+
+    [generatedHeader writeToFile:@"/tmp/NSString.h" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
 	NSString *referenceHeader = [self contentsForResource:@"NSString" ofType:@"h"];
 
 	[self assetLinesAreEqual:generatedHeader withString:referenceHeader];
@@ -118,9 +111,10 @@
 - (void)testHeadersLinesCALayer {
 	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[CALayer class]];
 	NSString *generatedHeader = [cd header];
-	NSString *referenceHeader = [self contentsForResource:@"CALayer" ofType:@"h"];;
-
-    [generatedHeader writeToFile:@"/tmp/asd.h" atomically:YES encoding:NSISOLatin1StringEncoding error:nil];
+	
+    [generatedHeader writeToFile:@"/tmp/CALayer.h" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    
+    NSString *referenceHeader = [self contentsForResource:@"CALayer" ofType:@"h"];;
 
 	[self assetLinesAreEqual:generatedHeader withString:referenceHeader];
 }
