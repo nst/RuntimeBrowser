@@ -132,14 +132,8 @@
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//	static NSString *ClassCellIdentifier = @"ClassCell";
-	
-    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
 
-//	RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:ClassCellIdentifier];
-//	if(cell == nil) {
-//		cell = (RTBClassCell *)[[[NSBundle mainBundle] loadNibNamed:@"RTBClassCell" owner:self options:nil] lastObject];
-//	}
+    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
 	
 	// Set up the cell
 	if(_frameworkName == nil) {

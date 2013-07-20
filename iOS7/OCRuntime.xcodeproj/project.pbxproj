@@ -42,8 +42,6 @@
 		0374034D17969813005D1AFB /* RTBListTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0374034A17969813005D1AFB /* RTBListTVC.m */; };
 		0374034E17969813005D1AFB /* RTBFrameworksTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0374034C17969813005D1AFB /* RTBFrameworksTVC.m */; };
 		03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03740350179698CC005D1AFB /* RTBFrameworkCell.m */; };
-		0374035417969AD1005D1AFB /* RTBMethodCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0374035217969AD1005D1AFB /* RTBMethodCell.xib */; };
-		0374035517969AD1005D1AFB /* RTBFrameworkCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0374035317969AD1005D1AFB /* RTBFrameworkCell.xib */; };
 		0379BB2617980CF600F4B8BF /* AllClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2117980CF600F4B8BF /* AllClasses.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		0379BB2717980CF600F4B8BF /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2317980CF600F4B8BF /* ClassDisplay.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2517980CF600F4B8BF /* ClassStub.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -139,8 +137,6 @@
 		0374034C17969813005D1AFB /* RTBFrameworksTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBFrameworksTVC.m; sourceTree = "<group>"; };
 		0374034F179698CC005D1AFB /* RTBFrameworkCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBFrameworkCell.h; sourceTree = "<group>"; };
 		03740350179698CC005D1AFB /* RTBFrameworkCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBFrameworkCell.m; sourceTree = "<group>"; };
-		0374035217969AD1005D1AFB /* RTBMethodCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RTBMethodCell.xib; sourceTree = "<group>"; };
-		0374035317969AD1005D1AFB /* RTBFrameworkCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RTBFrameworkCell.xib; sourceTree = "<group>"; };
 		0379BB2017980CF600F4B8BF /* AllClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AllClasses.h; path = ../model/AllClasses.h; sourceTree = "<group>"; };
 		0379BB2117980CF600F4B8BF /* AllClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllClasses.m; path = ../model/AllClasses.m; sourceTree = "<group>"; };
 		0379BB2217980CF600F4B8BF /* ClassDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassDisplay.h; path = ../model/ClassDisplay.h; sourceTree = "<group>"; };
@@ -338,8 +334,6 @@
 				037402F117968FCB005D1AFB /* RTBInfoVC.m */,
 				0360F4FC17969BBE00F58672 /* RTBSearchVC.h */,
 				0360F4FD17969BBE00F58672 /* RTBSearchVC.m */,
-				0374035217969AD1005D1AFB /* RTBMethodCell.xib */,
-				0374035317969AD1005D1AFB /* RTBFrameworkCell.xib */,
 				0360F50717969FDA00F58672 /* header.png */,
 				0360F5091796A1F100F58672 /* framework.png */,
 			);
@@ -455,11 +449,9 @@
 				03740339179693C5005D1AFB /* LICENSE.txt in Resources */,
 				0374033C179693C5005D1AFB /* About_2.txt in Resources */,
 				03959DED176AFC4D002A1FCC /* Images.xcassets in Resources */,
-				0374035517969AD1005D1AFB /* RTBFrameworkCell.xib in Resources */,
 				0374033A179693C5005D1AFB /* About_1.txt in Resources */,
 				03959DDC176AFC4D002A1FCC /* InfoPlist.strings in Resources */,
 				0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */,
-				0374035417969AD1005D1AFB /* RTBMethodCell.xib in Resources */,
 				0360F50817969FDA00F58672 /* header.png in Resources */,
 				03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */,
 			);

@@ -38,7 +38,7 @@ static const NSUInteger kPrivateFrameworks = 1;
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
     RTBFrameworkCell *cell = (RTBFrameworkCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBFrameworkCell"];
-
+    
     NSBundle *b = nil;
 	
 	if(indexPath.section == kPublicFrameworks) {
@@ -48,9 +48,7 @@ static const NSUInteger kPrivateFrameworks = 1;
 	}
 	
 	NSString *name = [[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];
-
-    cell.imageView.image = [UIImage imageNamed:@"framework.png"];
-	cell.textLabel.text = name;
+	cell.label.text = name;
 	cell.accessoryType = [b isLoaded] ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
 	return cell;
 }
