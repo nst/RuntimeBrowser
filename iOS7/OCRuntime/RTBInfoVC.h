@@ -11,11 +11,13 @@
 
 @interface RTBInfoVC : UIViewController
 
-//@property (nonatomic, retain) IBOutlet UILabel *revisionLabel;
 @property (nonatomic, retain) IBOutlet UILabel *webServerStatusLabel;
-@property (nonatomic, retain) IBOutlet UILabel *memoryLabel;
 
 - (IBAction)openWebSiteAction:(id)sender;
 - (IBAction)closeAction:(id)sender;
+
+- (IBAction)showPreludeInHeadersAction:(id)sender;
+- (IBAction)showOCRuntimeClassesAction:(id)sender;
+- (IBAction)toggleWebServerAction:(id)sender;
 
 @end

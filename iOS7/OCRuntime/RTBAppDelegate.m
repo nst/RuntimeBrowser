@@ -121,6 +121,10 @@
 	return [[HTTPDataResponse alloc] initWithData:data];
 }
 
+- (void)stopWebServer {
+    [_httpServer stop];
+}
+
 - (void)startWebServer {
 	NSDictionary *ips = [[RTBMyIP sharedInstance] ipsForInterfaces];
 	BOOL isConnectedThroughWifi = [ips objectForKey:@"en0"] != nil;
@@ -202,9 +206,7 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-	if(_httpServer) {
-		[_httpServer stop];
-	}
+    [_httpServer stop];
 }
 
 @end

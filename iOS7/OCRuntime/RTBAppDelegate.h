@@ -32,4 +32,7 @@
 
 - (void)useClass:(NSString *)className;
 
+- (void)stopWebServer;
+- (void)startWebServer;
+
 @end

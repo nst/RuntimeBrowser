@@ -26,15 +26,12 @@
 	return _classDisplayVC;
 }
 
-- (RTBInfoVC *)infoVC {
-	if(_infoVC == nil) {
-		self.infoVC = [[RTBInfoVC alloc] initWithNibName:@"InfoVC" bundle:nil];
-	}
-	return _infoVC;
-}
-
 - (IBAction)showInfo:(id)sender {
-	[self presentViewController:[self infoVC] animated:YES completion:^{
+    
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    RTBInfoVC *infoVC = (RTBInfoVC *)[sb instantiateViewControllerWithIdentifier:@"RTBInfoVC"];
+    
+	[self presentViewController:infoVC animated:YES completion:^{
         //
     }];
 }
