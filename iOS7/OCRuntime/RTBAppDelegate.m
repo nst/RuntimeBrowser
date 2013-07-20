@@ -56,12 +56,12 @@
 //}
 
 
-- (RTBClassDisplayVC *)classDisplayVC {
-	if(_classDisplayVC == nil) {
-		self.classDisplayVC = [[RTBClassDisplayVC alloc] initWithNibName:@"RTBClassDisplayVC" bundle:nil];
-	}
-	return _classDisplayVC;
-}
+//- (RTBClassDisplayVC *)classDisplayVC {
+//	if(_classDisplayVC == nil) {
+//		self.classDisplayVC = [[RTBClassDisplayVC alloc] initWithNibName:@"RTBClassDisplayVC" bundle:nil];
+//	}
+//	return _classDisplayVC;
+//}
 
 - (void)useClass:(NSString *)className {
 	
@@ -222,8 +222,14 @@
 }
 
 - (void)showHeaderForClassName:(NSString *)className {
-	[self classDisplayVC].className = className;
-	[_tabBarController presentViewController:_classDisplayVC animated:YES completion:^{
+//	[self classDisplayVC].className = className;
+    
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
+    classDisplayVC.className = className;
+    
+    UITabBarController *tabBarController = (UITabBarController *)self.window.rootViewController;
+	[tabBarController presentViewController:classDisplayVC animated:YES completion:^{
         //
     }];
 }

@@ -146,17 +146,20 @@
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString *ClassCellIdentifier = @"ClassCell";
+//	static NSString *ClassCellIdentifier = @"ClassCell";
 	
-	RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:ClassCellIdentifier];
-	if(cell == nil) {
-		cell = (RTBClassCell *)[[[NSBundle mainBundle] loadNibNamed:@"RTBClassCell" owner:self options:nil] lastObject];
-	}
+    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBListCell"];
+
+//	RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:ClassCellIdentifier];
+//	if(cell == nil) {
+//		cell = (RTBClassCell *)[[[NSBundle mainBundle] loadNibNamed:@"RTBClassCell" owner:self options:nil] lastObject];
+//	}
 	
 	// Set up the cell
 	if(_frameworkName == nil) {
 		if(indexPath.section >= [_classStubsDictionaries count]) {
 			cell.textLabel.text = @"";
+            cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
 			cell.accessoryType = UITableViewCellAccessoryNone;
 			return cell;
 		}
