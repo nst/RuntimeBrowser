@@ -98,6 +98,22 @@ static AllClasses *sharedInstance;
 	
 	/* fill stubsForImage */
 	NSString *path = [cs imagePath];
+    
+#if TARGET_IPHONE_SIMULATOR
+    // remove path prefix, eg.
+    //   /Applications/Xcode5-DP.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk/System/Library/PrivateFrameworks/CoreUI.framework/CoreUI
+    // will become
+    //   /System/Library/PrivateFrameworks/CoreUI.framework/CoreUI
+
+    if([path hasPrefix:@"/Applications/"]) {
+        NSUInteger i = [path rangeOfString:@".sdk"].location;
+        if(i != NSNotFound) {
+            NSUInteger start = i + 4;
+            path = [path substringFromIndex:start];
+        }
+    }
+#endif
+    
 	if(path) {
 		NSMutableArray *stubsForImage = [allClassStubsByImagePath valueForKey:path];
 		if(stubsForImage == nil) {
