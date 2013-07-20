@@ -4,9 +4,9 @@
 <dict>
 	<key>ShowPreludeInHeaders</key>
 	<true/>
-	<key>HideCurrentApplicationClasses</key>
+	<key>ShowOCRuntimeClasses</key>
 	<true/>
-	<key>StartWebServer</key>
+	<key>EnableWebServer</key>
 	<true/>
 </dict>
 </plist>

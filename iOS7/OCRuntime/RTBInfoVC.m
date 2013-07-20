@@ -8,9 +8,7 @@
 
 #import "RTBInfoVC.h"
 #import "RTBAppDelegate.h"
-
-#import <mach/mach.h>
-#import <mach/mach_host.h>
+#import "HTTPServer.h"
 
 @implementation RTBInfoVC
 
@@ -20,16 +18,22 @@
     }];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
+- (void)updateWebServerStatus {
+	RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
+	NSString *serverURL = [NSString stringWithFormat:@"http://%@:%d/", [appDelegate myIPAddress], [appDelegate serverPort]];
+	_webServerStatusLabel.text = [[appDelegate httpServer] isRunning] ? serverURL : @"";
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [_showPreludeInHeadersSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"ShowPreludeInHeaders"] boolValue]];
+    [_showOCRuntimeClassesSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"ShowOCRuntimeClasses"] boolValue]];
+    [_toggleWebServerSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"EnableWebServer"] boolValue]];
+
+    [self updateWebServerStatus];
 }
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	
-	RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
-	NSString *serverURL = [NSString stringWithFormat:@"http://%@:%d/", [appDelegate myIPAddress], [appDelegate serverPort]];
-	_webServerStatusLabel.text = [appDelegate httpServer] != nil ? serverURL : @"stopped";
-	
     [super viewDidLoad];
 }
 
@@ -44,14 +48,16 @@
 }
 
 - (IBAction)showPreludeInHeadersAction:(id)sender {
-    
+    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"ShowPreludeInHeaders"];
 }
 
 - (IBAction)showOCRuntimeClassesAction:(id)sender {
-
+    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"ShowOCRuntimeClasses"];
 }
 
 - (IBAction)toggleWebServerAction:(id)sender {
+    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"EnableWebServer"];
+
     RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
 
     if(((UISwitch *)sender).isOn) {
@@ -59,6 +65,8 @@
     } else {
         [appDelegate stopWebServer];
     }
+    
+    [self updateWebServerStatus];
 }
 
 @end
