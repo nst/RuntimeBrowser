@@ -47,7 +47,7 @@
 	self.allClasses = [AllClasses sharedInstance];
 	if(!_isSubLevel) {
 		self.classStubs = [_allClasses rootClasses];
-		self.title = @"Tree";
+//		self.title = @"Tree";
 		self.navigationItem.title = @"Root Classes";
 	}
 }

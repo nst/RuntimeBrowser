@@ -197,7 +197,13 @@
                         <sections/>
                     </tableView>
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <navigationItem key="navigationItem" title="Frameworks" id="VDN-xg-fIq"/>
+                    <navigationItem key="navigationItem" title="Frameworks" id="VDN-xg-fIq">
+                        <barButtonItem key="rightBarButtonItem" title="Load All" id="Tcv-De-GPd">
+                            <connections>
+                                <action selector="loadAllFrameworks:" destination="iLh-88-XDg" id="F5b-5y-qEO"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qRe-sF-XHw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -500,6 +506,82 @@ We have found this to be a useful development tool. Please note, however, that e
         <image name="framework.png" width="48" height="48"/>
         <image name="header.png" width="128" height="128"/>
     </resources>
+    <classes>
+        <class className="RTBClassCell" superclassName="UITableViewCell">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBClassCell.h"/>
+            <relationships>
+                <relationship kind="action" name="showHeaders:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="RTBClassDisplayVC" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBClassDisplayVC.h"/>
+            <relationships>
+                <relationship kind="action" name="dismissModalView:"/>
+                <relationship kind="action" name="use:"/>
+                <relationship kind="outlet" name="navigationBar" candidateClass="UINavigationBar"/>
+                <relationship kind="outlet" name="textView" candidateClass="UITextView"/>
+                <relationship kind="outlet" name="useButton" candidateClass="UIBarButtonItem"/>
+            </relationships>
+        </class>
+        <class className="RTBFrameworkCell" superclassName="UITableViewCell">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBFrameworkCell.h"/>
+            <relationships>
+                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="RTBFrameworksTVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBFrameworksTVC.h"/>
+            <relationships>
+                <relationship kind="action" name="loadAllFrameworks:"/>
+            </relationships>
+        </class>
+        <class className="RTBInfoVC" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBInfoVC.h"/>
+            <relationships>
+                <relationship kind="action" name="closeAction:"/>
+                <relationship kind="action" name="openWebSiteAction:"/>
+                <relationship kind="action" name="showOCRuntimeClassesAction:"/>
+                <relationship kind="action" name="showPreludeInHeadersAction:"/>
+                <relationship kind="action" name="toggleWebServerAction:"/>
+                <relationship kind="outlet" name="showOCRuntimeClassesSwitch" candidateClass="UISwitch"/>
+                <relationship kind="outlet" name="showPreludeInHeadersSwitch" candidateClass="UISwitch"/>
+                <relationship kind="outlet" name="toggleWebServerSwitch" candidateClass="UISwitch"/>
+                <relationship kind="outlet" name="webServerStatusLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="RTBListTVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBListTVC.h"/>
+            <relationships>
+                <relationship kind="action" name="dismissModalView:"/>
+            </relationships>
+        </class>
+        <class className="RTBMethodCell" superclassName="UITableViewCell">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBMethodCell.h"/>
+            <relationships>
+                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="RTBObjectsTVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBObjectsTVC.h"/>
+        </class>
+        <class className="RTBSearchVC" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBSearchVC.h"/>
+            <relationships>
+                <relationship kind="outlet" name="tableView" candidateClass="UITableView"/>
+                <relationship kind="outlet" name="theSearchBar" candidateClass="UISearchBar"/>
+            </relationships>
+        </class>
+        <class className="RTBTreeTVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBTreeTVC.h"/>
+            <relationships>
+                <relationship kind="action" name="dismissModalView:"/>
+                <relationship kind="action" name="showInfo:"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

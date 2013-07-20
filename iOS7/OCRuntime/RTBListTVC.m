@@ -79,7 +79,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	
-	self.title = @"List";
+//	self.title = @"List";
 	self.navigationItem.title = _frameworkName ? _frameworkName : @"All Classes";
 	
 	//[self setupIndexedClassStubs];
