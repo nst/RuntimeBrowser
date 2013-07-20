@@ -14,7 +14,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBTreeCell" id="H0w-s5-xjI" customClass="RTBClassCell">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="H0w-s5-xjI" customClass="RTBClassCell">
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
@@ -54,7 +54,13 @@
                         <sections/>
                     </tableView>
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <navigationItem key="navigationItem" title="Tree" id="lDI-cp-lvJ"/>
+                    <navigationItem key="navigationItem" title="Tree" id="lDI-cp-lvJ">
+                        <barButtonItem key="rightBarButtonItem" title="About" id="Ee5-YH-cqw">
+                            <connections>
+                                <action selector="showInfo:" destination="n3F-n0-wux" id="anc-Us-dA8"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gXf-od-6m8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -86,7 +92,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBListCell" id="YKc-kf-0KS" customClass="RTBClassCell">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="YKc-kf-0KS" customClass="RTBClassCell">
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
@@ -110,10 +116,17 @@
                                             <state key="highlighted">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
+                                            <connections>
+                                                <action selector="showHeaders:" destination="YKc-kf-0KS" eventType="touchUpInside" id="DEz-DE-ONb"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
+                                <connections>
+                                    <outlet property="button" destination="uFd-bH-Wkn" id="DyJ-BB-J52"/>
+                                    <outlet property="label" destination="Zjf-cr-gM1" id="AEW-74-P6g"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <sections/>
@@ -134,6 +147,10 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="aRg-mG-InE">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="lTv-pf-BFC">
+                        <rect key="frame" x="0.0" y="416" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="wOK-nE-wsV" kind="relationship" relationship="rootViewController" id="6Rb-UE-Uhp"/>
                     </connections>
@@ -199,7 +216,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3pQ-uc-XSb">
-                                <rect key="frame" x="0.0" y="44" width="320" height="456"/>
+                                <rect key="frame" x="0.0" y="44" width="320" height="524"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
@@ -216,7 +233,7 @@
                                                 <action selector="use:" destination="3f0-gh-i7s" id="spS-hS-JWb"/>
                                             </connections>
                                         </barButtonItem>
-                                        <barButtonItem key="rightBarButtonItem" title="Done" id="n6k-lL-fc7">
+                                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="n6k-lL-fc7">
                                             <connections>
                                                 <action selector="dismissModalView:" destination="3f0-gh-i7s" id="JbD-7B-TRi"/>
                                             </connections>
@@ -230,6 +247,7 @@
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="navigationBar" destination="4n5-kL-2e5" id="JZm-lL-S6z"/>
                         <outlet property="textView" destination="3pQ-uc-XSb" id="gVb-2f-vWB"/>
                     </connections>
                 </viewController>
@@ -262,7 +280,7 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <searchBar key="tableHeaderView" contentMode="redraw" id="JO9-LX-acH">
+                        <searchBar key="tableHeaderView" contentMode="redraw" showsCancelButton="YES" id="JO9-LX-acH">
                             <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             <textInputTraits key="textInputTraits"/>
@@ -353,68 +371,6 @@
     <resources>
         <image name="header.png" width="128" height="128"/>
     </resources>
-    <classes>
-        <class className="RTBClassCell" superclassName="UITableViewCell">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBClassCell.h"/>
-            <relationships>
-                <relationship kind="action" name="showHeaders:"/>
-                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="RTBClassDisplayVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBClassDisplayVC.h"/>
-            <relationships>
-                <relationship kind="action" name="dismissModalView:"/>
-                <relationship kind="action" name="use:"/>
-                <relationship kind="outlet" name="navigationBar" candidateClass="UINavigationBar"/>
-                <relationship kind="outlet" name="textView" candidateClass="UITextView"/>
-                <relationship kind="outlet" name="useButton" candidateClass="UIBarButtonItem"/>
-            </relationships>
-        </class>
-        <class className="RTBFrameworkCell" superclassName="UITableViewCell">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBFrameworkCell.h"/>
-            <relationships>
-                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="RTBFrameworksTVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBFrameworksTVC.h"/>
-            <relationships>
-                <relationship kind="action" name="loadAllFrameworks:"/>
-            </relationships>
-        </class>
-        <class className="RTBListTVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBListTVC.h"/>
-            <relationships>
-                <relationship kind="action" name="dismissModalView:"/>
-            </relationships>
-        </class>
-        <class className="RTBMethodCell" superclassName="UITableViewCell">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBMethodCell.h"/>
-            <relationships>
-                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="RTBObjectsTVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBObjectsTVC.h"/>
-        </class>
-        <class className="RTBSearchVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBSearchVC.h"/>
-            <relationships>
-                <relationship kind="outlet" name="tableView" candidateClass="UITableView"/>
-                <relationship kind="outlet" name="theSearchBar" candidateClass="UISearchBar"/>
-            </relationships>
-        </class>
-        <class className="RTBTreeTVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RTBTreeTVC.h"/>
-            <relationships>
-                <relationship kind="action" name="dismissModalView:"/>
-                <relationship kind="action" name="showInfo:"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

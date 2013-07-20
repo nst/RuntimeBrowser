@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0319E3B5179A86BA001F3471 /* Defaults.plist */; };
 		0360F4FE17969BBE00F58672 /* RTBSearchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0360F4FD17969BBE00F58672 /* RTBSearchVC.m */; };
 		0360F50017969BD400F58672 /* RTBInfoVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0360F4FF17969BD400F58672 /* RTBInfoVC.xib */; };
-		0360F50217969BD700F58672 /* RTBSearchVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0360F50117969BD700F58672 /* RTBSearchVC.xib */; };
 		0360F50817969FDA00F58672 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F50717969FDA00F58672 /* header.png */; };
 		0360F50A1796A1F100F58672 /* framework.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F5091796A1F100F58672 /* framework.png */; };
 		037402E617968370005D1AFB /* RTBTreeTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 037402E517968370005D1AFB /* RTBTreeTVC.m */; };
@@ -74,10 +74,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0319E3B5179A86BA001F3471 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		0360F4FC17969BBE00F58672 /* RTBSearchVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBSearchVC.h; sourceTree = "<group>"; };
 		0360F4FD17969BBE00F58672 /* RTBSearchVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBSearchVC.m; sourceTree = "<group>"; };
 		0360F4FF17969BD400F58672 /* RTBInfoVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RTBInfoVC.xib; sourceTree = "<group>"; };
-		0360F50117969BD700F58672 /* RTBSearchVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RTBSearchVC.xib; sourceTree = "<group>"; };
 		0360F50717969FDA00F58672 /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
 		0360F5091796A1F100F58672 /* framework.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = framework.png; sourceTree = "<group>"; };
 		037402E417968370005D1AFB /* RTBTreeTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBTreeTVC.h; sourceTree = "<group>"; };
@@ -314,6 +314,7 @@
 		03959DD7176AFC4D002A1FCC /* OCRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				0319E3B5179A86BA001F3471 /* Defaults.plist */,
 				03959DE3176AFC4D002A1FCC /* Main.storyboard */,
 				03959DE0176AFC4D002A1FCC /* RTBAppDelegate.h */,
 				03959DE1176AFC4D002A1FCC /* RTBAppDelegate.m */,
@@ -342,7 +343,6 @@
 				0374035217969AD1005D1AFB /* RTBMethodCell.xib */,
 				0374035317969AD1005D1AFB /* RTBFrameworkCell.xib */,
 				0360F4FF17969BD400F58672 /* RTBInfoVC.xib */,
-				0360F50117969BD700F58672 /* RTBSearchVC.xib */,
 				0360F50717969FDA00F58672 /* header.png */,
 				0360F5091796A1F100F58672 /* framework.png */,
 			);
@@ -462,7 +462,7 @@
 				0374035517969AD1005D1AFB /* RTBFrameworkCell.xib in Resources */,
 				0374033A179693C5005D1AFB /* About_1.txt in Resources */,
 				03959DDC176AFC4D002A1FCC /* InfoPlist.strings in Resources */,
-				0360F50217969BD700F58672 /* RTBSearchVC.xib in Resources */,
+				0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */,
 				0374035417969AD1005D1AFB /* RTBMethodCell.xib in Resources */,
 				0360F50817969FDA00F58672 /* header.png in Resources */,
 				03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */,

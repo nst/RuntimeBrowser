@@ -39,13 +39,6 @@
     }];
 }
 
-- (void)showHeaderForClassName:(NSString *)className {
-	[self classDisplayVC].className = className;
-	[[self navigationController] presentViewController:[_classDisplayVC navigationController] animated:YES completion:^{
-        //
-    }];
-}
-
 - (IBAction)dismissModalView:(id)sender {
 	[[self navigationController] dismissViewControllerAnimated:YES completion:^{
         //
@@ -95,12 +88,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBTreeCell"];
+    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
     
 	// Set up the cell
 	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
 //    cell.imageView.image = [UIImage imageNamed:@"header.png"];
-    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
+//    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
     cell.label.text = cs.stubClassname;
 	cell.accessoryType = [[cs subclassesStubs] count] > 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 	

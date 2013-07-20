@@ -14,20 +14,6 @@
 
 @implementation RTBListTVC
 
-- (RTBClassDisplayVC *)classDisplayVC {
-	if(_classDisplayVC == nil) {
-		self.classDisplayVC = [[RTBClassDisplayVC alloc] initWithNibName:@"RTBClassDisplayVC" bundle:nil];
-	}
-	return _classDisplayVC;
-}
-
-- (void)showHeaderForClassName:(NSString *)className {
-	[self classDisplayVC].className = className;
-	[[self navigationController] presentViewController:[_classDisplayVC navigationController] animated:YES completion:^{
-        //
-    }];
-}
-
 - (IBAction)dismissModalView:(id)sender {	
 	[[self navigationController] dismissViewControllerAnimated:YES completion:^{
         //
@@ -148,7 +134,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 //	static NSString *ClassCellIdentifier = @"ClassCell";
 	
-    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBListCell"];
+    RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
 
 //	RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:ClassCellIdentifier];
 //	if(cell == nil) {

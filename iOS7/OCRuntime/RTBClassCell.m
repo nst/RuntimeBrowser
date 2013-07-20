@@ -11,10 +11,8 @@
 @implementation RTBClassCell
 
 - (IBAction)showHeaders:(id)sender {
+    // TODO: use a notification here
 	id appDelegate = [[UIApplication sharedApplication] delegate];
-    
-    NSLog(@"-- _label.text: %@", _label.text);
-    
 	[appDelegate performSelector:@selector(showHeaderForClassName:) withObject:_label.text];
 }
 

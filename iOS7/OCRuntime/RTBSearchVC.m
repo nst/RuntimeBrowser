@@ -39,7 +39,7 @@
 	//searchBar.keyboardType = UIKeyboardTypeASCIICapable;
 	_theSearchBar.autocapitalizationType = UITextAutocapitalizationTypeNone;
 	_theSearchBar.autocorrectionType = UITextAutocorrectionTypeNo;
-	_theSearchBar.showsCancelButton = YES;
+//	_theSearchBar.showsCancelButton = YES;
 
     [super viewDidLoad];
 }

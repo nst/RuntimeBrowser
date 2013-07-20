@@ -155,50 +155,12 @@
 	}
 }
 
-/*
- + (NSString *)hardwareModel
- {
- static NSString *hardwareModel = nil;
- if (!hardwareModel) {
- char buffer[128];
- size_t length = sizeof(buffer);
- if (sysctlbyname("hw.model", &buffer, &length, NULL, 0) == 0) {
- hardwareModel = [[NSString allocWithZone:NULL] initWithCString:buffer encoding:NSASCIIStringEncoding];
- }
- if (!hardwareModel || [hardwareModel length] == 0) {
- hardwareModel = @"Unknown";
- }
- }
- return hardwareModel;
- }
- 
- + (NSString *)computerModel
- {
- static NSString *computerModel = nil;
- if (!computerModel) {
- NSString *path, *hardwareModel = [self hardwareModel];
- if ((path = [[NSBundle mainBundle] pathForResource:@"Macintosh" ofType:@"dict"])) {
- computerModel = [[[NSDictionary dictionaryWithContentsOfFile:path] objectForKey:hardwareModel] copy];
- }
- if (!computerModel) {
- char buffer[128];
- size_t length = sizeof(buffer);
- if (sysctlbyname("hw.machine", &buffer, &length, NULL, 0) == 0) {
- computerModel = [[NSString allocWithZone:NULL] initWithCString:buffer encoding:NSASCIIStringEncoding];
- }
- }
- if (!computerModel || [computerModel length] == 0) {
- computerModel = [[NSString allocWithZone:NULL] initWithFormat:@"%@ computer model", hardwareModel];
- }
- }
- return computerModel;
- }
- */
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [self.window setFrame:[[UIScreen mainScreen] bounds]];
 	
+    self.window.tintColor = [UIColor purpleColor];
+    
 	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
 	NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
@@ -222,8 +184,7 @@
 }
 
 - (void)showHeaderForClassName:(NSString *)className {
-//	[self classDisplayVC].className = className;
-    
+
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
     classDisplayVC.className = className;
@@ -239,18 +200,6 @@
         //
     }];
 }
-
-/*
- // Optional UITabBarControllerDelegate method
- - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
- }
- */
-
-/*
- // Optional UITabBarControllerDelegate method
- - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed {
- }
- */
 
 - (void)applicationWillTerminate:(UIApplication *)application {
 	if(_httpServer) {
