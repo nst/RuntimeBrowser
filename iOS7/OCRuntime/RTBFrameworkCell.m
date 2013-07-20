@@ -8,11 +8,21 @@
 
 #import "RTBFrameworkCell.h"
 
+@interface RTBFrameworkCell ()
+@property (nonatomic, retain) IBOutlet UILabel *label;
+@property (nonatomic, retain) IBOutlet UIImageView *imageView;
+@end
 
 @implementation RTBFrameworkCell
 
-@synthesize label;
-@synthesize button;
+- (void)setFrameworkName:(NSString *)frameworkName {
+    self.label.text = frameworkName;
+}
+
+- (NSString *)frameworkName {
+    return self.label.text;
+}
+
 /*
 - (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier {
 	if (self = [super initWithFrame:frame reuseIdentifier:reuseIdentifier]) {

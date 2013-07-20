@@ -48,7 +48,9 @@ static const NSUInteger kPrivateFrameworks = 1;
 	}
 	
 	NSString *name = [[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];
-	cell.label.text = name;
+    
+    cell.frameworkName = name;
+    
 	cell.accessoryType = [b isLoaded] ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
 	return cell;
 }

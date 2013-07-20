@@ -9,12 +9,8 @@
 #import <UIKit/UIKit.h>
 
 
-@interface RTBFrameworkCell : UITableViewCell {
-	IBOutlet UILabel *label;
-	IBOutlet UIButton *button;
-}
+@interface RTBFrameworkCell : UITableViewCell
 
-@property (nonatomic, retain) IBOutlet UILabel *label;
-@property (nonatomic, retain) IBOutlet UIButton *button;
+@property (nonatomic, retain) NSString *frameworkName;
 
 @end

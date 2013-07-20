@@ -72,7 +72,7 @@
 	
 	// Set up the cell
 	ClassStub *cs = [_foundClasses objectAtIndex:indexPath.row];
-	cell.label.text = cs.stubClassname;
+	cell.className = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
     return cell;

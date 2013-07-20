@@ -91,7 +91,7 @@
 	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
 //    cell.imageView.image = [UIImage imageNamed:@"header.png"];
 //    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
-    cell.label.text = cs.stubClassname;
+    cell.className = cs.stubClassname;
 	cell.accessoryType = [[cs subclassesStubs] count] > 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 	
 	return cell;

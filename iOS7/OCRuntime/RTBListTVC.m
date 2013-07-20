@@ -139,7 +139,6 @@
 	if(_frameworkName == nil) {
 		if(indexPath.section >= [_classStubsDictionaries count]) {
 			cell.textLabel.text = @"";
-            cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
 			cell.accessoryType = UITableViewCellAccessoryNone;
 			return cell;
 		}
@@ -149,7 +148,7 @@
 	NSArray *theClassStubs = [[d allValues] lastObject];
 	
 	ClassStub *cs = [theClassStubs objectAtIndex:indexPath.row];
-	cell.label.text = cs.stubClassname;
+    cell.className = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
 	return cell;

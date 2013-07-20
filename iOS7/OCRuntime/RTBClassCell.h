@@ -11,8 +11,7 @@
 
 @interface RTBClassCell : UITableViewCell
 
-@property (nonatomic, retain) IBOutlet UILabel *label;
-@property (nonatomic, retain) IBOutlet UIButton *button;
+@property (nonatomic, retain) NSString *className;
 
 - (IBAction)showHeaders:(id)sender;
 
