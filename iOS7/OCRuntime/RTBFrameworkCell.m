@@ -10,7 +10,7 @@
 
 @interface RTBFrameworkCell ()
 @property (nonatomic, retain) IBOutlet UILabel *label;
-@property (nonatomic, retain) IBOutlet UIImageView *imageView;
+@property (nonatomic, retain) IBOutlet UIImageView *frameworkImageView;
 @end
 
 @implementation RTBFrameworkCell

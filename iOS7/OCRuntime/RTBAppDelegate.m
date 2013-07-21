@@ -171,7 +171,7 @@
 	
 	self.allClasses = [AllClasses sharedInstance];
 	
-	BOOL startWebServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"StartWebServer"];
+	BOOL startWebServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"EnableWebServer"];
 	
 	if(startWebServer) {
 		[self startWebServer];

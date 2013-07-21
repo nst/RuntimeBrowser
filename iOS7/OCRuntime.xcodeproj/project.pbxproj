@@ -58,6 +58,10 @@
 		03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
 		03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03959DFC176AFC4E002A1FCC /* InfoPlist.strings */; };
 		03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */; };
+		03F2FECA179BE1A800D2DDF8 /* UITextView+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2FEC9179BE1A800D2DDF8 /* UITextView+SyntaxColoring.m */; };
+		03F2FECD179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2FECC179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m */; };
+		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
+		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,6 +164,11 @@
 		03959DFB176AFC4E002A1FCC /* OCRuntimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCRuntimeTests-Info.plist"; sourceTree = "<group>"; };
 		03959DFD176AFC4E002A1FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCRuntimeTests.m; sourceTree = "<group>"; };
+		03F2FEC8179BE1A800D2DDF8 /* UITextView+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+SyntaxColoring.h"; sourceTree = "<group>"; };
+		03F2FEC9179BE1A800D2DDF8 /* UITextView+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+SyntaxColoring.m"; sourceTree = "<group>"; };
+		03F2FECB179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableAttributedString+RTB.h"; sourceTree = "<group>"; };
+		03F2FECC179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableAttributedString+RTB.m"; sourceTree = "<group>"; };
+		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -274,6 +283,10 @@
 		03959DC5176AFC4D002A1FCC = {
 			isa = PBXGroup;
 			children = (
+				03F2FEC8179BE1A800D2DDF8 /* UITextView+SyntaxColoring.h */,
+				03F2FEC9179BE1A800D2DDF8 /* UITextView+SyntaxColoring.m */,
+				03F2FECB179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.h */,
+				03F2FECC179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m */,
 				037402FC1796906A005D1AFB /* Model */,
 				03740342179694CE005D1AFB /* RTBMyIP.h */,
 				03740343179694CE005D1AFB /* RTBMyIP.m */,
@@ -336,6 +349,7 @@
 				0360F4FD17969BBE00F58672 /* RTBSearchVC.m */,
 				0360F50717969FDA00F58672 /* header.png */,
 				0360F5091796A1F100F58672 /* framework.png */,
+				03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */,
 			);
 			path = OCRuntime;
 			sourceTree = "<group>";
@@ -453,6 +467,7 @@
 				03959DDC176AFC4D002A1FCC /* InfoPlist.strings in Resources */,
 				0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */,
 				0360F50817969FDA00F58672 /* header.png in Resources */,
+				03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */,
 				03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -461,6 +476,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */,
 				03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -499,8 +515,10 @@
 				0374034E17969813005D1AFB /* RTBFrameworksTVC.m in Sources */,
 				03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */,
 				0374032D179693C5005D1AFB /* DDData.m in Sources */,
+				03F2FECD179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m in Sources */,
 				037402EF17968588005D1AFB /* RTBObjectsTVC.m in Sources */,
 				03740341179693C5005D1AFB /* WebSocket.m in Sources */,
+				03F2FECA179BE1A800D2DDF8 /* UITextView+SyntaxColoring.m in Sources */,
 				037402FF17969143005D1AFB /* RTBMethodCell.m in Sources */,
 				03740335179693C5005D1AFB /* HTTPFileResponse.m in Sources */,
 				03740336179693C5005D1AFB /* HTTPMessage.m in Sources */,
