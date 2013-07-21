@@ -8,12 +8,12 @@
 
 // written and optimized for runtime browser
 
-#import "UITextView+SyntaxColoring.h"
+#import "NSString+SyntaxColoring.h"
 #import "NSMutableAttributedString+RTB.h"
 
 #define isAZaz_(c) ( (c >= 'A' && c <= 'z') || c == '_' )
 
-@implementation UITextView (SyntaxColoring)
+@implementation NSString (SyntaxColoring)
 
 char **stringArrayFromNSArray(NSArray *a) {
 	NSUInteger count = [a count];
@@ -34,6 +34,7 @@ char **stringArrayFromNSArray(NSArray *a) {
 				   firstCharSet:(NSCharacterSet *)cs1
 				  secondCharSet:(NSCharacterSet *)cs2
 						  color:(UIColor *)color
+                           font:(UIFont *)font
                attributedString:(NSMutableAttributedString *)mas {
 	NSUInteger tokenLength;
 	NSUInteger i;
@@ -41,7 +42,7 @@ char **stringArrayFromNSArray(NSArray *a) {
 		for(i = 0; i < nbTokens; i++) {
 			tokenLength = strlen(tokens[i]); // TODO: optimize here: strlen is called 378185 times for NSObject...
 			if(!isAZaz_(*(ptr+tokenLength)) && !strncmp(tokens[i], ptr, tokenLength)) {
-				[mas setTextColor:color range:NSMakeRange(ptr-text, tokenLength)];
+				[mas setTextColor:color font:font range:NSMakeRange(ptr-text, tokenLength)];
 				ptr += tokenLength;
 				break;
 			}
@@ -49,15 +50,19 @@ char **stringArrayFromNSArray(NSArray *a) {
 	}
 }
 
-- (void)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes {
+- (NSAttributedString *)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes {
 
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[self text]];
+    UIFont *font = [UIFont fontWithName:@"Courier" size:12.0];
+    
+    NSDictionary *attributes = @{ NSFontAttributeName : font };
+    
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self attributes:attributes];
 
 #ifdef DEBUG
 	double start = [[NSDate date] timeIntervalSince1970];
 #endif
 	
-	const char* text = [[self text] cStringUsingEncoding:NSUTF8StringEncoding];
+	const char* text = [self cStringUsingEncoding:NSUTF8StringEncoding];
 	char *tmp = (char *)text;
 
 	UIColor *commentsColor = [UIColor colorWithRed:0.0 green:119.0/255 blue:0.0 alpha:1.0];
@@ -99,7 +104,7 @@ char **stringArrayFromNSArray(NSArray *a) {
 				tmp++; 
 			} while(*tmp != '\0' && *(tmp+1) != '\0' && !(*tmp == '*' && *(tmp+1) == '/'));
 			colorStop = tmp-text+2;
-			[attributedString setTextColor:commentsColor range:NSMakeRange(colorStart, colorStop-colorStart)];
+			[attributedString setTextColor:commentsColor font:font range:NSMakeRange(colorStart, colorStop-colorStart)];
 		}
 		
 		// color directives
@@ -109,7 +114,7 @@ char **stringArrayFromNSArray(NSArray *a) {
 				tmp++;
 			} while(*tmp != '\0' && *tmp != ' ' && *tmp != '(' && *tmp != '\n');
 			colorStop = tmp-text;
-			[attributedString setTextColor:keywordsColor range:NSMakeRange(colorStart, colorStop-colorStart)]; // we use kwColor also for directives
+			[attributedString setTextColor:keywordsColor font:font range:NSMakeRange(colorStart, colorStop-colorStart)]; // we use kwColor also for directives
 		}
 		
 		// color keywords
@@ -121,13 +126,11 @@ char **stringArrayFromNSArray(NSArray *a) {
 				NSLog(@"-- colored in %f seconds", [[NSDate date] timeIntervalSince1970] - start);
 #endif
                 
-                self.attributedText = attributedString;
-
-				return;
+				return attributedString;
 			}
 
-			[self tryToColorizeWithTokens:kw nbTokens:kwCount ptr:tmp text:text firstCharSet:kwCS1 secondCharSet:kwCS2 color:keywordsColor attributedString:attributedString];
-			[self tryToColorizeWithTokens:cl nbTokens:clCount ptr:tmp text:text firstCharSet:clCS1 secondCharSet:clCS2 color:classesColor attributedString:attributedString];
+			[self tryToColorizeWithTokens:kw nbTokens:kwCount ptr:tmp text:text firstCharSet:kwCS1 secondCharSet:kwCS2 color:keywordsColor font:font attributedString:attributedString];
+			[self tryToColorizeWithTokens:cl nbTokens:clCount ptr:tmp text:text firstCharSet:clCS1 secondCharSet:clCS2 color:classesColor font:font attributedString:attributedString];
 			
 		} else {
 			tmp++;
@@ -141,7 +144,7 @@ char **stringArrayFromNSArray(NSArray *a) {
 	NSLog(@"-- colored in %f seconds", [[NSDate date] timeIntervalSince1970] - start);
 #endif
     
-    self.attributedText = attributedString;
+    return attributedString;
 }
 
 @end

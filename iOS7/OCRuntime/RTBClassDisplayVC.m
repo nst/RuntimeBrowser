@@ -10,7 +10,7 @@
 #import "ClassDisplay.h"
 #import "RTBAppDelegate.h"
 #import "RTBObjectsTVC.h"
-#import "UITextView+SyntaxColoring.h"
+#import "NSString+SyntaxColoring.h"
 
 @implementation RTBClassDisplayVC
 
@@ -63,7 +63,9 @@
 	
 	NSArray *keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
     
-    [_textView colorizeWithKeywords:keywords classes:nil];
+    NSAttributedString *as = [[cd header] colorizeWithKeywords:keywords classes:nil];
+    
+    _textView.attributedText = as;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

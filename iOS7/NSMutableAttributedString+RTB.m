@@ -10,12 +10,9 @@
 
 @implementation NSMutableAttributedString (RTB)
 
-- (void)setTextColor:(UIColor *)color range:(NSRange)range {
+- (void)setTextColor:(UIColor *)color font:(UIFont *)font range:(NSRange)range {
     
-//    NSDictionary *d = @{ NSFontAttributeName : [UIFont boldSystemFontOfSize:60.0f],
-//                         NSForegroundColorAttributeName : [UIColor redColor], NSBackgroundColorAttributeName : [UIColor blackColor]};
-   
-    NSDictionary *d = @{ NSForegroundColorAttributeName : color };
+    NSDictionary *d = @{ NSForegroundColorAttributeName : color, NSFontAttributeName : font };
     
     [self setAttributes:d range:range];
 }

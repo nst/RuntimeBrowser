@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 
 
-@interface UITextView (SyntaxColoring)
+@interface NSString (SyntaxColoring)
 
-- (void)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes;
+- (NSAttributedString *)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes;
 
 @end

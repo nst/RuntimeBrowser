@@ -10,6 +10,6 @@
 
 @interface NSMutableAttributedString (RTB)
 
-- (void)setTextColor:(UIColor *)color range:(NSRange)range;
+- (void)setTextColor:(UIColor *)color font:(UIFont *)font range:(NSRange)range;
 
 @end
