@@ -63,13 +63,8 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-	static NSString *ClassCellIdentifier = @"RTBClassCell";
-	
-	RTBClassCell *cell = (RTBClassCell *)[aTableView dequeueReusableCellWithIdentifier:ClassCellIdentifier];
-	if(cell == nil) {
-		cell = (RTBClassCell *)[[[NSBundle mainBundle] loadNibNamed:@"RTBClassCell" owner:self options:nil] lastObject];
-	}
-	
+    RTBClassCell *cell = (RTBClassCell *)[_tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
+    
 	// Set up the cell
 	ClassStub *cs = [_foundClasses objectAtIndex:indexPath.row];
 	cell.className = cs.stubClassname;

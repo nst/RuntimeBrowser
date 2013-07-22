@@ -101,13 +101,8 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	static NSString *CellIdentifier = @"MethodCell";
-	
-	RTBMethodCell *cell = (RTBMethodCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-	if(cell == nil) {
-		cell = (RTBMethodCell *)[[[NSBundle mainBundle] loadNibNamed:@"RTBMethodCell" owner:self options:nil] lastObject];
-	}
-	
+    RTBMethodCell *cell = (RTBMethodCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBMethodCell"];
+    
 	// Set up the cell
 	NSString *method = [_methods objectAtIndex:indexPath.row];
 	cell.textLabel.text = [method substringToIndex:[method length]-1]; // remove terminating ';'
@@ -149,7 +144,7 @@
 	if(![_object respondsToSelector:selector]) {
 		return;
 	}
-		
+    
 	if([t hasPrefix:@"struct"]) return;
 
 	id o = nil;
