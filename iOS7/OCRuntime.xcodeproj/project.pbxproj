@@ -45,6 +45,8 @@
 		0379BB2617980CF600F4B8BF /* AllClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2117980CF600F4B8BF /* AllClasses.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		0379BB2717980CF600F4B8BF /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2317980CF600F4B8BF /* ClassDisplay.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2517980CF600F4B8BF /* ClassStub.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */; };
+		0379BB83179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB82179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m */; };
 		03959DD2176AFC4D002A1FCC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD1176AFC4D002A1FCC /* Foundation.framework */; };
 		03959DD4176AFC4D002A1FCC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD3176AFC4D002A1FCC /* CoreGraphics.framework */; };
 		03959DD6176AFC4D002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
@@ -58,8 +60,6 @@
 		03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
 		03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03959DFC176AFC4E002A1FCC /* InfoPlist.strings */; };
 		03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */; };
-		03F2FECA179BE1A800D2DDF8 /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2FEC9179BE1A800D2DDF8 /* NSString+SyntaxColoring.m */; };
-		03F2FECD179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2FECC179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m */; };
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 /* End PBXBuildFile section */
@@ -147,6 +147,10 @@
 		0379BB2317980CF600F4B8BF /* ClassDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassDisplay.m; path = ../model/ClassDisplay.m; sourceTree = "<group>"; };
 		0379BB2417980CF600F4B8BF /* ClassStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassStub.h; path = ../model/ClassStub.h; sourceTree = "<group>"; };
 		0379BB2517980CF600F4B8BF /* ClassStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassStub.m; path = ../model/ClassStub.m; sourceTree = "<group>"; };
+		0379BB7A179D0B2D00F4B8BF /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
+		0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyntaxColoring.m"; sourceTree = "<group>"; };
+		0379BB81179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableAttributedString+RTB.h"; sourceTree = "<group>"; };
+		0379BB82179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableAttributedString+RTB.m"; sourceTree = "<group>"; };
 		03959DCE176AFC4D002A1FCC /* OCRuntime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OCRuntime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		03959DD1176AFC4D002A1FCC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		03959DD3176AFC4D002A1FCC /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -164,10 +168,6 @@
 		03959DFB176AFC4E002A1FCC /* OCRuntimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCRuntimeTests-Info.plist"; sourceTree = "<group>"; };
 		03959DFD176AFC4E002A1FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCRuntimeTests.m; sourceTree = "<group>"; };
-		03F2FEC8179BE1A800D2DDF8 /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
-		03F2FEC9179BE1A800D2DDF8 /* NSString+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyntaxColoring.m"; sourceTree = "<group>"; };
-		03F2FECB179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableAttributedString+RTB.h"; sourceTree = "<group>"; };
-		03F2FECC179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableAttributedString+RTB.m"; sourceTree = "<group>"; };
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -280,14 +280,23 @@
 			path = CocoaLumberjack;
 			sourceTree = "<group>";
 		};
+		0379BB79179D0B2D00F4B8BF /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				0379BB7A179D0B2D00F4B8BF /* NSString+SyntaxColoring.h */,
+				0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */,
+				0379BB81179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.h */,
+				0379BB82179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m */,
+			);
+			name = UI;
+			path = ../UI;
+			sourceTree = "<group>";
+		};
 		03959DC5176AFC4D002A1FCC = {
 			isa = PBXGroup;
 			children = (
-				03F2FEC8179BE1A800D2DDF8 /* NSString+SyntaxColoring.h */,
-				03F2FEC9179BE1A800D2DDF8 /* NSString+SyntaxColoring.m */,
-				03F2FECB179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.h */,
-				03F2FECC179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m */,
 				037402FC1796906A005D1AFB /* Model */,
+				0379BB79179D0B2D00F4B8BF /* UI */,
 				03740342179694CE005D1AFB /* RTBMyIP.h */,
 				03740343179694CE005D1AFB /* RTBMyIP.m */,
 				03740300179693C5005D1AFB /* CocoaHTTPServer */,
@@ -515,15 +524,15 @@
 				0374034E17969813005D1AFB /* RTBFrameworksTVC.m in Sources */,
 				03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */,
 				0374032D179693C5005D1AFB /* DDData.m in Sources */,
-				03F2FECD179BECAE00D2DDF8 /* NSMutableAttributedString+RTB.m in Sources */,
+				0379BB83179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m in Sources */,
 				037402EF17968588005D1AFB /* RTBObjectsTVC.m in Sources */,
 				03740341179693C5005D1AFB /* WebSocket.m in Sources */,
-				03F2FECA179BE1A800D2DDF8 /* NSString+SyntaxColoring.m in Sources */,
 				037402FF17969143005D1AFB /* RTBMethodCell.m in Sources */,
 				03740335179693C5005D1AFB /* HTTPFileResponse.m in Sources */,
 				03740336179693C5005D1AFB /* HTTPMessage.m in Sources */,
 				0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */,
 				03740333179693C5005D1AFB /* HTTPDataResponse.m in Sources */,
+				0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

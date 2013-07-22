@@ -173,7 +173,7 @@
 	
 	if(![t isEqualToString:@"id"]) {
 		if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
-			o = [NSString stringWithFormat:@"%d", o];			
+			o = [NSString stringWithFormat:@"%d", o];
 		} else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
 			o = [NSString stringWithFormat:@"%f", o];			
 		} else if([t isEqualToString:@"BOOL"]) {

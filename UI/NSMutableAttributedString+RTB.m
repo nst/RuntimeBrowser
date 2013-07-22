@@ -10,10 +10,13 @@
 
 @implementation NSMutableAttributedString (RTB)
 
+#if TARGET_OS_IPHONE
 - (void)setTextColor:(UIColor *)color font:(UIFont *)font range:(NSRange)range {
-    
+#else
+- (void)setTextColor:(NSColor *)color font:(NSFont *)font range:(NSRange)range {
+#endif
+
     NSDictionary *d = @{ NSForegroundColorAttributeName : color, NSFontAttributeName : font };
-    
     [self setAttributes:d range:range];
 }
 

@@ -33,8 +33,13 @@ char **stringArrayFromNSArray(NSArray *a) {
 						   text:(const char*)text
 				   firstCharSet:(NSCharacterSet *)cs1
 				  secondCharSet:(NSCharacterSet *)cs2
+#if TARGET_OS_IPHONE
 						  color:(UIColor *)color
                            font:(UIFont *)font
+#else
+						  color:(NSColor *)color
+                           font:(NSFont *)font
+#endif
                attributedString:(NSMutableAttributedString *)mas {
 	NSUInteger tokenLength;
 	NSUInteger i;
@@ -52,7 +57,11 @@ char **stringArrayFromNSArray(NSArray *a) {
 
 - (NSAttributedString *)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes {
 
+#if TARGET_OS_IPHONE
     UIFont *font = [UIFont fontWithName:@"Courier" size:12.0];
+#else
+    NSFont *font = [NSFont fontWithName:@"Courier" size:12.0];
+#endif
     
     NSDictionary *attributes = @{ NSFontAttributeName : font };
     
@@ -65,10 +74,16 @@ char **stringArrayFromNSArray(NSArray *a) {
 	const char* text = [self cStringUsingEncoding:NSUTF8StringEncoding];
 	char *tmp = (char *)text;
 
+#if TARGET_OS_IPHONE
 	UIColor *commentsColor = [UIColor colorWithRed:0.0 green:119.0/255 blue:0.0 alpha:1.0];
 	UIColor *keywordsColor = [UIColor colorWithRed:193.0/255 green:0.0 blue:145./255 alpha:1.0];
 	UIColor *classesColor = [UIColor colorWithRed:103.0/255 green:31.0/255 blue:155./255 alpha:1.0];
-	//NSColor *typesColor = [NSColor colorWithCalibratedRed:53.0/255 green:0.0/255 blue:111./255 alpha:1.0];
+#else
+    NSColor *commentsColor = [NSColor colorWithCalibratedRed:0.0 green:119.0/255 blue:0.0 alpha:1.0];
+	NSColor *keywordsColor = [NSColor colorWithCalibratedRed:193.0/255 green:0.0 blue:145./255 alpha:1.0];
+	NSColor *classesColor = [NSColor colorWithCalibratedRed:103.0/255 green:31.0/255 blue:155./255 alpha:1.0];
+#endif
+    //NSColor *typesColor = [NSColor colorWithCalibratedRed:53.0/255 green:0.0/255 blue:111./255 alpha:1.0];
 	
 	NSMutableCharacterSet *kwCS1 = [[NSMutableCharacterSet alloc] init];
 	NSMutableCharacterSet *kwCS2 = [[NSMutableCharacterSet alloc] init];

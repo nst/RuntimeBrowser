@@ -35,7 +35,7 @@
 
 #import "AppController.h"
 #import "AllClasses.h"
-#import "NSTextView+SyntaxColoring.h"
+#import "NSString+SyntaxColoring.h"
 #import "BrowserNode.h"
 #import "BrowserCell.h"
 #import "ClassStub.h"
@@ -563,12 +563,9 @@
 	classDisplay.displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
     NSString *header = [classDisplay header];
 	
-    [headerTextView setString:header];
-	
-	[headerTextView setTextColor:[NSColor blackColor]];
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"colorizeHeaderFile"]) {
-		[headerTextView colorizeWithKeywords:keywords classes:classes];
-	}
+    NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes];
+    
+    [[headerTextView textStorage] setAttributedString:attributedString];
     
     /* highlight search string */
     
