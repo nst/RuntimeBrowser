@@ -15,13 +15,13 @@
 @implementation RTBClassDisplayVC
 
 - (IBAction)use:(id)sender {
-	
-	RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
-	[appDelegate useClass:_className];
-	
+
 	[self dismissViewControllerAnimated:YES completion:^{
-        //
+        
     }];
+
+    RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
+    [appDelegate useClass:_className];
 }
 
 - (IBAction)dismissModalView:(id)sender {

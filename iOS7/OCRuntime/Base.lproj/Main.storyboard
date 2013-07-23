@@ -206,36 +206,6 @@
             </objects>
             <point key="canvasLocation" x="1151" y="-272"/>
         </scene>
-        <!--ObjectsTVC - Use Class-->
-        <scene sceneID="0py-Rz-yZo">
-            <objects>
-                <tableViewController id="huw-lz-9ns" customClass="RTBObjectsTVC" sceneMemberID="viewController">
-                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="q2t-lO-w0g">
-                        <rect key="frame" x="0.0" y="64" width="320" height="455"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBMethodCell" id="Jzq-um-TSH" customClass="RTBMethodCell">
-                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Jzq-um-TSH" id="Rjz-Ez-kkh">
-                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </tableViewCellContentView>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="huw-lz-9ns" id="hbB-yH-c99"/>
-                            <outlet property="delegate" destination="huw-lz-9ns" id="nCO-mN-h68"/>
-                        </connections>
-                    </tableView>
-                    <extendedEdge key="edgesForExtendedLayout"/>
-                    <navigationItem key="navigationItem" title="Use Class" id="7aj-gw-Jbq"/>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="eTq-BD-NfE" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1156" y="1073"/>
-        </scene>
         <!--InfoVC-->
         <scene sceneID="IdE-Sy-MN4">
             <objects>
@@ -249,7 +219,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j7q-Et-3km">
-                                <rect key="frame" x="20" y="61" width="280" height="211"/>
+                                <rect key="frame" x="20" y="61" width="280" height="204"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">This is a class browser for the Objective-C runtime. You can access all classes loaded in the runtime; dynamically load new frameworks; discover every method implemented on each class; see information in a header (.h) file format and retrieve them from you Mac through HTTP.
@@ -298,7 +268,7 @@ We have found this to be a useful development tool. Please note, however, that e
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dk9-Xb-psz">
-                                <rect key="frame" x="30" y="286" width="260" height="44"/>
+                                <rect key="frame" x="30" y="273" width="260" height="44"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="http://github.com/nst/RuntimeBrowser">
@@ -335,6 +305,7 @@ We have found this to be a useful development tool. Please note, however, that e
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
+                    <navigationItem key="navigationItem" id="wiM-Sp-GxD"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="showOCRuntimeClassesSwitch" destination="dN9-UO-ZoB" id="Wlc-cm-Gco"/>
@@ -345,7 +316,36 @@ We have found this to be a useful development tool. Please note, however, that e
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GoX-AL-SwW" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-147" y="1445"/>
+            <point key="canvasLocation" x="668" y="1752"/>
+        </scene>
+        <!--ObjectsTVC-->
+        <scene sceneID="oco-JZ-uVg">
+            <objects>
+                <tableViewController storyboardIdentifier="RTBObjectsTVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="xsq-ac-6ka" customClass="RTBObjectsTVC" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="DLD-Sc-T7u">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBMethodCell" id="MLO-SK-r0a" customClass="RTBMethodCell">
+                                <rect key="frame" x="0.0" y="86" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="MLO-SK-r0a" id="eNg-ml-svd">
+                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="xsq-ac-6ka" id="qje-oH-pbJ"/>
+                            <outlet property="delegate" destination="xsq-ac-6ka" id="Xnh-7j-CVS"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="Wh8-ma-Zsv"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OXi-kl-QcF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1156" y="1073"/>
         </scene>
         <!--Class DisplayVC-->
         <scene sceneID="wte-S1-k0c">
@@ -409,7 +409,7 @@ We have found this to be a useful development tool. Please note, however, that e
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
-                        <segue destination="huw-lz-9ns" kind="relationship" relationship="rootViewController" id="htj-NB-OjJ"/>
+                        <segue destination="xsq-ac-6ka" kind="relationship" relationship="rootViewController" id="Qel-q6-rCg"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iMg-rN-NkC" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -522,7 +522,7 @@ We have found this to be a useful development tool. Please note, however, that e
         <!--Tab Bar Controller-->
         <scene sceneID="Vex-rW-GRa">
             <objects>
-                <tabBarController id="8YX-ce-x5E" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="UITabBarController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8YX-ce-x5E" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <nil key="simulatedBottomBarMetrics"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" id="JQR-rB-NYL">

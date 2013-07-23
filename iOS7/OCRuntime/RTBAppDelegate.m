@@ -65,14 +65,17 @@
 
 - (void)useClass:(NSString *)className {
 	
-	[_objectsTVC.navigationController popToRootViewControllerAnimated:NO];
+    UITabBarController *tabBarController = (UITabBarController *)_window.rootViewController;
+
+    tabBarController.selectedIndex = 4;
+  
+    UINavigationController *nc = (UINavigationController *)[tabBarController.viewControllers objectAtIndex:4];
+    [nc popToRootViewControllerAnimated:NO];
+    
+    RTBObjectsTVC *objectsTVC = (RTBObjectsTVC *)nc.topViewController;
     
 	Class klass = NSClassFromString(className);
-	_objectsTVC.object = klass;
-	
-	//NSLog(@"-- objectViewController %@", objectViewController);
-	
-	_tabBarController.selectedIndex = 4;
+	objectsTVC.object = klass;
 }
 
 - (NSString *)myIPAddress {
@@ -199,11 +202,11 @@
     }];
 }
 
-- (IBAction)dismissModalView:(id)sender {
-	[_tabBarController dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
-}
+//- (IBAction)dismissModalView:(id)sender {
+//	[_tabBarController dismissViewControllerAnimated:YES completion:^{
+//        //
+//    }];
+//}
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     [_httpServer stop];
