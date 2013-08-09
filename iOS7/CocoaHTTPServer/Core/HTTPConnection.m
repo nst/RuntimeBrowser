@@ -14,6 +14,10 @@
 
 #import "RTBAppDelegate.h"
 
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 // Log levels: off, error, warn, info, verbose
 // Other flags: trace
 static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
@@ -21,16 +25,16 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 // Define chunk size used to read in data for responses
 // This is how much data will be read from disk into RAM at a time
 #if TARGET_OS_IPHONE
-  #define READ_CHUNKSIZE  (1024 * 128)
+  #define READ_CHUNKSIZE  (1024 * 256)
 #else
   #define READ_CHUNKSIZE  (1024 * 512)
 #endif
 
 // Define chunk size used to read in POST upload data
 #if TARGET_OS_IPHONE
-  #define POST_CHUNKSIZE  (1024 * 32)
+  #define POST_CHUNKSIZE  (1024 * 256)
 #else
-  #define POST_CHUNKSIZE  (1024 * 128)
+  #define POST_CHUNKSIZE  (1024 * 512)
 #endif
 
 // Define the various timeouts (in seconds) for various parts of the HTTP process
@@ -43,14 +47,20 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 #define TIMEOUT_NONCE                       300
 
 // Define the various limits
-// LIMIT_MAX_HEADER_LINE_LENGTH: Max length (in bytes) of any single line in a header (including \r\n)
-// LIMIT_MAX_HEADER_LINES      : Max number of lines in a single header (including first GET line)
-#define LIMIT_MAX_HEADER_LINE_LENGTH  8190
-#define LIMIT_MAX_HEADER_LINES         100
+// MAX_HEADER_LINE_LENGTH: Max length (in bytes) of any single line in a header (including \r\n)
+// MAX_HEADER_LINES      : Max number of lines in a single header (including first GET line)
+#define MAX_HEADER_LINE_LENGTH  8190
+#define MAX_HEADER_LINES         100
+// MAX_CHUNK_LINE_LENGTH : For accepting chunked transfer uploads, max length of chunk size line (including \r\n)
+#define MAX_CHUNK_LINE_LENGTH    200
 
 // Define the various tags we'll use to differentiate what it is we're currently doing
 #define HTTP_REQUEST_HEADER                10
 #define HTTP_REQUEST_BODY                  11
+#define HTTP_REQUEST_CHUNK_SIZE            12
+#define HTTP_REQUEST_CHUNK_DATA            13
+#define HTTP_REQUEST_CHUNK_TRAILER         14
+#define HTTP_REQUEST_CHUNK_FOOTER          15
 #define HTTP_PARTIAL_RESPONSE              20
 #define HTTP_PARTIAL_RESPONSE_HEADER       21
 #define HTTP_PARTIAL_RESPONSE_BODY         22
@@ -85,6 +95,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 
 @implementation HTTPConnection
 
+static dispatch_queue_t recentNonceQueue;
 static NSMutableArray *recentNonces;
 
 /**
@@ -93,23 +104,66 @@ static NSMutableArray *recentNonces;
 **/
 + (void)initialize
 {
-	static BOOL initialized = NO;
-	if(!initialized)
-	{
-		// Initialize class variables
-		recentNonces = [[NSMutableArray alloc] initWithCapacity:5];
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
 		
-		initialized = YES;
-	}
+		// Initialize class variables
+		recentNonceQueue = dispatch_queue_create("HTTPConnection-Nonce", NULL);
+		recentNonces = [[NSMutableArray alloc] initWithCapacity:5];
+	});
 }
 
 /**
- * This method is designed to be called by a scheduled timer, and will remove a nonce from the recent nonce list.
- * The nonce to remove should be set as the timer's userInfo.
+ * Generates and returns an authentication nonce.
+ * A nonce is a  server-specified string uniquely generated for each 401 response.
+ * The default implementation uses a single nonce for each session.
 **/
-+ (void)removeRecentNonce:(NSTimer *)aTimer
++ (NSString *)generateNonce
 {
-	[recentNonces removeObject:[aTimer userInfo]];
+	// We use the Core Foundation UUID class to generate a nonce value for us
+	// UUIDs (Universally Unique Identifiers) are 128-bit values guaranteed to be unique.
+	CFUUIDRef theUUID = CFUUIDCreate(NULL);
+	NSString *newNonce = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, theUUID);
+	CFRelease(theUUID);
+	
+	// We have to remember that the HTTP protocol is stateless.
+	// Even though with version 1.1 persistent connections are the norm, they are not guaranteed.
+	// Thus if we generate a nonce for this connection,
+	// it should be honored for other connections in the near future.
+	// 
+	// In fact, this is absolutely necessary in order to support QuickTime.
+	// When QuickTime makes it's initial connection, it will be unauthorized, and will receive a nonce.
+	// It then disconnects, and creates a new connection with the nonce, and proper authentication.
+	// If we don't honor the nonce for the second connection, QuickTime will repeat the process and never connect.
+	
+	dispatch_async(recentNonceQueue, ^{ @autoreleasepool {
+		
+		[recentNonces addObject:newNonce];
+	}});
+	
+	double delayInSeconds = TIMEOUT_NONCE;
+	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+	dispatch_after(popTime, recentNonceQueue, ^{ @autoreleasepool {
+		
+		[recentNonces removeObject:newNonce];
+	}});
+	
+	return newNonce;
+}
+
+/**
+ * Returns whether or not the given nonce is in the list of recently generated nonce's.
+**/
++ (BOOL)hasRecentNonce:(NSString *)recentNonce
+{
+	__block BOOL result = NO;
+	
+	dispatch_sync(recentNonceQueue, ^{ @autoreleasepool {
+		
+		result = [recentNonces containsObject:recentNonce];
+	}});
+	
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +184,9 @@ static NSMutableArray *recentNonces;
 		if (aConfig.queue)
 		{
 			connectionQueue = aConfig.queue;
+			#if !OS_OBJECT_USE_OBJC
 			dispatch_retain(connectionQueue);
+			#endif
 		}
 		else
 		{
@@ -138,11 +194,11 @@ static NSMutableArray *recentNonces;
 		}
 		
 		// Take over ownership of the socket
-		asyncSocket = [newSocket retain];
+		asyncSocket = newSocket;
 		[asyncSocket setDelegate:self delegateQueue:connectionQueue];
 		
 		// Store configuration
-		config = [aConfig retain];
+		config = aConfig;
 		
 		// Initialize lastNC (last nonce count).
 		// Used with digest access authentication.
@@ -166,31 +222,17 @@ static NSMutableArray *recentNonces;
 {
 	HTTPLogTrace();
 	
+	#if !OS_OBJECT_USE_OBJC
 	dispatch_release(connectionQueue);
+	#endif
 	
 	[asyncSocket setDelegate:nil delegateQueue:NULL];
 	[asyncSocket disconnect];
-	[asyncSocket release];
-	
-	[config release];
-	
-	[request release];
-	
-	[nonce release];
 	
 	if ([httpResponse respondsToSelector:@selector(connectionDidClose)])
 	{
 		[httpResponse connectionDidClose];
 	}
-	[httpResponse release];
-	
-	[ranges release];
-	[ranges_headers release];
-	[ranges_boundry release];
-	
-	[responseDataSizes release];
-	
-	[super dealloc];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,41 +398,6 @@ static NSMutableArray *recentNonces;
 }
 
 /**
- * Generates and returns an authentication nonce.
- * A nonce is a  server-specified string uniquely generated for each 401 response.
- * The default implementation uses a single nonce for each session.
-**/
-- (NSString *)generateNonce
-{
-	HTTPLogTrace();
-	
-	// We use the Core Foundation UUID class to generate a nonce value for us
-	// UUIDs (Universally Unique Identifiers) are 128-bit values guaranteed to be unique.
-	CFUUIDRef theUUID = CFUUIDCreate(NULL);
-	NSString *newNonce = [NSMakeCollectable(CFUUIDCreateString(NULL, theUUID)) autorelease];
-	CFRelease(theUUID);
-	
-	// We have to remember that the HTTP protocol is stateless.
-	// Even though with version 1.1 persistent connections are the norm, they are not guaranteed.
-	// Thus if we generate a nonce for this connection,
-	// it should be honored for other connections in the near future.
-	// 
-	// In fact, this is absolutely necessary in order to support QuickTime.
-	// When QuickTime makes it's initial connection, it will be unauthorized, and will receive a nonce.
-	// It then disconnects, and creates a new connection with the nonce, and proper authentication.
-	// If we don't honor the nonce for the second connection, QuickTime will repeat the process and never connect.
-	
-	[recentNonces addObject:newNonce];
-	
-	[NSTimer scheduledTimerWithTimeInterval:TIMEOUT_NONCE
-	                                 target:[HTTPConnection class]
-	                               selector:@selector(removeRecentNonce:)
-	                               userInfo:newNonce
-	                                repeats:NO];
-	return newNonce;
-}
-
-/**
  * Returns whether or not the user is properly authenticated.
 **/
 - (BOOL)isAuthenticated
@@ -398,7 +405,7 @@ static NSMutableArray *recentNonces;
 	HTTPLogTrace();
 	
 	// Extract the authentication information from the Authorization header
-	HTTPAuthenticationRequest *auth = [[[HTTPAuthenticationRequest alloc] initWithRequest:request] autorelease];
+	HTTPAuthenticationRequest *auth = [[HTTPAuthenticationRequest alloc] initWithRequest:request];
 	
 	if ([self useDigestAccessAuthentication])
 	{
@@ -439,10 +446,9 @@ static NSMutableArray *recentNonces;
 		{
 			// The given nonce may be from another connection
 			// We need to search our list of recent nonce strings that have been recently distributed
-			if ([recentNonces containsObject:[auth nonce]])
+			if ([[self class] hasRecentNonce:[auth nonce]])
 			{
 				// Store nonce in local (cached) nonce variable to prevent array searches in the future
-				[nonce release];
 				nonce = [[auth nonce] copy];
 				
 				// The client has switched to using a different nonce value
@@ -499,7 +505,7 @@ static NSMutableArray *recentNonces;
 		
 		NSData *temp = [[base64Credentials dataUsingEncoding:NSUTF8StringEncoding] base64Decoded];
 		
-		NSString *credentials = [[[NSString alloc] initWithData:temp encoding:NSUTF8StringEncoding] autorelease];
+		NSString *credentials = [[NSString alloc] initWithData:temp encoding:NSUTF8StringEncoding];
 		
 		// The credentials should be of the form "username:password"
 		// The username is not allowed to contain a colon
@@ -534,7 +540,7 @@ static NSMutableArray *recentNonces;
 	HTTPLogTrace();
 	
 	NSString *authFormat = @"Digest realm=\"%@\", qop=\"auth\", nonce=\"%@\"";
-	NSString *authInfo = [NSString stringWithFormat:authFormat, [self realm], [self generateNonce]];
+	NSString *authInfo = [NSString stringWithFormat:authFormat, [self realm], [[self class] generateNonce]];
 	
 	[response setHeaderField:@"WWW-Authenticate" value:authInfo];
 }
@@ -562,16 +568,14 @@ static NSMutableArray *recentNonces;
 **/
 - (void)start
 {
-	dispatch_async(connectionQueue, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	dispatch_async(connectionQueue, ^{ @autoreleasepool {
 		
-		if (started) return;
-		started = YES;
-		
-		[self startConnection];
-		
-		[pool release];
-	});
+		if (!started)
+		{
+			started = YES;
+			[self startConnection];
+		}
+	}});
 }
 
 /**
@@ -580,13 +584,12 @@ static NSMutableArray *recentNonces;
 **/
 - (void)stop
 {
-	dispatch_async(connectionQueue, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	dispatch_async(connectionQueue, ^{ @autoreleasepool {
 		
-		[self die];
-		
-		[pool release];
-	});
+		// Disconnect the socket.
+		// The socketDidDisconnect delegate method will handle everything else.
+		[asyncSocket disconnect];
+	}});
 }
 
 /**
@@ -639,7 +642,7 @@ static NSMutableArray *recentNonces;
 	
 	[asyncSocket readDataToData:[GCDAsyncSocket CRLFData]
 	                withTimeout:TIMEOUT_READ_FIRST_HEADER_LINE
-	                  maxLength:LIMIT_MAX_HEADER_LINE_LENGTH
+	                  maxLength:MAX_HEADER_LINE_LENGTH
 	                        tag:HTTP_REQUEST_HEADER];
 }
 
@@ -674,13 +677,13 @@ static NSMutableArray *recentNonces;
 				{
 					CFStringRef k, v;
 					
-					k = CFURLCreateStringByReplacingPercentEscapes(NULL, (CFStringRef)escapedKey, CFSTR(""));
-					v = CFURLCreateStringByReplacingPercentEscapes(NULL, (CFStringRef)escapedValue, CFSTR(""));
+					k = CFURLCreateStringByReplacingPercentEscapes(NULL, (__bridge CFStringRef)escapedKey, CFSTR(""));
+					v = CFURLCreateStringByReplacingPercentEscapes(NULL, (__bridge CFStringRef)escapedValue, CFSTR(""));
 					
 					NSString *key, *value;
 					
-					key   = [NSMakeCollectable(k) autorelease];
-					value = [NSMakeCollectable(v) autorelease];
+					key   = (__bridge_transfer NSString *)k;
+					value = (__bridge_transfer NSString *)v;
 					
 					if (key)
 					{
@@ -759,11 +762,11 @@ static NSMutableArray *recentNonces;
 	NSUInteger tIndex = eqsignRange.location;
 	NSUInteger fIndex = eqsignRange.location + eqsignRange.length;
 	
-	NSString *rangeType  = [[[rangeHeader substringToIndex:tIndex] mutableCopy] autorelease];
-	NSString *rangeValue = [[[rangeHeader substringFromIndex:fIndex] mutableCopy] autorelease];
+	NSMutableString *rangeType  = [[rangeHeader substringToIndex:tIndex] mutableCopy];
+	NSMutableString *rangeValue = [[rangeHeader substringFromIndex:fIndex] mutableCopy];
 	
-	CFStringTrimWhitespace((CFMutableStringRef)rangeType);
-	CFStringTrimWhitespace((CFMutableStringRef)rangeValue);
+	CFStringTrimWhitespace((__bridge CFMutableStringRef)rangeType);
+	CFStringTrimWhitespace((__bridge CFMutableStringRef)rangeValue);
 	
 	if([rangeType caseInsensitiveCompare:@"bytes"] != NSOrderedSame) return NO;
 	
@@ -771,7 +774,6 @@ static NSMutableArray *recentNonces;
 	
 	if([rangeComponents count] == 0) return NO;
 	
-	[ranges release];
 	ranges = [[NSMutableArray alloc] initWithCapacity:[rangeComponents count]];
 	
 	rangeIndex = 0;
@@ -899,7 +901,6 @@ static NSMutableArray *recentNonces;
 		
 		NSString *tempStr = [[NSString alloc] initWithData:tempData encoding:NSUTF8StringEncoding];
 		HTTPLogVerbose(@"%@[%p]: Received HTTP request:\n%@", THIS_FILE, self, tempStr);
-		[tempStr release];
 	}
 	
 	// Check the HTTP version
@@ -932,10 +933,45 @@ static NSMutableArray *recentNonces;
 			
 			[[config server] addWebSocket:ws];
 			
-			[asyncSocket release];
-			asyncSocket = nil;
-			
-			[self die];
+			// The WebSocket should now be the delegate of the underlying socket.
+			// But gracefully handle the situation if it forgot.
+			if ([asyncSocket delegate] == self)
+			{
+				HTTPLogWarn(@"%@[%p]: WebSocket forgot to set itself as socket delegate", THIS_FILE, self);
+				
+				// Disconnect the socket.
+				// The socketDidDisconnect delegate method will handle everything else.
+				[asyncSocket disconnect];
+			}
+			else
+			{
+				// The WebSocket is using the socket,
+				// so make sure we don't disconnect it in the dealloc method.
+				asyncSocket = nil;
+				
+				[self die];
+				
+				// Note: There is a timing issue here that should be pointed out.
+				// 
+				// A bug that existed in previous versions happend like so:
+				// - We invoked [self die]
+				// - This caused us to get released, and our dealloc method to start executing
+				// - Meanwhile, AsyncSocket noticed a disconnect, and began to dispatch a socketDidDisconnect at us
+				// - The dealloc method finishes execution, and our instance gets freed
+				// - The socketDidDisconnect gets run, and a crash occurs
+				// 
+				// So the issue we want to avoid is releasing ourself when there is a possibility
+				// that AsyncSocket might be gearing up to queue a socketDidDisconnect for us.
+				// 
+				// In this particular situation notice that we invoke [asyncSocket delegate].
+				// This method is synchronous concerning AsyncSocket's internal socketQueue.
+				// Which means we can be sure, when it returns, that AsyncSocket has already
+				// queued any delegate methods for us if it was going to.
+				// And if the delegate methods are queued, then we've been properly retained.
+				// Meaning we won't get released / dealloc'd until the delegate method has finished executing.
+				// 
+				// In this rare situation, the die method will get invoked twice.
+			}
 		}
 		
 		return;
@@ -955,7 +991,7 @@ static NSMutableArray *recentNonces;
 	// Note: We already checked to ensure the method was supported in onSocket:didReadData:withTag:
 	
 	// Respond properly to HTTP 'GET' and 'HEAD' commands
-	httpResponse = [[self httpResponseForMethod:method URI:uri] retain];
+	httpResponse = [self httpResponseForMethod:method URI:uri];
 	
 	if (httpResponse == nil)
 	{
@@ -1024,7 +1060,7 @@ static NSMutableArray *recentNonces;
 	ranges_headers = [[NSMutableArray alloc] initWithCapacity:[ranges count]];
 	
 	CFUUIDRef theUUID = CFUUIDCreate(NULL);
-	ranges_boundry = NSMakeCollectable(CFUUIDCreateString(NULL, theUUID));
+	ranges_boundry = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, theUUID);
 	CFRelease(theUUID);
 	
 	NSString *startingBoundryStr = [NSString stringWithFormat:@"\r\n--%@\r\n", ranges_boundry];
@@ -1088,9 +1124,9 @@ static NSMutableArray *recentNonces;
 
 - (void)sendResponseHeadersAndBody
 {
-	if ([httpResponse respondsToSelector:@selector(delayResponeHeaders)])
+	if ([httpResponse respondsToSelector:@selector(delayResponseHeaders)])
 	{
-		if ([httpResponse delayResponeHeaders])
+		if ([httpResponse delayResponseHeaders])
 		{
 			return;
 		}
@@ -1272,7 +1308,6 @@ static NSMutableArray *recentNonces;
 		}
 	}
 	
-	[response release];
 }
 
 /**
@@ -1514,10 +1549,15 @@ static NSMutableArray *recentNonces;
 	return [NSArray arrayWithObjects:@"index.html", @"index.htm", nil];
 }
 
+- (NSString *)filePathForURI:(NSString *)path
+{
+	return [self filePathForURI:path allowDirectory:NO];
+}
+
 /**
  * Converts relative URI path into full file-system path.
 **/
-- (NSString *)filePathForURI:(NSString *)path
+- (NSString *)filePathForURI:(NSString *)path allowDirectory:(BOOL)allowDirectory
 {
 	HTTPLogTrace();
 	
@@ -1537,109 +1577,83 @@ static NSMutableArray *recentNonces;
 		return nil;
 	}
 	
-//	// Part 1: Strip parameters from the url
-//	// 
-//	// E.g.: /page.html?q=22&var=abc -> /page.html
-//	
+	// Part 1: Strip parameters from the url
+	// 
+	// E.g.: /page.html?q=22&var=abc -> /page.html
+	
 	NSURL *docRoot = [NSURL fileURLWithPath:documentRoot isDirectory:YES];
 	if (docRoot == nil)
 	{
 		HTTPLogWarn(@"%@[%p]: Document root is invalid file path", THIS_FILE, self);
 		return nil;
 	}
-//	
-//	NSString *relativePath = [[NSURL URLWithString:path relativeToURL:docRoot] relativePath];
-//	
-//	// Part 2: Append relative path to document root (base path)
-//	// 
-//	// E.g.: relativePath="/images/icon.png"
-//	//       documentRoot="/Users/robbie/Sites"
-//	//           fullPath="/Users/robbie/Sites/images/icon.png"
-//	// 
-//	// We also standardize the path.
-//	// 
-//	// E.g.: "Users/robbie/Sites/images/../index.html" -> "/Users/robbie/Sites/index.html"
-//	
-//	NSString *fullPath = [[documentRoot stringByAppendingPathComponent:relativePath] stringByStandardizingPath];
-//	
-//	if ([relativePath isEqualToString:@"/"])
-//	{
-//		fullPath = [fullPath stringByAppendingString:@"/"];
-//	}
-//	
-//	// Part 3: Prevent serving files outside the document root.
-//	// 
-//	// Sneaky requests may include ".." in the path.
-//	// 
-//	// E.g.: relativePath="../Documents/TopSecret.doc"
-//	//       documentRoot="/Users/robbie/Sites"
-//	//           fullPath="/Users/robbie/Documents/TopSecret.doc"
-//	// 
-//	// E.g.: relativePath="../Sites_Secret/TopSecret.doc"
-//	//       documentRoot="/Users/robbie/Sites"
-//	//           fullPath="/Users/robbie/Sites_Secret/TopSecret"
-//	
-//	if (![documentRoot hasSuffix:@"/"])
-//	{
-//		documentRoot = [documentRoot stringByAppendingString:@"/"];
-//	}
-//	
-//	if (![fullPath hasPrefix:documentRoot])
-//	{
-//		HTTPLogWarn(@"%@[%p]: Request for file outside document root", THIS_FILE, self);
-//		return nil;
-//	}
-//	
-//	// Part 4: Search for index page if path is pointing to a directory
-//	
-//	BOOL isDir = NO;
-//	
-//	if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath isDirectory:&isDir] && isDir)
-//	{
-//		NSArray *indexFileNames = [self directoryIndexFileNames];
-//		
-//		for (NSString *indexFileName in indexFileNames)
-//		{
-//			NSString *indexFilePath = [fullPath stringByAppendingPathComponent:indexFileName];
-//			
-//			if ([[NSFileManager defaultManager] fileExistsAtPath:indexFilePath isDirectory:&isDir] && !isDir)
-//			{
-//				return indexFilePath;
-//			}
-//		}
-//		
-//		// No matching index files found in directory
-//		return nil;
-//	}
-//	else
-//	{
-//		return fullPath;
-//	}
+	
+	NSString *relativePath = [[NSURL URLWithString:path relativeToURL:docRoot] relativePath];
+	
+	// Part 2: Append relative path to document root (base path)
+	// 
+	// E.g.: relativePath="/images/icon.png"
+	//       documentRoot="/Users/robbie/Sites"
+	//           fullPath="/Users/robbie/Sites/images/icon.png"
+	// 
+	// We also standardize the path.
+	// 
+	// E.g.: "Users/robbie/Sites/images/../index.html" -> "/Users/robbie/Sites/index.html"
+	
+	NSString *fullPath = [[documentRoot stringByAppendingPathComponent:relativePath] stringByStandardizingPath];
+	
+	if ([relativePath isEqualToString:@"/"])
+	{
+		fullPath = [fullPath stringByAppendingString:@"/"];
+	}
+	
+	// Part 3: Prevent serving files outside the document root.
+	// 
+	// Sneaky requests may include ".." in the path.
+	// 
+	// E.g.: relativePath="../Documents/TopSecret.doc"
+	//       documentRoot="/Users/robbie/Sites"
+	//           fullPath="/Users/robbie/Documents/TopSecret.doc"
+	// 
+	// E.g.: relativePath="../Sites_Secret/TopSecret.doc"
+	//       documentRoot="/Users/robbie/Sites"
+	//           fullPath="/Users/robbie/Sites_Secret/TopSecret"
+	
+	if (![documentRoot hasSuffix:@"/"])
+	{
+		documentRoot = [documentRoot stringByAppendingString:@"/"];
+	}
+	
+	if (![fullPath hasPrefix:documentRoot])
+	{
+		HTTPLogWarn(@"%@[%p]: Request for file outside document root", THIS_FILE, self);
+		return nil;
+	}
+	
+	// Part 4: Search for index page if path is pointing to a directory
+	if (!allowDirectory)
+	{
+		BOOL isDir = NO;
+		if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath isDirectory:&isDir] && isDir)
+		{
+			NSArray *indexFileNames = [self directoryIndexFileNames];
 
-	NSString *relativePath = path;
-	
-	while([relativePath hasPrefix:@"/"] && [relativePath length] > 1)
-	{
-		relativePath = [relativePath substringFromIndex:1];
+			for (NSString *indexFileName in indexFileNames)
+			{
+				NSString *indexFilePath = [fullPath stringByAppendingPathComponent:indexFileName];
+
+				if ([[NSFileManager defaultManager] fileExistsAtPath:indexFilePath isDirectory:&isDir] && !isDir)
+				{
+					return indexFilePath;
+				}
+			}
+
+			// No matching index files found in directory
+			return nil;
+		}
 	}
-	
-	NSURL *url;
-	
-	if([relativePath hasSuffix:@"/"])
-	{
-		NSString *completedRelativePath = [relativePath stringByAppendingString:@"index.html"];
-		url = [NSURL URLWithString:completedRelativePath relativeToURL:docRoot];
-	}
-	else
-	{
-		url = [NSURL URLWithString:relativePath relativeToURL:docRoot];
-	}
-	
-	// Watch out for sneaky requests with ".." in the path
-	// For example, the following request: "../Documents/TopSecret.doc"
-	if(![[url path] hasPrefix:[docRoot path]]) return nil;
-	
-	return [[url path] stringByStandardizingPath];
+
+	return fullPath;
 }
 
 /**
@@ -1652,28 +1666,28 @@ static NSMutableArray *recentNonces;
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path
 {
 	HTTPLogTrace();
-	
+    
+    /*
 	// Override me to provide custom responses.
 	
-//	NSString *filePath = [self filePathForURI:path];
-//	
-//	BOOL isDir = NO;
-//	
-//	if (filePath && [[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] && !isDir)
-//	{
-//		return [[[HTTPFileResponse alloc] initWithFilePath:filePath forConnection:self] autorelease];
-//	
-//		// Use me instead for asynchronous file IO.
-//		// Generally better for larger files.
-//		
-//	//	return [[[HTTPAsyncFileResponse alloc] initWithFilePath:filePath forConnection:self] autorelease];
-//	}
-//	
-//	return nil;
-
-	// Runtime Browser custom behaviour
+	NSString *filePath = [self filePathForURI:path allowDirectory:NO];
 	
-	RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
+	BOOL isDir = NO;
+	
+	if (filePath && [[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] && !isDir)
+	{
+		return [[HTTPFileResponse alloc] initWithFilePath:filePath forConnection:self];
+	
+		// Use me instead for asynchronous file IO.
+		// Generally better for larger files.
+		
+	//	return [[[HTTPAsyncFileResponse alloc] initWithFilePath:filePath forConnection:self] autorelease];
+	}
+	
+	return nil;
+     */
+    
+    RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
 	return [appDelegate responseForPath:path];
 }
 
@@ -1713,7 +1727,7 @@ static NSMutableArray *recentNonces;
  * This method is called to handle data read from a POST / PUT.
  * The given data is part of the request body.
 **/
-- (void)processDataChunk:(NSData *)postDataChunk
+- (void)processBodyData:(NSData *)postDataChunk
 {
 	// Override me to do something useful with a POST / PUT.
 	// If the post is small, such as a simple form, you may want to simply append the data to the request.
@@ -1723,6 +1737,16 @@ static NSMutableArray *recentNonces;
 	// This prevents a 50 MB upload from being stored in RAM.
 	// The size of the chunks are limited by the POST_CHUNKSIZE definition.
 	// Therefore, this method may be called multiple times for the same POST request.
+}
+
+/**
+ * This method is called after the request body has been fully read but before the HTTP request is processed.
+**/
+- (void)finishBody
+{
+	// Override me to perform any final operations on an upload.
+	// For example, if you were saving the upload to disk this would be
+	// the hook to flush any pending data to disk and maybe close the file.
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1746,7 +1770,6 @@ static NSMutableArray *recentNonces;
 	NSData *responseData = [self preprocessErrorResponse:response];
 	[asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_RESPONSE];
 	
-	[response release];
 }
 
 /**
@@ -1776,7 +1799,6 @@ static NSMutableArray *recentNonces;
 	NSData *responseData = [self preprocessErrorResponse:response];
 	[asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_RESPONSE];
 	
-	[response release];
 }
 
 /**
@@ -1800,7 +1822,6 @@ static NSMutableArray *recentNonces;
 	NSData *responseData = [self preprocessErrorResponse:response];
 	[asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_FINAL_RESPONSE];
 	
-	[response release];
 	
 	// Note: We used the HTTP_FINAL_RESPONSE tag to disconnect after the response is sent.
 	// We do this because we couldn't parse the request,
@@ -1829,7 +1850,6 @@ static NSMutableArray *recentNonces;
 	NSData *responseData = [self preprocessErrorResponse:response];
 	[asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_FINAL_RESPONSE];
     
-	[response release];
 	
 	// Note: We used the HTTP_FINAL_RESPONSE tag to disconnect after the response is sent.
 	// We do this because the method may include an http body.
@@ -1854,7 +1874,6 @@ static NSMutableArray *recentNonces;
 	NSData *responseData = [self preprocessErrorResponse:response];
 	[asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_RESPONSE];
 	
-	[response release];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1866,14 +1885,35 @@ static NSMutableArray *recentNonces;
 **/
 - (NSString *)dateAsString:(NSDate *)date
 {
-	// Example: Sun, 06 Nov 1994 08:49:37 GMT
+	// From Apple's Documentation (Data Formatting Guide -> Date Formatters -> Cache Formatters for Efficiency):
+	// 
+	// "Creating a date formatter is not a cheap operation. If you are likely to use a formatter frequently,
+	// it is typically more efficient to cache a single instance than to create and dispose of multiple instances.
+	// One approach is to use a static variable."
+	// 
+	// This was discovered to be true in massive form via issue #46:
+	// 
+	// "Was doing some performance benchmarking using instruments and httperf. Using this single optimization
+	// I got a 26% speed improvement - from 1000req/sec to 3800req/sec. Not insignificant.
+	// The culprit? Why, NSDateFormatter, of course!"
+	// 
+	// Thus, we are using a static NSDateFormatter here.
 	
-	NSDateFormatter *df = [[[NSDateFormatter alloc] init] autorelease];
-	[df setFormatterBehavior:NSDateFormatterBehavior10_4];
-	[df setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
-	[df setDateFormat:@"EEE, dd MMM y HH:mm:ss 'GMT'"];
+	static NSDateFormatter *df;
 	
-	// For some reason, using zzz in the format string produces GMT+00:00
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		
+		// Example: Sun, 06 Nov 1994 08:49:37 GMT
+		
+		df = [[NSDateFormatter alloc] init];
+		[df setFormatterBehavior:NSDateFormatterBehavior10_4];
+		[df setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+		[df setDateFormat:@"EEE, dd MMM y HH:mm:ss 'GMT'"];
+		[df setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
+		
+		// For some reason, using zzz in the format string produces GMT+00:00
+	});
 	
 	return [df stringFromDate:date];
 }
@@ -1919,7 +1959,7 @@ static NSMutableArray *recentNonces;
  * This method is called immediately prior to sending the response headers (for an error).
  * This method adds standard header fields, and then converts the response to an NSData object.
 **/
-- (NSData *)preprocessErrorResponse:(HTTPMessage *)response;
+- (NSData *)preprocessErrorResponse:(HTTPMessage *)response
 {
 	HTTPLogTrace();
 	
@@ -1992,7 +2032,7 @@ static NSMutableArray *recentNonces;
 		{
 			// We don't have a complete header yet
 			// That is, we haven't yet received a CRLF on a line by itself, indicating the end of the header
-			if (++numHeaderLines > LIMIT_MAX_HEADER_LINES)
+			if (++numHeaderLines > MAX_HEADER_LINES)
 			{
 				// Reached the maximum amount of header lines in a single HTTP request
 				// This could be an attempted DOS attack
@@ -2005,7 +2045,7 @@ static NSMutableArray *recentNonces;
 			{
 				[asyncSocket readDataToData:[GCDAsyncSocket CRLFData]
 				                withTimeout:TIMEOUT_READ_SUBSEQUENT_HEADER_LINE
-				                  maxLength:LIMIT_MAX_HEADER_LINE_LENGTH
+				                  maxLength:MAX_HEADER_LINE_LENGTH
 				                        tag:HTTP_REQUEST_HEADER];
 			}
 		}
@@ -2019,6 +2059,9 @@ static NSMutableArray *recentNonces;
 			// Extract the uri (such as "/index.html")
 			NSString *uri = [self requestURI];
 			
+			// Check for a Transfer-Encoding field
+			NSString *transferEncoding = [request headerField:@"Transfer-Encoding"];
+      
 			// Check for a Content-Length field
 			NSString *contentLength = [request headerField:@"Content-Length"];
 			
@@ -2028,22 +2071,29 @@ static NSMutableArray *recentNonces;
 			
 			if (expectsUpload)
 			{
-				if (contentLength == nil)
+				if (transferEncoding && ![transferEncoding caseInsensitiveCompare:@"Chunked"])
 				{
-					HTTPLogWarn(@"%@[%p]: Method expects request body, but had no specified Content-Length",
-					              THIS_FILE, self);
-					
-					[self handleInvalidRequest:nil];
-					return;
+					requestContentLength = -1;
 				}
-				
-				if (![NSNumber parseString:(NSString *)contentLength intoUInt64:&requestContentLength])
+				else
 				{
-					HTTPLogWarn(@"%@[%p]: Unable to parse Content-Length header into a valid number",
-								THIS_FILE, self);
+					if (contentLength == nil)
+					{
+						HTTPLogWarn(@"%@[%p]: Method expects request body, but had no specified Content-Length",
+									THIS_FILE, self);
+						
+						[self handleInvalidRequest:nil];
+						return;
+					}
 					
-					[self handleInvalidRequest:nil];
-					return;
+					if (![NSNumber parseString:(NSString *)contentLength intoUInt64:&requestContentLength])
+					{
+						HTTPLogWarn(@"%@[%p]: Unable to parse Content-Length header into a valid number",
+									THIS_FILE, self);
+						
+						[self handleInvalidRequest:nil];
+						return;
+					}
 				}
 			}
 			else
@@ -2096,19 +2146,32 @@ static NSMutableArray *recentNonces;
 				if (requestContentLength > 0)
 				{
 					// Start reading the request body
-					NSUInteger bytesToRead;
-					if(requestContentLength < POST_CHUNKSIZE)
-						bytesToRead = (NSUInteger)requestContentLength;
+					if (requestContentLength == -1)
+					{
+						// Chunked transfer
+						
+						[asyncSocket readDataToData:[GCDAsyncSocket CRLFData]
+						                withTimeout:TIMEOUT_READ_BODY
+						                  maxLength:MAX_CHUNK_LINE_LENGTH
+						                        tag:HTTP_REQUEST_CHUNK_SIZE];
+					}
 					else
-						bytesToRead = POST_CHUNKSIZE;
-					
-					[asyncSocket readDataToLength:bytesToRead
-					                  withTimeout:TIMEOUT_READ_BODY
-					                          tag:HTTP_REQUEST_BODY];
+					{
+						NSUInteger bytesToRead;
+						if (requestContentLength < POST_CHUNKSIZE)
+							bytesToRead = (NSUInteger)requestContentLength;
+						else
+							bytesToRead = POST_CHUNKSIZE;
+						
+						[asyncSocket readDataToLength:bytesToRead
+						                  withTimeout:TIMEOUT_READ_BODY
+						                          tag:HTTP_REQUEST_BODY];
+					}
 				}
 				else
 				{
 					// Empty upload
+					[self finishBody];
 					[self replyToHTTPRequest];
 				}
 			}
@@ -2121,25 +2184,177 @@ static NSMutableArray *recentNonces;
 	}
 	else
 	{
-		// Handle a chunk of data from the POST body
+		BOOL doneReadingRequest = NO;
 		
-		requestContentLengthReceived += [data length];
-		[self processDataChunk:data];
+		// A chunked message body contains a series of chunks,
+		// followed by a line with "0" (zero),
+		// followed by optional footers (just like headers),
+		// and a blank line.
+		// 
+		// Each chunk consists of two parts:
+		// 
+		// 1. A line with the size of the chunk data, in hex,
+		//    possibly followed by a semicolon and extra parameters you can ignore (none are currently standard),
+		//    and ending with CRLF.
+		// 2. The data itself, followed by CRLF.
+		// 
+		// Part 1 is represented by HTTP_REQUEST_CHUNK_SIZE
+		// Part 2 is represented by HTTP_REQUEST_CHUNK_DATA and HTTP_REQUEST_CHUNK_TRAILER
+		// where the trailer is the CRLF that follows the data.
+		// 
+		// The optional footers and blank line are represented by HTTP_REQUEST_CHUNK_FOOTER.
 		
-		if (requestContentLengthReceived < requestContentLength)
+		if (tag == HTTP_REQUEST_CHUNK_SIZE)
 		{
-			// We're not done reading the post body yet...
-			UInt64 bytesLeft = requestContentLength - requestContentLengthReceived;
+			// We have just read in a line with the size of the chunk data, in hex, 
+			// possibly followed by a semicolon and extra parameters that can be ignored,
+			// and ending with CRLF.
 			
-			NSUInteger bytesToRead = bytesLeft < POST_CHUNKSIZE ? (NSUInteger)bytesLeft : POST_CHUNKSIZE;
+			NSString *sizeLine = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 			
-			[asyncSocket readDataToLength:bytesToRead
-			                  withTimeout:TIMEOUT_READ_BODY
-			                          tag:HTTP_REQUEST_BODY];
+			errno = 0;  // Reset errno before calling strtoull() to ensure it is always zero on success
+			requestChunkSize = (UInt64)strtoull([sizeLine UTF8String], NULL, 16);
+			requestChunkSizeReceived = 0;
+			
+			if (errno != 0)
+			{
+				HTTPLogWarn(@"%@[%p]: Method expects chunk size, but received something else", THIS_FILE, self);
+				
+				[self handleInvalidRequest:nil];
+				return;
+			}
+			
+			if (requestChunkSize > 0)
+			{
+				NSUInteger bytesToRead;
+				bytesToRead = (requestChunkSize < POST_CHUNKSIZE) ? (NSUInteger)requestChunkSize : POST_CHUNKSIZE;
+				
+				[asyncSocket readDataToLength:bytesToRead
+				                  withTimeout:TIMEOUT_READ_BODY
+				                          tag:HTTP_REQUEST_CHUNK_DATA];
+			}
+			else
+			{
+				// This is the "0" (zero) line,
+				// which is to be followed by optional footers (just like headers) and finally a blank line.
+				
+				[asyncSocket readDataToData:[GCDAsyncSocket CRLFData]
+				                withTimeout:TIMEOUT_READ_BODY
+				                  maxLength:MAX_HEADER_LINE_LENGTH
+				                        tag:HTTP_REQUEST_CHUNK_FOOTER];
+			}
+			
+			return;
 		}
-		else
+		else if (tag == HTTP_REQUEST_CHUNK_DATA)
 		{
-			// Now we need to reply to the request
+			// We just read part of the actual data.
+			
+			requestContentLengthReceived += [data length];
+			requestChunkSizeReceived += [data length];
+			
+			[self processBodyData:data];
+			
+			UInt64 bytesLeft = requestChunkSize - requestChunkSizeReceived;
+			if (bytesLeft > 0)
+			{
+				NSUInteger bytesToRead = (bytesLeft < POST_CHUNKSIZE) ? (NSUInteger)bytesLeft : POST_CHUNKSIZE;
+				
+				[asyncSocket readDataToLength:bytesToRead
+				                  withTimeout:TIMEOUT_READ_BODY
+				                          tag:HTTP_REQUEST_CHUNK_DATA];
+			}
+			else
+			{
+				// We've read in all the data for this chunk.
+				// The data is followed by a CRLF, which we need to read (and basically ignore)
+				
+				[asyncSocket readDataToLength:2
+				                  withTimeout:TIMEOUT_READ_BODY
+				                          tag:HTTP_REQUEST_CHUNK_TRAILER];
+			}
+			
+			return;
+		}
+		else if (tag == HTTP_REQUEST_CHUNK_TRAILER)
+		{
+			// This should be the CRLF following the data.
+			// Just ensure it's a CRLF.
+			
+			if (![data isEqualToData:[GCDAsyncSocket CRLFData]])
+			{
+				HTTPLogWarn(@"%@[%p]: Method expects chunk trailer, but is missing", THIS_FILE, self);
+				
+				[self handleInvalidRequest:nil];
+				return;
+			}
+			
+			// Now continue with the next chunk
+			
+			[asyncSocket readDataToData:[GCDAsyncSocket CRLFData]
+			                withTimeout:TIMEOUT_READ_BODY
+			                  maxLength:MAX_CHUNK_LINE_LENGTH
+			                        tag:HTTP_REQUEST_CHUNK_SIZE];
+			
+		}
+		else if (tag == HTTP_REQUEST_CHUNK_FOOTER)
+		{
+			if (++numHeaderLines > MAX_HEADER_LINES)
+			{
+				// Reached the maximum amount of header lines in a single HTTP request
+				// This could be an attempted DOS attack
+				[asyncSocket disconnect];
+				
+				// Explictly return to ensure we don't do anything after the socket disconnect
+				return;
+			}
+			
+			if ([data length] > 2)
+			{
+				// We read in a footer.
+				// In the future we may want to append these to the request.
+				// For now we ignore, and continue reading the footers, waiting for the final blank line.
+				
+				[asyncSocket readDataToData:[GCDAsyncSocket CRLFData]
+				                withTimeout:TIMEOUT_READ_BODY
+				                  maxLength:MAX_HEADER_LINE_LENGTH
+				                        tag:HTTP_REQUEST_CHUNK_FOOTER];
+			}
+			else
+			{
+				doneReadingRequest = YES;
+			}
+		}
+		else  // HTTP_REQUEST_BODY
+		{
+			// Handle a chunk of data from the POST body
+			
+			requestContentLengthReceived += [data length];
+			[self processBodyData:data];
+			
+			if (requestContentLengthReceived < requestContentLength)
+			{
+				// We're not done reading the post body yet...
+				
+				UInt64 bytesLeft = requestContentLength - requestContentLengthReceived;
+				
+				NSUInteger bytesToRead = bytesLeft < POST_CHUNKSIZE ? (NSUInteger)bytesLeft : POST_CHUNKSIZE;
+				
+				[asyncSocket readDataToLength:bytesToRead
+				                  withTimeout:TIMEOUT_READ_BODY
+				                          tag:HTTP_REQUEST_BODY];
+			}
+			else
+			{
+				doneReadingRequest = YES;
+			}
+		}
+		
+		// Now that the entire body has been received, we need to reply to the request
+		
+		if (doneReadingRequest)
+		{
+			[self finishBody];
 			[self replyToHTTPRequest];
 		}
 	}
@@ -2155,7 +2370,9 @@ static NSMutableArray *recentNonces;
 	if (tag == HTTP_PARTIAL_RESPONSE_BODY)
 	{
 		// Update the amount of data we have in asyncSocket's write queue
-		[responseDataSizes removeObjectAtIndex:0];
+        if ([responseDataSizes count] > 0) {
+            [responseDataSizes removeObjectAtIndex:0];
+        }
 		
 		// We only wrote a part of the response - there may be more
 		[self continueSendingStandardResponseBody];
@@ -2164,8 +2381,9 @@ static NSMutableArray *recentNonces;
 	{
 		// Update the amount of data we have in asyncSocket's write queue.
 		// This will allow asynchronous responses to continue sending more data.
-		[responseDataSizes removeObjectAtIndex:0];
-		
+        if ([responseDataSizes count] > 0) {
+            [responseDataSizes removeObjectAtIndex:0];
+        }
 		// Don't continue sending the response yet.
 		// The chunked footer that was sent after the body will tell us if we have more data to send.
 	}
@@ -2177,16 +2395,18 @@ static NSMutableArray *recentNonces;
 	else if (tag == HTTP_PARTIAL_RANGE_RESPONSE_BODY)
 	{
 		// Update the amount of data we have in asyncSocket's write queue
-		[responseDataSizes removeObjectAtIndex:0];
-		
+        if ([responseDataSizes count] > 0) {
+            [responseDataSizes removeObjectAtIndex:0];
+        }
 		// We only wrote a part of the range - there may be more
 		[self continueSendingSingleRangeResponseBody];
 	}
 	else if (tag == HTTP_PARTIAL_RANGES_RESPONSE_BODY)
 	{
 		// Update the amount of data we have in asyncSocket's write queue
-		[responseDataSizes removeObjectAtIndex:0];
-		
+        if ([responseDataSizes count] > 0) {
+            [responseDataSizes removeObjectAtIndex:0];
+        }
 		// We only wrote part of the range - there may be more, or there may be more ranges
 		[self continueSendingMultiRangeResponseBody];
 	}
@@ -2203,44 +2423,48 @@ static NSMutableArray *recentNonces;
 	
 	if (doneSendingResponse)
 	{
+		// Inform the http response that we're done
+		if ([httpResponse respondsToSelector:@selector(connectionDidClose)])
+		{
+			[httpResponse connectionDidClose];
+		}
+		
+		
 		if (tag == HTTP_FINAL_RESPONSE)
 		{
+			// Cleanup after the last request
+			[self finishResponse];
+			
 			// Terminate the connection
 			[asyncSocket disconnect];
 			
-			// Explictly return to ensure we don't do anything after the socket disconnect
+			// Explictly return to ensure we don't do anything after the socket disconnects
 			return;
 		}
 		else
 		{
-			// Cleanup after the last request
-			// And start listening for the next request
-			
-			// Inform the http response that we're done
-			if ([httpResponse respondsToSelector:@selector(connectionDidClose)])
-			{
-				[httpResponse connectionDidClose];
-			}
-			
-			// Release any resources we no longer need
-			[httpResponse release];
-			httpResponse = nil;
-			
-			[ranges release];
-			[ranges_headers release];
-			[ranges_boundry release];
-			ranges = nil;
-			ranges_headers = nil;
-			ranges_boundry = nil;
-			
 			if ([self shouldDie])
 			{
-				[self die];
+				// Cleanup after the last request
+				// Note: Don't do this before calling shouldDie, as it needs the request object still.
+				[self finishResponse];
+				
+				// The only time we should invoke [self die] is from socketDidDisconnect,
+				// or if the socket gets taken over by someone else like a WebSocket.
+				
+				[asyncSocket disconnect];
 			}
 			else
 			{
-				// Release the old request, and create a new one
-				[request release];
+				// Cleanup after the last request
+				[self finishResponse];
+				
+				// Prepare for the next request
+				
+				// If this assertion fails, it likely means you overrode the
+				// finishBody method and forgot to call [super finishBody].
+				NSAssert(request == nil, @"Request not properly released in finishBody");
+				
 				request = [[HTTPMessage alloc] initEmptyRequest];
 				
 				numHeaderLines = 0;
@@ -2256,9 +2480,11 @@ static NSMutableArray *recentNonces;
 /**
  * Sent after the socket has been disconnected.
 **/
-- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err;
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
 	HTTPLogTrace();
+	
+	asyncSocket = nil;
 	
 	[self die];
 }
@@ -2283,15 +2509,13 @@ static NSMutableArray *recentNonces;
 	// We do this to give the HTTPResponse classes the flexibility to call
 	// this method whenever they want, even from within a readDataOfLength method.
 	
-	dispatch_async(connectionQueue, ^{
+	dispatch_async(connectionQueue, ^{ @autoreleasepool {
 		
 		if (sender != httpResponse)
 		{
 			HTTPLogWarn(@"%@[%p]: %@ - Sender is not current httpResponse", THIS_FILE, self, THIS_METHOD);
 			return;
 		}
-		
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		
 		if (!sentResponseHeaders)
 		{
@@ -2311,9 +2535,7 @@ static NSMutableArray *recentNonces;
 					[self continueSendingMultiRangeResponseBody];
 			}
 		}
-		
-		[pool release];
-	});
+	}});
 }
 
 /**
@@ -2330,7 +2552,7 @@ static NSMutableArray *recentNonces;
 	// We do this to give the HTTPResponse classes the flexibility to call
 	// this method whenever they want, even from within a readDataOfLength method.
 	
-	dispatch_async(connectionQueue, ^{
+	dispatch_async(connectionQueue, ^{ @autoreleasepool {
 		
 		if (sender != httpResponse)
 		{
@@ -2338,16 +2560,12 @@ static NSMutableArray *recentNonces;
 			return;
 		}
 		
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		
 		[asyncSocket disconnectAfterWriting];
-		
-		[pool release];
-	});
+	}});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark Closing
+#pragma mark Post Request
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -2355,12 +2573,34 @@ static NSMutableArray *recentNonces;
  * Since a single connection may handle multiple request/responses, this method may be called multiple times.
  * That is, it will be called after completion of each response.
 **/
-- (BOOL)shouldDie
+- (void)finishResponse
 {
 	HTTPLogTrace();
 	
 	// Override me if you want to perform any custom actions after a response has been fully sent.
-	// You may also force close the connection by returning YES.
+	// This is the place to release memory or resources associated with the last request.
+	// 
+	// If you override this method, you should take care to invoke [super finishResponse] at some point.
+	
+	request = nil;
+	
+	httpResponse = nil;
+	
+	ranges = nil;
+	ranges_headers = nil;
+	ranges_boundry = nil;
+}
+
+/**
+ * This method is called after each successful response has been fully sent.
+ * It determines whether the connection should stay open and handle another request.
+**/
+- (BOOL)shouldDie
+{
+	HTTPLogTrace();
+	
+	// Override me if you have any need to force close the connection.
+	// You may do so by simply returning YES.
 	// 
 	// If you override this method, you should take care to fall through with [super shouldDie]
 	// instead of returning NO.
@@ -2400,6 +2640,11 @@ static NSMutableArray *recentNonces;
 	
 	// Override me if you want to perform any custom actions when a connection is closed.
 	// Then call [super die] when you're done.
+	// 
+	// See also the finishResponse method.
+	// 
+	// Important: There is a rare timing condition where this method might get invoked twice.
+	// If you override this method, you should be prepared for this situation.
 	
 	// Inform the http response that we're done
 	if ([httpResponse respondsToSelector:@selector(connectionDidClose)])
@@ -2408,7 +2653,6 @@ static NSMutableArray *recentNonces;
 	}
 	
 	// Release the http response so we don't call it's connectionDidClose method again in our dealloc method
-	[httpResponse release];
 	httpResponse = nil;
 	
 	// Post notification of dead connection
@@ -2432,8 +2676,8 @@ static NSMutableArray *recentNonces;
 {
 	if ((self = [super init]))
 	{
-		server = [aServer retain];
-		documentRoot = [aDocumentRoot retain];
+		server = aServer;
+		documentRoot = aDocumentRoot;
 	}
 	return self;
 }
@@ -2442,19 +2686,20 @@ static NSMutableArray *recentNonces;
 {
 	if ((self = [super init]))
 	{
-		server = [aServer retain];
+		server = aServer;
 		
 		documentRoot = [aDocumentRoot stringByStandardizingPath];
 		if ([documentRoot hasSuffix:@"/"])
 		{
 			documentRoot = [documentRoot stringByAppendingString:@"/"];
 		}
-		[documentRoot retain];
 		
 		if (q)
 		{
-			dispatch_retain(q);
 			queue = q;
+			#if !OS_OBJECT_USE_OBJC
+			dispatch_retain(queue);
+			#endif
 		}
 	}
 	return self;
@@ -2462,13 +2707,9 @@ static NSMutableArray *recentNonces;
 
 - (void)dealloc
 {
-	[server release];
-	[documentRoot release];
-	
-	if (queue)
-		dispatch_release(queue);
-	
-	[super dealloc];
+	#if !OS_OBJECT_USE_OBJC
+	if (queue) dispatch_release(queue);
+	#endif
 }
 
 @end

@@ -10,13 +10,17 @@
 /**
  * Welcome to Cocoa Lumberjack!
  * 
- * The Google Code page has a wealth of documentation if you have any questions.
- * http://code.google.com/p/cocoalumberjack/
+ * The project page has a wealth of documentation if you have any questions.
+ * https://github.com/robbiehanson/CocoaLumberjack
  * 
- * If you're new to the project you may wish to read the "Getting Started" page.
- * http://code.google.com/p/cocoalumberjack/wiki/GettingStarted
+ * If you're new to the project you may wish to read the "Getting Started" wiki.
+ * https://github.com/robbiehanson/CocoaLumberjack/wiki/GettingStarted
  * 
 **/
+
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
 
 // We probably shouldn't be using DDLog() statements within the DDLog implementation.
 // But we still want to leave our log statements for any future debugging,
@@ -25,9 +29,9 @@
 // So we use a primitive logging macro around NSLog.
 // We maintain the NS prefix on the macros to be explicit about the fact that we're using NSLog.
 
-#define DEBUG NO
+#define DD_DEBUG NO
 
-#define NSLogDebug(frmt, ...) do{ if(DEBUG) NSLog((frmt), ##__VA_ARGS__); } while(0)
+#define NSLogDebug(frmt, ...) do{ if(DD_DEBUG) NSLog((frmt), ##__VA_ARGS__); } while(0)
 
 // Specifies the maximum queue size of the logging thread.
 // 
@@ -42,14 +46,24 @@
 
 #define LOG_MAX_QUEUE_SIZE 1000 // Should not exceed INT32_MAX
 
-#if GCD_MAYBE_AVAILABLE
-struct LoggerNode {
-	id <DDLogger> logger;
+// The "global logging queue" refers to [DDLog loggingQueue].
+// It is the queue that all log statements go through.
+//
+// The logging queue sets a flag via dispatch_queue_set_specific using this key.
+// We can check for this key via dispatch_get_specific() to see if we're on the "global logging queue".
+
+static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueIdentityKey;
+
+
+@interface DDLoggerNode : NSObject {
+@public 
+	id <DDLogger> logger;	
 	dispatch_queue_t loggerQueue;
-    struct LoggerNode * next;
-};
-typedef struct LoggerNode LoggerNode;
-#endif
+}
+
++ (DDLoggerNode *)nodeWithLogger:(id <DDLogger>)logger loggerQueue:(dispatch_queue_t)loggerQueue;
+
+@end
 
 
 @interface DDLog (PrivateAPI)
@@ -68,44 +82,23 @@ typedef struct LoggerNode LoggerNode;
 
 @implementation DDLog
 
-#if GCD_MAYBE_AVAILABLE
+// An array used to manage all the individual loggers.
+// The array is only modified on the loggingQueue/loggingThread.
+static NSMutableArray *loggers;
 
-  // All logging statements are added to the same queue to ensure FIFO operation.
-  static dispatch_queue_t loggingQueue;
+// All logging statements are added to the same queue to ensure FIFO operation.
+static dispatch_queue_t loggingQueue;
 
-  // Individual loggers are executed concurrently per log statement.
-  // Each logger has it's own associated queue, and a dispatch group is used for synchrnoization.
-  static dispatch_group_t loggingGroup;
+// Individual loggers are executed concurrently per log statement.
+// Each logger has it's own associated queue, and a dispatch group is used for synchrnoization.
+static dispatch_group_t loggingGroup;
 
-  // A linked list is used to manage all the individual loggers.
-  // Each item in the linked list also includes the loggers associated dispatch queue.
-  static LoggerNode *loggerNodes;
+// In order to prevent to queue from growing infinitely large,
+// a maximum size is enforced (LOG_MAX_QUEUE_SIZE).
+static dispatch_semaphore_t queueSemaphore;
 
-  // In order to prevent to queue from growing infinitely large,
-  // a maximum size is enforced (LOG_MAX_QUEUE_SIZE).
-  static dispatch_semaphore_t queueSemaphore;
-
-  // Minor optimization for uniprocessor machines
-  static unsigned int numProcessors;
-
-#endif
-
-#if GCD_MAYBE_UNAVAILABLE
-
-  // All logging statements are queued onto the same thread to ensure FIFO operation.
-  static NSThread *loggingThread;
-
-  // An array is used to manage all the individual loggers.
-  // The array is only modified on the loggingThread.
-  static NSMutableArray *loggers;
-
-  // In order to prevent to queue from growing infinitely large,
-  // a maximum size is enforced (LOG_MAX_QUEUE_SIZE).
-  static int32_t queueSize;               // Incremented and decremented locklessly using OSAtomic operations
-  static NSCondition *condition;          // Not used unless the queueSize exceeds its max
-  static NSMutableArray *blockedThreads;  // Not used unless the queueSize exceeds its max
-
-#endif
+// Minor optimization for uniprocessor machines
+static unsigned int numProcessors;
 
 /**
  * The runtime sends initialize to each class in a program exactly one time just before the class,
@@ -122,55 +115,34 @@ typedef struct LoggerNode LoggerNode;
 	{
 		initialized = YES;
 		
-		if (IS_GCD_AVAILABLE)
-		{
-		#if GCD_MAYBE_AVAILABLE
+		loggers = [[NSMutableArray alloc] initWithCapacity:4];
+		
+		NSLogDebug(@"DDLog: Using grand central dispatch");
+		
+		loggingQueue = dispatch_queue_create("cocoa.lumberjack", NULL);
+		loggingGroup = dispatch_group_create();
+		
+		void *nonNullValue = GlobalLoggingQueueIdentityKey; // Whatever, just not null
+		dispatch_queue_set_specific(loggingQueue, GlobalLoggingQueueIdentityKey, nonNullValue, NULL);
+		
+		queueSemaphore = dispatch_semaphore_create(LOG_MAX_QUEUE_SIZE);
+		
+		// Figure out how many processors are available.
+		// This may be used later for an optimization on uniprocessor machines.
+		
+		host_basic_info_data_t hostInfo;
+		mach_msg_type_number_t infoCount;
+		
+		infoCount = HOST_BASIC_INFO_COUNT;
+		host_info(mach_host_self(), HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
+		
+		unsigned int result = (unsigned int)(hostInfo.max_cpus);
+		unsigned int one    = (unsigned int)(1);
+		
+		numProcessors = MAX(result, one);
+		
+		NSLogDebug(@"DDLog: numProcessors = %u", numProcessors);
 			
-			NSLogDebug(@"DDLog: Using grand central dispatch");
-			
-			loggingQueue = dispatch_queue_create("cocoa.lumberjack", NULL);
-			loggingGroup = dispatch_group_create();
-			
-			loggerNodes = NULL;
-			
-			queueSemaphore = dispatch_semaphore_create(LOG_MAX_QUEUE_SIZE);
-			
-			// Figure out how many processors are available.
-			// This may be used later for an optimization on uniprocessor machines.
-			
-			host_basic_info_data_t hostInfo;
-			mach_msg_type_number_t infoCount;
-			
-			infoCount = HOST_BASIC_INFO_COUNT;
-			host_info(mach_host_self(), HOST_BASIC_INFO, (host_info_t)&hostInfo, &infoCount);
-			
-			unsigned int result = (unsigned int)(hostInfo.max_cpus);
-			unsigned int one    = (unsigned int)(1);
-			
-			numProcessors = MAX(result, one);
-			
-			NSLogDebug(@"DDLog: numProcessors = %u", numProcessors);
-			
-		#endif
-		}
-		else
-		{
-		#if GCD_MAYBE_UNAVAILABLE
-			
-			NSLogDebug(@"DDLog: GCD not available");
-			
-			loggingThread = [[NSThread alloc] initWithTarget:self selector:@selector(lt_main:) object:nil];
-			[loggingThread start];
-			
-			loggers = [[NSMutableArray alloc] initWithCapacity:4];
-			
-			queueSize = 0;
-			
-			condition = [[NSCondition alloc] init];
-			blockedThreads = [[NSMutableArray alloc] init];
-			
-		#endif
-		}
 		
 	#if TARGET_OS_IPHONE
 		NSString *notificationName = @"UIApplicationWillTerminateNotification";
@@ -185,8 +157,6 @@ typedef struct LoggerNode LoggerNode;
 	}
 }
 
-#if GCD_MAYBE_AVAILABLE
-
 /**
  * Provides access to the logging queue.
 **/
@@ -194,20 +164,6 @@ typedef struct LoggerNode LoggerNode;
 {
 	return loggingQueue;
 }
-
-#endif
-
-#if GCD_MAYBE_UNAVAILABLE
-
-/**
- * Provides access to the logging thread.
-**/
-+ (NSThread *)loggingThread
-{
-	return loggingThread;
-}
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Notifications
@@ -225,96 +181,36 @@ typedef struct LoggerNode LoggerNode;
 + (void)addLogger:(id <DDLogger>)logger
 {
 	if (logger == nil) return;
-	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
 		
-		dispatch_block_t addLoggerBlock = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			[self lt_addLogger:logger];
-			
-			[pool release];
-		};
+	dispatch_async(loggingQueue, ^{ @autoreleasepool {
 		
-		dispatch_async(loggingQueue, addLoggerBlock);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		[self performSelector:@selector(lt_addLogger:) onThread:loggingThread withObject:logger waitUntilDone:NO];
-		
-	#endif
-	}
+		[self lt_addLogger:logger];
+	}});
 }
 
 + (void)removeLogger:(id <DDLogger>)logger
 {
 	if (logger == nil) return;
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
+	dispatch_async(loggingQueue, ^{ @autoreleasepool {
 		
-		dispatch_block_t removeLoggerBlock = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			[self lt_removeLogger:logger];
-			
-			[pool release];
-		};
-		
-		dispatch_async(loggingQueue, removeLoggerBlock);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		[self performSelector:@selector(lt_removeLogger:) onThread:loggingThread withObject:logger waitUntilDone:NO];
-		
-	#endif
-	}
+		[self lt_removeLogger:logger];
+	}});
 }
 
 + (void)removeAllLoggers
 {
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
+	dispatch_async(loggingQueue, ^{ @autoreleasepool {
 		
-		dispatch_block_t removeAllLoggersBlock = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			[self lt_removeAllLoggers];
-			
-			[pool release];
-		};
-		
-		dispatch_async(loggingQueue, removeAllLoggersBlock);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		[self performSelector:@selector(lt_removeAllLoggers) onThread:loggingThread withObject:nil waitUntilDone:NO];
-		
-	#endif
-	}
+		[self lt_removeAllLoggers];
+	}});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Master Logging
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-+ (void)queueLogMessage:(DDLogMessage *)logMessage synchronously:(BOOL)flag
++ (void)queueLogMessage:(DDLogMessage *)logMessage asynchronously:(BOOL)asyncFlag
 {
 	// We have a tricky situation here...
 	// 
@@ -343,140 +239,41 @@ typedef struct LoggerNode LoggerNode;
 	// Now assume we have another separate thread that attempts to issue log message G.
 	// It should block until log messages A and B have been unqueued.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		// We are using a counting semaphore provided by GCD.
-		// The semaphore is initialized with our LOG_MAX_QUEUE_SIZE value.
-		// Everytime we want to queue a log message we decrement this value.
-		// If the resulting value is less than zero,
-		// the semaphore function waits in FIFO order for a signal to occur before returning.
-		// 
-		// A dispatch semaphore is an efficient implementation of a traditional counting semaphore.
-		// Dispatch semaphores call down to the kernel only when the calling thread needs to be blocked.
-		// If the calling semaphore does not need to block, no kernel call is made.
-		
-		dispatch_semaphore_wait(queueSemaphore, DISPATCH_TIME_FOREVER);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		// We're going increment our queue size (in an atomic fashion).
-		// If the queue size would exceed our LOG_MAX_QUEUE_SIZE value,
-		// then we're going to take a lock, and add ourself to the blocked threads array.
-		// Then we wait for the logging thread to signal us.
-		// When it does, we automatically reaquire the lock,
-		// and check to see if we have been removed from the blocked threads array.
-		// When this occurs we are unblocked, and we can go ahead and queue our log message.
-		
-		int32_t newQueueSize = OSAtomicIncrement32(&queueSize);
-		if (newQueueSize > LOG_MAX_QUEUE_SIZE)
-		{
-			NSLogDebug(@"DDLog: Blocking thread %@ (newQueueSize=%i)", [logMessage threadID], newQueueSize);
-			
-			[condition lock];
-			
-			NSString *currentThreadID = [logMessage threadID];
-			[blockedThreads addObject:currentThreadID];
-			
-			NSUInteger lastKnownIndex = [blockedThreads count] - 1;
-			
-			if (lastKnownIndex == 0)
-			{
-				NSLogDebug(@"DDLog: Potential edge case: First blocked thread -> Signaling condition...");
-				
-				// Edge case:
-				// The loggingThread/loggingQueue acquired the lock before we did,
-				// but it immediately discovered the blockedThreads array was empty.
-				
-				[condition signal];
-			}
-			
-			BOOL done = NO;
-			while (!done)
-			{
-				BOOL found = NO;
-				NSUInteger i;
-				NSUInteger count = [blockedThreads count];
-				
-				for (i = 0; i <= lastKnownIndex && i < count && !found; i++)
-				{
-					NSString *blockedThreadID = [blockedThreads objectAtIndex:i];
-					
-					// Instead of doing a string comparison,
-					// we can save CPU cycles by doing an pointer comparison,
-					// since we still have access to the string that we added the array.
-					
-					if (blockedThreadID == currentThreadID)
-					{
-						found = YES;
-						lastKnownIndex = i;
-					}
-				}
-				
-				// If our currentThreadID is still in the blockedThreads array,
-				// then we are still blocked, and we're not done.
-				
-				done = !found;
-				
-				if (!done)
-				{
-					[condition wait];
-				}
-			}
-			
-			
-			[condition unlock];
-			
-			NSLogDebug(@"DDLog: Unblocking thread %@", [logMessage threadID]);
-		}
-		
-	#endif
-	}
+	
+	// We are using a counting semaphore provided by GCD.
+	// The semaphore is initialized with our LOG_MAX_QUEUE_SIZE value.
+	// Everytime we want to queue a log message we decrement this value.
+	// If the resulting value is less than zero,
+	// the semaphore function waits in FIFO order for a signal to occur before returning.
+	// 
+	// A dispatch semaphore is an efficient implementation of a traditional counting semaphore.
+	// Dispatch semaphores call down to the kernel only when the calling thread needs to be blocked.
+	// If the calling semaphore does not need to block, no kernel call is made.
+	
+	dispatch_semaphore_wait(queueSemaphore, DISPATCH_TIME_FOREVER);
 	
 	// We've now sure we won't overflow the queue.
 	// It is time to queue our log message.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
+	dispatch_block_t logBlock = ^{ @autoreleasepool {
 		
-		dispatch_block_t logBlock = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			[self lt_log:logMessage];
-			
-			[pool release];
-		};
-		
-		if (flag)
-			dispatch_sync(loggingQueue, logBlock);
-		else
-			dispatch_async(loggingQueue, logBlock);
-		
-	#endif
-	}
+		[self lt_log:logMessage];
+	}};
+	
+	if (asyncFlag)
+		dispatch_async(loggingQueue, logBlock);
 	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		[self performSelector:@selector(lt_log:) onThread:loggingThread withObject:logMessage waitUntilDone:flag];
-		
-	#endif
-	}
+		dispatch_sync(loggingQueue, logBlock);
 }
 
-+ (void)log:(BOOL)synchronous
++ (void)log:(BOOL)asynchronous
       level:(int)level
        flag:(int)flag
     context:(int)context
        file:(const char *)file
    function:(const char *)function
        line:(int)line
+        tag:(id)tag
      format:(NSString *)format, ...
 {
 	va_list args;
@@ -491,43 +288,50 @@ typedef struct LoggerNode LoggerNode;
 		                                                        context:context
 		                                                           file:file
 		                                                       function:function
-		                                                           line:line];
+		                                                           line:line
+		                                                            tag:tag
+		                                                        options:0];
 		
-		[self queueLogMessage:logMessage synchronously:synchronous];
-		
-		[logMessage release];
-		[logMsg release];
+		[self queueLogMessage:logMessage asynchronously:asynchronous];
 		
 		va_end(args);
 	}
 }
 
++ (void)log:(BOOL)asynchronous
+      level:(int)level
+       flag:(int)flag
+    context:(int)context
+       file:(const char *)file
+   function:(const char *)function
+       line:(int)line
+        tag:(id)tag
+     format:(NSString *)format
+       args:(va_list)args
+{
+	if (format)
+	{
+		NSString *logMsg = [[NSString alloc] initWithFormat:format arguments:args];
+		DDLogMessage *logMessage = [[DDLogMessage alloc] initWithLogMsg:logMsg
+		                                                          level:level
+		                                                           flag:flag
+		                                                        context:context
+		                                                           file:file
+		                                                       function:function
+		                                                           line:line
+		                                                            tag:tag
+		                                                        options:0];
+		
+		[self queueLogMessage:logMessage asynchronously:asynchronous];
+	}
+}
+
 + (void)flushLog
 {
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
+	dispatch_sync(loggingQueue, ^{ @autoreleasepool {
 		
-		dispatch_block_t flushBlock = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			[self lt_flush];
-			
-			[pool release];
-		};
-		
-		dispatch_sync(loggingQueue, flushBlock);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		[self performSelector:@selector(lt_flush) onThread:loggingThread withObject:nil waitUntilDone:YES];
-		
-	#endif
-	}
+		[self lt_flush];
+	}});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -539,6 +343,58 @@ typedef struct LoggerNode LoggerNode;
 	SEL getterSel = @selector(ddLogLevel);
 	SEL setterSel = @selector(ddSetLogLevel:);
 	
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+	
+	// Issue #6 (GoogleCode) - Crashes on iOS 4.2.1 and iPhone 4
+	// 
+	// Crash caused by class_getClassMethod(2).
+	// 
+	//     "It's a bug with UIAccessibilitySafeCategory__NSObject so it didn't pop up until
+	//      users had VoiceOver enabled [...]. I was able to work around it by searching the
+	//      result of class_copyMethodList() instead of calling class_getClassMethod()"
+	
+	BOOL result = NO;
+	
+	unsigned int methodCount, i;
+	Method *methodList = class_copyMethodList(object_getClass(class), &methodCount);
+	
+	if (methodList != NULL)
+	{
+		BOOL getterFound = NO;
+		BOOL setterFound = NO;
+		
+		for (i = 0; i < methodCount; ++i)
+		{
+			SEL currentSel = method_getName(methodList[i]);
+			
+			if (currentSel == getterSel)
+			{
+				getterFound = YES;
+			}
+			else if (currentSel == setterSel)
+			{
+				setterFound = YES;
+			}
+			
+			if (getterFound && setterFound)
+			{
+				result = YES;
+				break;
+			}
+		}
+		
+		free(methodList);
+	}
+	
+	return result;
+	
+#else
+	
+	// Issue #24 (GitHub) - Crashing in in ARC+Simulator
+	// 
+	// The method +[DDLog isRegisteredClass] will crash a project when using it with ARC + Simulator.
+	// For running in the Simulator, it needs to execute the non-iOS code.
+	
 	Method getter = class_getClassMethod(class, getterSel);
 	Method setter = class_getClassMethod(class, setterSel);
 	
@@ -548,6 +404,8 @@ typedef struct LoggerNode LoggerNode;
 	}
 	
 	return NO;
+	
+#endif
 }
 
 + (NSArray *)registeredClasses
@@ -570,7 +428,7 @@ typedef struct LoggerNode LoggerNode;
 	// The numClasses method now tells us how many classes we have.
 	// So we can allocate our buffer, and get pointers to all the class definitions.
 	
-	Class *classes = malloc(sizeof(Class) * numClasses);
+	Class *classes = (Class *)malloc(sizeof(Class) * numClasses);
 	
 	numClasses = objc_getClassList(classes, numClasses);
 	
@@ -642,85 +500,46 @@ typedef struct LoggerNode LoggerNode;
 #pragma mark Logging Thread
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GCD_MAYBE_UNAVAILABLE
-
-/**
- * Entry point for logging thread.
-**/
-+ (void)lt_main:(id)ignore
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	// We can't run the run loop unless it has an associated input source or a timer.
-	// So we'll just create a timer that will never fire - unless the server runs for 10,000 years.
-	[NSTimer scheduledTimerWithTimeInterval:DBL_MAX target:self selector:@selector(ignore:) userInfo:nil repeats:NO];
-	
-	[[NSRunLoop currentRunLoop] run];
-	
-	[pool release];
-}
-
-#endif
-
 /**
  * This method should only be run on the logging thread/queue.
 **/
 + (void)lt_addLogger:(id <DDLogger>)logger
 {
-	if (IS_GCD_AVAILABLE)
+	// Add to loggers array.
+	// Need to create loggerQueue if loggerNode doesn't provide one.
+	
+	dispatch_queue_t loggerQueue = NULL;
+	
+	if ([logger respondsToSelector:@selector(loggerQueue)])
 	{
-	#if GCD_MAYBE_AVAILABLE
+		// Logger may be providing its own queue
 		
-		// Add to linked list of LoggerNode elements.
-		// Need to create loggerQueue if loggerNode doesn't provide one.
-		
-		LoggerNode *loggerNode = malloc(sizeof(LoggerNode));
-		loggerNode->logger = [logger retain];
-		
-		if ([logger respondsToSelector:@selector(loggerQueue)])
-		{
-			// Logger may be providing its own queue
-			
-			loggerNode->loggerQueue = [logger loggerQueue];
-		}
-		
-		if (loggerNode->loggerQueue)
-		{
-			dispatch_retain(loggerNode->loggerQueue);
-		}
-		else
-		{
-			// Automatically create queue for the logger.
-			// Use the logger name as the queue name if possible.
-			
-			const char *loggerQueueName = NULL;
-			if ([logger respondsToSelector:@selector(loggerName)])
-			{
-				loggerQueueName = [[logger loggerName] UTF8String];
-			}
-			
-			loggerNode->loggerQueue = dispatch_queue_create(loggerQueueName, NULL);
-		}
-		
-		loggerNode->next = loggerNodes;
-		loggerNodes = loggerNode;
-		
-	#endif
+		loggerQueue = [logger loggerQueue];
 	}
-	else
+	
+	if (loggerQueue == nil)
 	{
-	#if GCD_MAYBE_UNAVAILABLE
+		// Automatically create queue for the logger.
+		// Use the logger name as the queue name if possible.
 		
-		// Add to loggers array
+		const char *loggerQueueName = NULL;
+		if ([logger respondsToSelector:@selector(loggerName)])
+		{
+			loggerQueueName = [[logger loggerName] UTF8String];
+		}
 		
-		[loggers addObject:logger];
-		
-	#endif
+		loggerQueue = dispatch_queue_create(loggerQueueName, NULL);
 	}
+	
+	DDLoggerNode *loggerNode = [DDLoggerNode nodeWithLogger:logger loggerQueue:loggerQueue];
+	[loggers addObject:loggerNode];
 	
 	if ([logger respondsToSelector:@selector(didAddLogger)])
 	{
-		[logger didAddLogger];
+		dispatch_async(loggerNode->loggerQueue, ^{ @autoreleasepool {
+			
+			[logger didAddLogger];
+		}});
 	}
 }
 
@@ -729,69 +548,38 @@ typedef struct LoggerNode LoggerNode;
 **/
 + (void)lt_removeLogger:(id <DDLogger>)logger
 {
+	// Find associated loggerNode in list of added loggers
+	
+	DDLoggerNode *loggerNode = nil;
+	
+	for (DDLoggerNode *node in loggers)
+	{
+		if (node->logger == logger)
+		{
+			loggerNode = node;
+			break;
+		}
+	}
+	
+	if (loggerNode == nil)
+	{
+		NSLogDebug(@"DDLog: Request to remove logger which wasn't added");
+		return;
+	}
+	
+	// Notify logger
+	
 	if ([logger respondsToSelector:@selector(willRemoveLogger)])
 	{
-		[logger willRemoveLogger];
-	}
-	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		// Remove from linked list of LoggerNode elements.
-		// 
-		// Need to release:
-		// - logger
-		// - loggerQueue
-		// - loggerNode
-		
-		LoggerNode *prevNode = NULL;
-		LoggerNode *currentNode = loggerNodes;
-		
-		while (currentNode)
-		{
-			if (currentNode->logger == logger)
-			{
-				if (prevNode)
-				{
-					// LoggerNode had previous node pointing to it.
-					prevNode->next = currentNode->next;
-				}
-				else
-				{
-					// LoggerNode was first in list. Update loggerNodes pointer.
-					loggerNodes = currentNode->next;
-				}
-				
-				[currentNode->logger release];
-				currentNode->logger = nil;
-				
-				dispatch_release(currentNode->loggerQueue);
-				currentNode->loggerQueue = NULL;
-				
-				currentNode->next = NULL;
-				
-				free(currentNode);
-				
-				break;
-			}
+		dispatch_async(loggerNode->loggerQueue, ^{ @autoreleasepool {
 			
-			prevNode = currentNode;
-			currentNode = currentNode->next;
-		}
-		
-	#endif
+			[logger willRemoveLogger];
+		}});
 	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
 	
-		// Remove from loggers array
-		
-		[loggers removeObject:logger];
-		
-	#endif
-	}
+	// Remove from loggers array
+	
+	[loggers removeObject:loggerNode];
 }
 
 /**
@@ -799,66 +587,22 @@ typedef struct LoggerNode LoggerNode;
 **/
 + (void)lt_removeAllLoggers
 {
-	if (IS_GCD_AVAILABLE)
+	// Notify all loggers
+	
+	for (DDLoggerNode *loggerNode in loggers)
 	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		// Iterate through linked list of LoggerNode elements.
-		// For each one, notify the logger, and deallocate all associated resources.
-		// 
-		// Need to release:
-		// - logger
-		// - loggerQueue
-		// - loggerNode
-		
-		LoggerNode *nextNode;
-		LoggerNode *currentNode = loggerNodes;
-		
-		while (currentNode)
+		if ([loggerNode->logger respondsToSelector:@selector(willRemoveLogger)])
 		{
-			if ([currentNode->logger respondsToSelector:@selector(willRemoveLogger)])
-			{
-				[currentNode->logger willRemoveLogger];
-			}
-			
-			nextNode = currentNode->next;
-			
-			[currentNode->logger release];
-			currentNode->logger = nil;
-			
-			dispatch_release(currentNode->loggerQueue);
-			currentNode->loggerQueue = NULL;
-			
-			currentNode->next = NULL;
-			
-			free(currentNode);
-			
-			currentNode = nextNode;
+			dispatch_async(loggerNode->loggerQueue, ^{ @autoreleasepool {
+				
+				[loggerNode->logger willRemoveLogger];
+			}});
 		}
-		
-		loggerNodes = NULL;
-		
-	#endif
 	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		// Notify all loggers.
-		// And then remove them all from loggers array.
-		
-		for (id <DDLogger> logger in loggers)
-		{
-			if ([logger respondsToSelector:@selector(willRemoveLogger)])
-			{
-				[logger willRemoveLogger];
-			}
-		}
-		
-		[loggers removeAllObjects];
-		
-	#endif
-	}
+	
+	// Remove all loggers from array
+	
+	[loggers removeAllObjects];
 }
 
 /**
@@ -867,138 +611,56 @@ typedef struct LoggerNode LoggerNode;
 + (void)lt_log:(DDLogMessage *)logMessage
 {
 	// Execute the given log message on each of our loggers.
-	
-	if (IS_GCD_AVAILABLE)
+		
+	if (numProcessors > 1)
 	{
-	#if GCD_MAYBE_AVAILABLE
+		// Execute each logger concurrently, each within its own queue.
+		// All blocks are added to same group.
+		// After each block has been queued, wait on group.
+		// 
+		// The waiting ensures that a slow logger doesn't end up with a large queue of pending log messages.
+		// This would defeat the purpose of the efforts we made earlier to restrict the max queue size.
 		
-		if (numProcessors > 1)
+		for (DDLoggerNode *loggerNode in loggers)
 		{
-			// Execute each logger concurrently, each within its own queue.
-			// All blocks are added to same group.
-			// After each block has been queued, wait on group.
-			// 
-			// The waiting ensures that a slow logger doesn't end up with a large queue of pending log messages.
-			// This would defeat the purpose of the efforts we made earlier to restrict the max queue size.
-			
-			LoggerNode *currentNode = loggerNodes;
-			
-			while (currentNode)
-			{
-				dispatch_block_t loggerBlock = ^{
-					NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-					
-					[currentNode->logger logMessage:logMessage];
-					
-					[pool release];
-				};
+			dispatch_group_async(loggingGroup, loggerNode->loggerQueue, ^{ @autoreleasepool {
 				
-				dispatch_group_async(loggingGroup, currentNode->loggerQueue, loggerBlock);
-				
-				currentNode = currentNode->next;
-			}
+				[loggerNode->logger logMessage:logMessage];
 			
-			dispatch_group_wait(loggingGroup, DISPATCH_TIME_FOREVER);
-		}
-		else
-		{
-			// Execute each logger serialy, each within its own queue.
-			
-			LoggerNode *currentNode = loggerNodes;
-			
-			while (currentNode)
-			{
-				dispatch_block_t loggerBlock = ^{
-					NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-					
-					[currentNode->logger logMessage:logMessage];
-					
-					[pool release];
-				};
-				
-				dispatch_sync(currentNode->loggerQueue, loggerBlock);
-				
-				currentNode = currentNode->next;
-			}
+			}});
 		}
 		
-	#endif
+		dispatch_group_wait(loggingGroup, DISPATCH_TIME_FOREVER);
 	}
 	else
 	{
-	#if GCD_MAYBE_UNAVAILABLE
+		// Execute each logger serialy, each within its own queue.
 		
-		for (id <DDLogger> logger in loggers)
+		for (DDLoggerNode *loggerNode in loggers)
 		{
-			[logger logMessage:logMessage];
+			dispatch_sync(loggerNode->loggerQueue, ^{ @autoreleasepool {
+				
+				[loggerNode->logger logMessage:logMessage];
+				
+			}});
 		}
-		
-	#endif
 	}
 	
 	// If our queue got too big, there may be blocked threads waiting to add log messages to the queue.
 	// Since we've now dequeued an item from the log, we may need to unblock the next thread.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		// We are using a counting semaphore provided by GCD.
-		// The semaphore is initialized with our LOG_MAX_QUEUE_SIZE value.
-		// When a log message is queued this value is decremented.
-		// When a log message is dequeued this value is incremented.
-		// If the value ever drops below zero,
-		// the queueing thread blocks and waits in FIFO order for us to signal it.
-		// 
-		// A dispatch semaphore is an efficient implementation of a traditional counting semaphore.
-		// Dispatch semaphores call down to the kernel only when the calling thread needs to be blocked.
-		// If the calling semaphore does not need to block, no kernel call is made.
-		
-		dispatch_semaphore_signal(queueSemaphore);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		int32_t newQueueSize = OSAtomicDecrement32(&queueSize);
-		if (newQueueSize >= LOG_MAX_QUEUE_SIZE)
-		{
-			// There is an existing blocked thread waiting for us.
-			// When the thread went to queue a log message, it first incremented the queueSize.
-			// At this point it realized that was going to exceed the maxQueueSize.
-			// It then added itself to the blockedThreads list, and is now waiting for us to signal it.
-			
-			[condition lock];
-			
-			while ([blockedThreads count] == 0)
-			{
-				NSLogDebug(@"DDLog: Edge case: Empty blocked threads array -> Waiting for condition...");
-				
-				// Edge case.
-				// We acquired the lock before the blockedThread did.
-				// That is why the array is empty.
-				// Allow it to acquire the lock and signal us.
-				
-				[condition wait];
-			}
-			
-			// The blockedThreads variable is acting as a queue. (FIFO)
-			// Whatever was the first thread to block can now be unblocked.
-			// This means that thread will block only until the count of
-			// prevoiusly queued plus previously reserved log messages before it have dropped below the maxQueueSize.
-			
-			NSLogDebug(@"DDLog: Signaling thread %@ (newQueueSize=%i)", [blockedThreads objectAtIndex:0], newQueueSize);
-			
-			[blockedThreads removeObjectAtIndex:0];
-			[condition broadcast];
-			
-			[condition unlock];
-		}
-		
-	#endif
-	}
+	// We are using a counting semaphore provided by GCD.
+	// The semaphore is initialized with our LOG_MAX_QUEUE_SIZE value.
+	// When a log message is queued this value is decremented.
+	// When a log message is dequeued this value is incremented.
+	// If the value ever drops below zero,
+	// the queueing thread blocks and waits in FIFO order for us to signal it.
+	// 
+	// A dispatch semaphore is an efficient implementation of a traditional counting semaphore.
+	// Dispatch semaphores call down to the kernel only when the calling thread needs to be blocked.
+	// If the calling semaphore does not need to block, no kernel call is made.
+	
+	dispatch_semaphore_signal(queueSemaphore);
 }
 
 /**
@@ -1006,14 +668,31 @@ typedef struct LoggerNode LoggerNode;
 **/
 + (void)lt_flush
 {
-	// All log statements issued before the flush method was invoked have now been flushed
+	// All log statements issued before the flush method was invoked have now been executed.
+	// 
+	// Now we need to propogate the flush request to any loggers that implement the flush method.
+	// This is designed for loggers that buffer IO.
+		
+	for (DDLoggerNode *loggerNode in loggers)
+	{
+		if ([loggerNode->logger respondsToSelector:@selector(flush)])
+		{
+			dispatch_group_async(loggingGroup, loggerNode->loggerQueue, ^{ @autoreleasepool {
+				
+				[loggerNode->logger flush];
+				
+			}});
+		}
+	}
+	
+	dispatch_group_wait(loggingGroup, DISPATCH_TIME_FOREVER);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Utilities
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
+NSString *DDExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
 {
 	if (filePath == NULL) return nil;
 	
@@ -1068,9 +747,9 @@ NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
 	
 	if (copy)
 	{
-		return [[[NSString alloc] initWithBytes:subStr
-		                                 length:subLen
-		                               encoding:NSUTF8StringEncoding] autorelease];
+		return [[NSString alloc] initWithBytes:subStr
+		                                length:subLen
+		                              encoding:NSUTF8StringEncoding];
 	}
 	else
 	{
@@ -1078,11 +757,47 @@ NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
 		// Specifically, we don't need to waste time copying the string.
 		// We can just tell NSString to point to a range within the string literal.
 		
-		return [[[NSString alloc] initWithBytesNoCopy:subStr
-		                                       length:subLen
-		                                     encoding:NSUTF8StringEncoding
-		                                 freeWhenDone:NO] autorelease];
+		return [[NSString alloc] initWithBytesNoCopy:subStr
+		                                      length:subLen
+		                                    encoding:NSUTF8StringEncoding
+		                                freeWhenDone:NO];
 	}
+}
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@implementation DDLoggerNode
+
+- (id)initWithLogger:(id <DDLogger>)aLogger loggerQueue:(dispatch_queue_t)aLoggerQueue
+{
+	if ((self = [super init]))
+	{
+		logger = aLogger;
+		
+		if (aLoggerQueue) {
+			loggerQueue = aLoggerQueue;
+			#if !OS_OBJECT_USE_OBJC
+			dispatch_retain(loggerQueue);
+			#endif
+		}
+	}
+	return self;
+}
+
++ (DDLoggerNode *)nodeWithLogger:(id <DDLogger>)logger loggerQueue:(dispatch_queue_t)loggerQueue
+{
+	return [[DDLoggerNode alloc] initWithLogger:logger loggerQueue:loggerQueue];
+}
+
+- (void)dealloc
+{
+	#if !OS_OBJECT_USE_OBJC
+	if (loggerQueue) dispatch_release(loggerQueue);
+	#endif
 }
 
 @end
@@ -1093,6 +808,18 @@ NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
 
 @implementation DDLogMessage
 
+static char *dd_str_copy(const char *str)
+{
+	if (str == NULL) return NULL;
+	
+	size_t length = strlen(str);
+	char * result = malloc(length + 1);
+	strncpy(result, str, length);
+	result[length] = 0;
+	
+	return result;
+}
+
 - (id)initWithLogMsg:(NSString *)msg
                level:(int)level
                 flag:(int)flag
@@ -1100,64 +827,85 @@ NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
                 file:(const char *)aFile
             function:(const char *)aFunction
                 line:(int)line
+                 tag:(id)aTag
+             options:(DDLogMessageOptions)optionsMask
 {
-	if((self = [super init]))
+	if ((self = [super init]))
 	{
-		logMsg     = [msg retain];
+		logMsg     = msg;
 		logLevel   = level;
 		logFlag    = flag;
 		logContext = context;
-		file       = aFile;
-		function   = aFunction;
 		lineNumber = line;
+		tag        = aTag;
+		options    = optionsMask;
+		
+		if (options & DDLogMessageCopyFile)
+			file = dd_str_copy(aFile);
+		else
+			file = (char *)aFile;
+		
+		if (options & DDLogMessageCopyFunction)
+			function = dd_str_copy(aFunction);
+		else
+			function = (char *)aFunction;
 		
 		timestamp = [[NSDate alloc] init];
 		
 		machThreadID = pthread_mach_thread_np(pthread_self());
+		
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+		// The documentation for dispatch_get_current_queue() states:
+		//
+		// > [This method is] "recommended for debugging and logging purposes only"...
+		//
+		// Well that's exactly how we're using it here. Literally for logging purposes only.
+		// However, Apple has decided to deprecate this method anyway.
+		// However they have not given us an alternate version of dispatch_queue_get_label() that
+		// automatically uses the current queue, thus dispatch_get_current_queue() is still required.
+		// 
+		// If dispatch_get_current_queue() disappears, without a dispatch_queue_get_label() alternative,
+		// Apple will have effectively taken away our ability to properly log the name of executing dispatch queue.
+		
+		dispatch_queue_t currentQueue = dispatch_get_current_queue();
+		#pragma clang diagnostic pop
+		
+		queueLabel = dd_str_copy(dispatch_queue_get_label(currentQueue));
+		
+		threadName = [[NSThread currentThread] name];
 	}
 	return self;
 }
 
 - (NSString *)threadID
 {
-	if (threadID == nil)
-	{
-		threadID = [[NSString alloc] initWithFormat:@"%x", machThreadID];
-	}
-	
-	return threadID;
+	return [[NSString alloc] initWithFormat:@"%x", machThreadID];
 }
 
 - (NSString *)fileName
 {
-	if (fileName == nil)
-	{
-		fileName = [ExtractFileNameWithoutExtension(file, NO) retain];
-	}
-	
-	return fileName;
+	return DDExtractFileNameWithoutExtension(file, NO);
 }
 
 - (NSString *)methodName
 {
-	if (methodName == nil && function != NULL)
-	{
-		methodName = [[NSString alloc] initWithUTF8String:function];
-	}
-	
-	return methodName;
+	if (function == NULL)
+		return nil;
+	else
+		return [[NSString alloc] initWithUTF8String:function];
 }
 
 - (void)dealloc
 {
-	[logMsg release];
-	[timestamp release];
+	if (file && (options & DDLogMessageCopyFile))
+		free(file);
 	
-	[threadID release];
-	[fileName release];
-	[methodName release];
+	if (function && (options & DDLogMessageCopyFunction))
+		free(function);
 	
-	[super dealloc];
+	if (queueLabel)
+		free(queueLabel);
 }
 
 @end
@@ -1172,63 +920,47 @@ NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
 {
 	if ((self = [super init]))
 	{
-		if (IS_GCD_AVAILABLE)
+		const char *loggerQueueName = NULL;
+		if ([self respondsToSelector:@selector(loggerName)])
 		{
-		#if GCD_MAYBE_AVAILABLE
-			
-			const char *loggerQueueName = NULL;
-			if ([self respondsToSelector:@selector(loggerName)])
-			{
-				loggerQueueName = [[self loggerName] UTF8String];
-			}
-			
-			loggerQueue = dispatch_queue_create(loggerQueueName, NULL);
-			
-		#endif
+			loggerQueueName = [[self loggerName] UTF8String];
 		}
+		
+		loggerQueue = dispatch_queue_create(loggerQueueName, NULL);
+		
+		// We're going to use dispatch_queue_set_specific() to "mark" our loggerQueue.
+		// Later we can use dispatch_get_specific() to determine if we're executing on our loggerQueue.
+		// The documentation states:
+		//
+		// > Keys are only compared as pointers and are never dereferenced.
+		// > Thus, you can use a pointer to a static variable for a specific subsystem or
+		// > any other value that allows you to identify the value uniquely.
+		// > Specifying a pointer to a string constant is not recommended.
+		//
+		// So we're going to use the very convenient key of "self",
+		// which also works when multiple logger classes extend this class, as each will have a different "self" key.
+		//
+		// This is used primarily for thread-safety assertions (via the isOnInternalLoggerQueue method below).
+		
+		void *key = (__bridge void *)self;
+		void *nonNullValue = (__bridge void *)self;
+		
+		dispatch_queue_set_specific(loggerQueue, key, nonNullValue, NULL);
 	}
 	return self;
 }
 
 - (void)dealloc
 {
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		dispatch_release(loggerQueue);
+	#if !OS_OBJECT_USE_OBJC
+	if (loggerQueue) dispatch_release(loggerQueue);
 	#endif
-	}
-	
-	[super dealloc];
 }
 
 - (void)logMessage:(DDLogMessage *)logMessage
 {
 	// Override me
 }
-
-#if GCD_MAYBE_UNAVAILABLE
-
-- (void)lt_getLogFormatter:(NSMutableArray *)resultHolder
-{
-	// This method is executed on the logging thread.
-	
-	[resultHolder addObject:formatter];
-	OSMemoryBarrier();
-}
-
-- (void)lt_setLogFormatter:(id <DDLogFormatter>)logFormatter
-{
-	// This method is executed on the logging thread.
-	
-	if (formatter != logFormatter)
-	{
-		[formatter release];
-		formatter = [logFormatter retain];
-	}
-}
-
-#endif
 
 - (id <DDLogFormatter>)logFormatter
 {
@@ -1240,203 +972,112 @@ NSString *ExtractFileNameWithoutExtension(const char *filePath, BOOL copy)
 	// 
 	// They would expect formatter to equal myFormatter.
 	// This functionality must be ensured by the getter and setter method.
-	// 
+	//
 	// The thread safety must not come at a cost to the performance of the logMessage method.
 	// This method is likely called sporadically, while the logMessage method is called repeatedly.
 	// This means, the implementation of this method:
 	// - Must NOT require the logMessage method to acquire a lock.
 	// - Must NOT require the logMessage method to access an atomic property (also a lock of sorts).
-	// 
-	// Thread safety is ensured by executing access to the formatter variable on the logging thread/queue.
-	// This is the same thread/queue that the logMessage method operates on.
-	// 
+	//
+	// Thread safety is ensured by executing access to the formatter variable on the loggerQueue.
+	// This is the same queue that the logMessage method operates on.
+	//
 	// Note: The last time I benchmarked the performance of direct access vs atomic property access,
 	// direct access was over twice as fast on the desktop and over 6 times as fast on the iPhone.
+	// 
+	// Furthermore, consider the following code:
+	//
+	// DDLogVerbose(@"log msg 1");
+	// DDLogVerbose(@"log msg 2");
+	// [logger setFormatter:myFormatter];
+	// DDLogVerbose(@"log msg 3");
+	//
+	// Our intuitive requirement means that the new formatter will only apply to the 3rd log message.
+	// This must remain true even when using asynchronous logging.
+	// We must keep in mind the various queue's that are in play here:
+	// 
+	// loggerQueue : Our own private internal queue that the logMessage method runs on.
+	//               Operations are added to this queue from the global loggingQueue.
+	// 
+	// globalLoggingQueue : The queue that all log messages go through before they arrive in our loggerQueue.
+	// 
+	// All log statements go through the serial gloabalLoggingQueue before they arrive at our loggerQueue.
+	// Thus this method also goes through the serial globalLoggingQueue to ensure intuitive operation.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		// loggerQueue  : Our own private internal queue that the logMessage method runs on.
-		//                Operations are added to this queue from the global loggingQueue.
-		//
-		// loggingQueue : The queue that all log messages go through before they arrive in our loggerQueue.
-		// 
-		// It is important to note that, while the loggerQueue is used to create thread-safety for our formatter,
-		// changes to the formatter variable are queued on the loggingQueue.
-		// 
-		// Since this will obviously confuse the hell out of me later, here is a better description.
-		// Imagine the following code:
-		// 
-		// DDLogVerbose(@"log msg 1");
-		// DDLogVerbose(@"log msg 2");
-		// [logger setFormatter:myFormatter];
-		// DDLogVerbose(@"log msg 3");
-		// 
-		// Our intuitive requirement means that the new formatter will only apply to the 3rd log message.
-		// But notice what happens if we have asynchronous logging enabled for verbose mode.
-		// 
-		// Log msg 1 starts executing asynchronously on the loggingQueue.
-		// The loggingQueue executes the log statement on each logger concurrently.
-		// That means it executes log msg 1 on our loggerQueue.
-		// While log msg 1 is executing, log msg 2 gets added to the loggingQueue.
-		// Then the user requests that we change our formatter.
-		// So at this exact moment, our queues look like this:
-		// 
-		// loggerQueue  : executing log msg 1, nil
-		// loggingQueue : executing log msg 1, log msg 2, nil
-		// 
-		// So direct access to the formatter is only available if requested from the loggerQueue.
-		// In all other circumstances we need to go through the loggingQueue to get the proper value.
-		
-		if (dispatch_get_current_queue() == loggerQueue)
-		{
-			return formatter;
-		}
-		
-		__block id <DDLogFormatter> result;
-		
-		dispatch_block_t block = ^{
-			result = [formatter retain];
-		};
-		dispatch_sync([DDLog loggingQueue], block);
-		
-		return [result autorelease];
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		NSThread *loggingThread = [DDLog loggingThread];
-		
-		if ([NSThread currentThread] == loggingThread)
-		{
-			return formatter;
-		}
-		
-		NSMutableArray *resultHolder = [[NSMutableArray alloc] init];
-		
-		[self performSelector:@selector(lt_getLogFormatter:)
-		             onThread:loggingThread
-		           withObject:resultHolder
-		        waitUntilDone:YES];
-		
-		OSMemoryBarrier();
-		
-		id <DDLogFormatter> result = [[resultHolder objectAtIndex:0] retain];
-		[resultHolder release];
-		
-		return [result autorelease];
-		
-	#endif
-	}
+	// IMPORTANT NOTE:
+	// 
+	// Methods within the DDLogger implementation MUST access the formatter ivar directly.
+	// This method is designed explicitly for external access.
+	//
+	// Using "self." syntax to go through this method will cause immediate deadlock.
+	// This is the intended result. Fix it by accessing the ivar directly.
+	// Great strides have been take to ensure this is safe to do. Plus it's MUCH faster.
+	
+	NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
+	NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
+	
+	dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+	
+	__block id <DDLogFormatter> result;
+	
+	dispatch_sync(globalLoggingQueue, ^{
+		dispatch_sync(loggerQueue, ^{
+			result = formatter;
+		});
+	});
+	
+	return result;
 }
 
 - (void)setLogFormatter:(id <DDLogFormatter>)logFormatter
 {
-	// This method must be thread safe and intuitive.
-	// Therefore if somebody executes the following code:
-	// 
-	// [logger setLogFormatter:myFormatter];
-	// formatter = [logger logFormatter];
-	// 
-	// They would expect formatter to equal myFormatter.
-	// This functionality must be ensured by the getter and setter method.
-	// 
-	// The thread safety must not come at a cost to the performance of the logMessage method.
-	// This method is likely called sporadically, while the logMessage method is called repeatedly.
-	// This means, the implementation of this method:
-	// - Must NOT require the logMessage method to acquire a lock.
-	// - Must NOT require the logMessage method to access an atomic property (also a lock of sorts).
-	// 
-	// Thread safety is ensured by executing access to the formatter variable on the logging thread/queue.
-	// This is the same thread/queue that the logMessage method operates on.
-	// 
-	// Note: The last time I benchmarked the performance of direct access vs atomic property access,
-	// direct access was over twice as fast on the desktop and over 6 times as fast on the iPhone.
+	// The design of this method is documented extensively in the logFormatter message (above in code).
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
+	NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
+	NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
+	
+	dispatch_block_t block = ^{ @autoreleasepool {
 		
-		// loggerQueue  : Our own private internal queue that the logMessage method runs on.
-		//                Operations are added to this queue from the global loggingQueue.
-		//
-		// loggingQueue : The queue that all log messages go through before they arrive in our loggerQueue.
-		// 
-		// It is important to note that, while the loggerQueue is used to create thread-safety for our formatter,
-		// changes to the formatter variable are queued on the loggingQueue.
-		// 
-		// Since this will obviously confuse the hell out of me later, here is a better description.
-		// Imagine the following code:
-		// 
-		// DDLogVerbose(@"log msg 1");
-		// DDLogVerbose(@"log msg 2");
-		// [logger setFormatter:myFormatter];
-		// DDLogVerbose(@"log msg 3");
-		// 
-		// Our intuitive requirement means that the new formatter will only apply to the 3rd log message.
-		// But notice what happens if we have asynchronous logging enabled for verbose mode.
-		// 
-		// Log msg 1 starts executing asynchronously on the loggingQueue.
-		// The loggingQueue executes the log statement on each logger concurrently.
-		// That means it executes log msg 1 on our loggerQueue.
-		// While log msg 1 is executing, log msg 2 gets added to the loggingQueue.
-		// Then the user requests that we change our formatter.
-		// So at this exact moment, our queues look like this:
-		// 
-		// loggerQueue  : executing log msg 1, nil
-		// loggingQueue : executing log msg 1, log msg 2, nil
-		// 
-		// So direct access to the formatter is only available if requested from the loggerQueue.
-		// In all other circumstances we need to go through the loggingQueue to get the proper value.
-		
-		dispatch_block_t block = ^{
-			if (formatter != logFormatter)
-			{
-				[formatter release];
-				formatter = [logFormatter retain];
+		if (formatter != logFormatter)
+		{
+			if ([formatter respondsToSelector:@selector(willRemoveFromLogger:)]) {
+				[formatter willRemoveFromLogger:self];
 			}
-		};
-		
-		if (dispatch_get_current_queue() == loggerQueue)
-			block();
-		else
-			dispatch_async([DDLog loggingQueue], block);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		NSThread *loggingThread = [DDLog loggingThread];
-		
-		if ([NSThread currentThread] == loggingThread)
-		{
-			[self lt_setLogFormatter:logFormatter];
+			
+			formatter = logFormatter;
+			
+			if ([formatter respondsToSelector:@selector(didAddToLogger:)]) {
+				[formatter didAddToLogger:self];
+			}
 		}
-		else
-		{
-			[self performSelector:@selector(lt_setLogFormatter:)
-			             onThread:loggingThread
-			           withObject:logFormatter
-			        waitUntilDone:NO];
-		}
-		
-	#endif
-	}
+	}};
+	
+	dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+	
+	dispatch_async(globalLoggingQueue, ^{
+		dispatch_async(loggerQueue, block);
+	});
 }
-
-#if GCD_MAYBE_AVAILABLE
 
 - (dispatch_queue_t)loggerQueue
 {
 	return loggerQueue;
 }
 
-#endif
+- (NSString *)loggerName
+{
+	return NSStringFromClass([self class]);
+}
+
+- (BOOL)isOnGlobalLoggingQueue
+{
+	return (dispatch_get_specific(GlobalLoggingQueueIdentityKey) != NULL);
+}
+
+- (BOOL)isOnInternalLoggerQueue
+{
+	void *key = (__bridge void *)self;
+	return (dispatch_get_specific(key) != NULL);
+}
 
 @end

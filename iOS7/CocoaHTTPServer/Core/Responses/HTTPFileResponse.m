@@ -5,6 +5,10 @@
 #import <unistd.h>
 #import <fcntl.h>
 
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 // Log levels : off, error, warn, info, verbose
 // Other flags: trace
 static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
@@ -22,12 +26,12 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		connection = parent; // Parents retain children, children do NOT retain parents
 		
-		filePath = [fpath copy];
+		fileFD = NULL_FD;
+		filePath = [[fpath copy] stringByResolvingSymlinksInPath];
 		if (filePath == nil)
 		{
 			HTTPLogWarn(@"%@: Init failed - Nil filePath", THIS_FILE);
 			
-			[self release];
 			return nil;
 		}
 		
@@ -36,7 +40,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		{
 			HTTPLogWarn(@"%@: Init failed - Unable to get file attributes. filePath: %@", THIS_FILE, filePath);
 			
-			[self release];
 			return nil;
 		}
 		
@@ -47,7 +50,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		// We don't bother opening the file here.
 		// If this is a HEAD request we only need to know the fileLength.
-		fileFD = NULL_FD;
 	}
 	return self;
 }
@@ -172,7 +174,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	
 	// Perform the read
 	
-	HTTPLogVerbose(@"%@[%p]: Attempting to read %lu bytes from file", THIS_FILE, self, bytesToRead);
+	HTTPLogVerbose(@"%@[%p]: Attempting to read %lu bytes from file", THIS_FILE, self, (unsigned long)bytesToRead);
 	
 	ssize_t result = read(fileFD, buffer, bytesToRead);
 	
@@ -194,7 +196,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	}
 	else // (result > 0)
 	{
-		HTTPLogVerbose(@"%@[%p]: Read %d bytes from file", THIS_FILE, self, result);
+		HTTPLogVerbose(@"%@[%p]: Read %ld bytes from file", THIS_FILE, self, (long)result);
 		
 		fileOffset += result;
 		
@@ -230,8 +232,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	if (buffer)
 		free(buffer);
 	
-	[filePath release];
-	[super dealloc];
 }
 
 @end

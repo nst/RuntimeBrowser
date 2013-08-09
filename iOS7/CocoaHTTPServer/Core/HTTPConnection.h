@@ -15,16 +15,16 @@
 
 @interface HTTPConfig : NSObject
 {
-	HTTPServer *server;
-	NSString *documentRoot;
+	HTTPServer __unsafe_unretained *server;
+	NSString __strong *documentRoot;
 	dispatch_queue_t queue;
 }
 
 - (id)initWithServer:(HTTPServer *)server documentRoot:(NSString *)documentRoot;
 - (id)initWithServer:(HTTPServer *)server documentRoot:(NSString *)documentRoot queue:(dispatch_queue_t)q;
 
-@property (nonatomic, readonly) HTTPServer *server;
-@property (nonatomic, readonly) NSString *documentRoot;
+@property (nonatomic, unsafe_unretained, readonly) HTTPServer *server;
+@property (nonatomic, strong, readonly) NSString *documentRoot;
 @property (nonatomic, readonly) dispatch_queue_t queue;
 
 @end
@@ -58,7 +58,9 @@
 	
 	UInt64 requestContentLength;
 	UInt64 requestContentLengthReceived;
-	
+	UInt64 requestChunkSize;
+	UInt64 requestChunkSizeReceived;
+  
 	NSMutableArray *responseDataSizes;
 }
 
@@ -87,11 +89,13 @@
 
 - (NSArray *)directoryIndexFileNames;
 - (NSString *)filePathForURI:(NSString *)path;
+- (NSString *)filePathForURI:(NSString *)path allowDirectory:(BOOL)allowDirectory;
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path;
 - (WebSocket *)webSocketForURI:(NSString *)path;
 
 - (void)prepareForBodyWithSize:(UInt64)contentLength;
-- (void)processDataChunk:(NSData *)postDataChunk;
+- (void)processBodyData:(NSData *)postDataChunk;
+- (void)finishBody;
 
 - (void)handleVersionNotSupported:(NSString *)version;
 - (void)handleAuthenticationFailed;
@@ -101,6 +105,8 @@
 
 - (NSData *)preprocessResponse:(HTTPMessage *)response;
 - (NSData *)preprocessErrorResponse:(HTTPMessage *)response;
+
+- (void)finishResponse;
 
 - (BOOL)shouldDie;
 - (void)die;

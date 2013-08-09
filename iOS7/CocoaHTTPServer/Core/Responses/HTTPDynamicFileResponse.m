@@ -2,6 +2,10 @@
 #import "HTTPConnection.h"
 #import "HTTPLogging.h"
 
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 // Log levels : off, error, warn, info, verbose
 // Other flags: trace
 static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
@@ -20,8 +24,8 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	{
 		HTTPLogTrace();
 		
-		separator = [[separatorStr dataUsingEncoding:NSUTF8StringEncoding] retain];
-		replacementDict = [dict retain];
+		separator = [separatorStr dataUsingEncoding:NSUTF8StringEncoding];
+		replacementDict = dict;
 	}
 	return self;
 }
@@ -138,7 +142,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 				{
 					// Is there a given replacement for this key?
 					
-					NSString *value = [replacementDict objectForKey:key];
+					id value = [replacementDict objectForKey:key];
 					if (value)
 					{
 						// Found the replacement value.
@@ -146,7 +150,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 						
 						HTTPLogVerbose(@"%@[%p]: key(%@) -> value(%@)", THIS_FILE, self, key, value);
 						
-						NSData *v = [value dataUsingEncoding:NSUTF8StringEncoding];
+						NSData *v = [[value description] dataUsingEncoding:NSUTF8StringEncoding];
 						NSUInteger vLength = [v length];
 						
 						if (fullRange.length == vLength)
@@ -212,7 +216,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 						}
 					}
 					
-					[key release];
 				}
 				
 				found1 = found2 = NO;
@@ -283,10 +286,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 {
 	HTTPLogTrace();
 	
-	[separator release];
-	[replacementDict release];
 	
-	[super dealloc];
 }
 
 @end

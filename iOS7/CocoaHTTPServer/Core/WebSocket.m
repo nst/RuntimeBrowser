@@ -5,6 +5,10 @@
 #import "DDData.h"
 #import "HTTPLogging.h"
 
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 // Log levels: off, error, warn, info, verbose
 // Other flags : trace
 static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
@@ -18,7 +22,34 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 
 #define TAG_PREFIX                 300
 #define TAG_MSG_PLUS_SUFFIX        301
+#define TAG_MSG_WITH_LENGTH        302
+#define TAG_MSG_MASKING_KEY        303
+#define TAG_PAYLOAD_PREFIX         304
+#define TAG_PAYLOAD_LENGTH         305
+#define TAG_PAYLOAD_LENGTH16       306
+#define TAG_PAYLOAD_LENGTH64       307
 
+#define WS_OP_CONTINUATION_FRAME   0
+#define WS_OP_TEXT_FRAME           1
+#define WS_OP_BINARY_FRAME         2
+#define WS_OP_CONNECTION_CLOSE     8
+#define WS_OP_PING                 9
+#define WS_OP_PONG                 10
+
+static inline BOOL WS_OP_IS_FINAL_FRAGMENT(UInt8 frame)
+{
+	return (frame & 0x80) ? YES : NO;
+}
+
+static inline BOOL WS_PAYLOAD_IS_MASKED(UInt8 frame)
+{
+	return (frame & 0x80) ? YES : NO;
+}
+
+static inline NSUInteger WS_PAYLOAD_LENGTH(UInt8 frame)
+{
+	return frame & 0x7F;
+}
 
 @interface WebSocket (PrivateAPI)
 
@@ -33,6 +64,12 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation WebSocket
+{
+	BOOL isRFC6455;
+	BOOL nextFrameMasked;
+	NSUInteger nextOpCode;
+	NSData *maskingKey;
+}
 
 + (BOOL)isWebSocketRequest:(HTTPMessage *)request
 {
@@ -74,7 +111,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	else if (![upgradeHeaderValue caseInsensitiveCompare:@"WebSocket"] == NSOrderedSame) {
 		isWebSocket = NO;
 	}
-	else if (![connectionHeaderValue caseInsensitiveCompare:@"Upgrade"] == NSOrderedSame) {
+	else if ([connectionHeaderValue rangeOfString:@"Upgrade" options:NSCaseInsensitiveSearch].location == NSNotFound) {
 		isWebSocket = NO;
 	}
 	
@@ -102,11 +139,20 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	return isVersion76;
 }
 
++ (BOOL)isRFC6455Request:(HTTPMessage *)request
+{
+	NSString *key = [request headerField:@"Sec-WebSocket-Key"];
+	BOOL isRFC6455 = (key != nil);
+
+	HTTPLogTrace2(@"%@: %@ - %@", THIS_FILE, THIS_METHOD, (isRFC6455 ? @"YES" : @"NO"));
+
+	return isRFC6455;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Setup and Teardown
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@synthesize delegate;
 @synthesize websocketQueue;
 
 - (id)initWithRequest:(HTTPMessage *)aRequest socket:(GCDAsyncSocket *)socket
@@ -115,7 +161,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	
 	if (aRequest == nil)
 	{
-		[self release];
 		return nil;
 	}
 	
@@ -127,17 +172,17 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 			
 			NSString *temp = [[NSString alloc] initWithData:requestHeaders encoding:NSUTF8StringEncoding];
 			HTTPLogVerbose(@"%@[%p] Request Headers:\n%@", THIS_FILE, self, temp);
-			[temp release];
 		}
 		
 		websocketQueue = dispatch_queue_create("WebSocket", NULL);
-		request = [aRequest retain];
+		request = aRequest;
 		
-		asyncSocket = [socket retain];
+		asyncSocket = socket;
 		[asyncSocket setDelegate:self delegateQueue:websocketQueue];
 		
 		isOpen = NO;
 		isVersion76 = [[self class] isVersion76Request:request];
+		isRFC6455 = [[self class] isRFC6455Request:request];
 		
 		term = [[NSData alloc] initWithBytes:"\xFF" length:1];
 	}
@@ -148,15 +193,12 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 {
 	HTTPLogTrace();
 	
+	#if !OS_OBJECT_USE_OBJC
 	dispatch_release(websocketQueue);
-	
-	[request release];
+	#endif
 	
 	[asyncSocket setDelegate:nil delegateQueue:NULL];
 	[asyncSocket disconnect];
-	[asyncSocket release];
-	
-	[super dealloc];
 }
 
 - (id)delegate
@@ -190,8 +232,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	// This method is not exactly designed to be overriden.
 	// Subclasses are encouraged to override the didOpen method instead.
 	
-	dispatch_async(websocketQueue, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	dispatch_async(websocketQueue, ^{ @autoreleasepool {
 		
 		if (isStarted) return;
 		isStarted = YES;
@@ -205,9 +246,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 			[self sendResponseHeaders];
 			[self didOpen];
 		}
-		
-		[pool release];
-	});
+	}});
 }
 
 /**
@@ -219,13 +258,10 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	// This method is not exactly designed to be overriden.
 	// Subclasses are encouraged to override the didClose method instead.
 	
-	dispatch_async(websocketQueue, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	dispatch_async(websocketQueue, ^{ @autoreleasepool {
 		
 		[asyncSocket disconnect];
-		
-		[pool release];
-	});
+	}});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,6 +300,8 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	HTTPLogTrace();
 	
 	NSString *location;
+	
+	NSString *scheme = [asyncSocket isSecure] ? @"wss" : @"ws";
 	NSString *host = [request headerField:@"Host"];
 	
 	NSString *requestUri = [[request url] relativeString];
@@ -272,14 +310,20 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	{
 		NSString *port = [NSString stringWithFormat:@"%hu", [asyncSocket localPort]];
 		
-		location = [NSString stringWithFormat:@"ws://localhost:%@%@", port, requestUri];
+		location = [NSString stringWithFormat:@"%@://localhost:%@%@", scheme, port, requestUri];
 	}
 	else
 	{
-		location = [NSString stringWithFormat:@"ws://%@%@", host, requestUri];
+		location = [NSString stringWithFormat:@"%@://%@%@", scheme, host, requestUri];
 	}
 	
 	return location;
+}
+
+- (NSString *)secWebSocketKeyResponseHeaderValue {
+	NSString *key = [request headerField: @"Sec-WebSocket-Key"];
+	NSString *guid = @"258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+	return [[key stringByAppendingString: guid] dataUsingEncoding: NSUTF8StringEncoding].sha1Digest.base64Encoded;
 }
 
 - (void)sendResponseHeaders
@@ -357,15 +401,18 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	[wsResponse setHeaderField:originField value:originValue];
 	[wsResponse setHeaderField:locationField value:locationValue];
 	
+	NSString *acceptValue = [self secWebSocketKeyResponseHeaderValue];
+	if (acceptValue) {
+		[wsResponse setHeaderField: @"Sec-WebSocket-Accept" value: acceptValue];
+	}
+
 	NSData *responseHeaders = [wsResponse messageData];
 	
-	[wsResponse release];
 	
 	if (HTTP_LOG_VERBOSE)
 	{
 		NSString *temp = [[NSString alloc] initWithData:responseHeaders encoding:NSUTF8StringEncoding];
 		HTTPLogVerbose(@"%@[%p] Response Headers:\n%@", THIS_FILE, self, temp);
-		[temp release];
 	}
 	
 	[asyncSocket writeData:responseHeaders withTimeout:TIMEOUT_NONE tag:TAG_HTTP_RESPONSE_HEADERS];
@@ -460,11 +507,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		HTTPLogVerbose(@"key0 concat : raw(%@) str(%@)", d0, s0);
 		HTTPLogVerbose(@"responseBody: raw(%@) str(%@)", responseBody, sH);
 		
-		[s1 release];
-		[s2 release];
-		[s3 release];
-		[s0 release];
-		[sH release];
 	}
 }
 
@@ -482,7 +524,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	// Don't forget to invoke [super didOpen] in your method.
 	
 	// Start reading for messages
-	[asyncSocket readDataToLength:1 withTimeout:TIMEOUT_NONE tag:TAG_PREFIX];
+	[asyncSocket readDataToLength:1 withTimeout:TIMEOUT_NONE tag:(isRFC6455 ? TAG_PAYLOAD_PREFIX : TAG_PREFIX)];
 	
 	// Notify delegate
 	if ([delegate respondsToSelector:@selector(webSocketDidOpen:)])
@@ -492,16 +534,52 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 }
 
 - (void)sendMessage:(NSString *)msg
-{
-	HTTPLogTrace();
-	
+{	
 	NSData *msgData = [msg dataUsingEncoding:NSUTF8StringEncoding];
+	[self sendData:msgData];
+}
+
+- (void)sendData:(NSData *)msgData
+{
+    HTTPLogTrace();
+    
+    NSMutableData *data = nil;
 	
-	NSMutableData *data = [NSMutableData dataWithCapacity:([msgData length] + 2)];
-	
-	[data appendBytes:"\x00" length:1];
-	[data appendData:msgData];
-	[data appendBytes:"\xFF" length:1];
+	if (isRFC6455)
+	{
+		NSUInteger length = msgData.length;
+		if (length <= 125)
+		{
+			data = [NSMutableData dataWithCapacity:(length + 2)];
+			[data appendBytes: "\x81" length:1];
+			UInt8 len = (UInt8)length;
+			[data appendBytes: &len length:1];
+			[data appendData:msgData];
+		}
+		else if (length <= 0xFFFF)
+		{
+			data = [NSMutableData dataWithCapacity:(length + 4)];
+			[data appendBytes: "\x81\x7E" length:2];
+			UInt16 len = (UInt16)length;
+			[data appendBytes: (UInt8[]){len >> 8, len & 0xFF} length:2];
+			[data appendData:msgData];
+		}
+		else
+		{
+			data = [NSMutableData dataWithCapacity:(length + 10)];
+			[data appendBytes: "\x81\x7F" length:2];
+			[data appendBytes: (UInt8[]){0, 0, 0, 0, (UInt8)(length >> 24), (UInt8)(length >> 16), (UInt8)(length >> 8), length & 0xFF} length:8];
+			[data appendData:msgData];
+		}
+	}
+	else
+	{
+		data = [NSMutableData dataWithCapacity:([msgData length] + 2)];
+        
+		[data appendBytes:"\x00" length:1];
+		[data appendData:msgData];
+		[data appendBytes:"\xFF" length:1];
+	}
 	
 	// Remember: GCDAsyncSocket is thread-safe
 	
@@ -543,9 +621,41 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	[[NSNotificationCenter defaultCenter] postNotificationName:WebSocketDidDieNotification object:self];
 }
 
+#pragma mark WebSocket Frame
+
+- (BOOL)isValidWebSocketFrame:(UInt8)frame
+{
+	NSUInteger rsv =  frame & 0x70;
+	NSUInteger opcode = frame & 0x0F;
+	if (rsv || (3 <= opcode && opcode <= 7) || (0xB <= opcode && opcode <= 0xF))
+	{
+		return NO;
+	}
+	return YES;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark AsyncSocket Delegate
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 0                   1                   2                   3
+// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+// +-+-+-+-+-------+-+-------------+-------------------------------+
+// |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+// |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+// |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+// | |1|2|3|       |K|             |                               |
+// +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+// |     Extended payload length continued, if payload len == 127  |
+// + - - - - - - - - - - - - - - - +-------------------------------+
+// |                               |Masking-key, if MASK set to 1  |
+// +-------------------------------+-------------------------------+
+// | Masking-key (continued)       |          Payload Data         |
+// +-------------------------------- - - - - - - - - - - - - - - - +
+// :                     Payload Data continued ...                :
+// + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+// |                     Payload Data continued ...                |
+// +---------------------------------------------------------------+
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
@@ -572,6 +682,91 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 			[self didClose];
 		}
 	}
+	else if (tag == TAG_PAYLOAD_PREFIX)
+	{
+		UInt8 *pFrame = (UInt8 *)[data bytes];
+		UInt8 frame = *pFrame;
+
+		if ([self isValidWebSocketFrame: frame])
+		{
+			nextOpCode = (frame & 0x0F);
+			[asyncSocket readDataToLength:1 withTimeout:TIMEOUT_NONE tag:TAG_PAYLOAD_LENGTH];
+		}
+		else
+		{
+			// Unsupported frame type
+			[self didClose];
+		}
+	}
+	else if (tag == TAG_PAYLOAD_LENGTH)
+	{
+		UInt8 frame = *(UInt8 *)[data bytes];
+		BOOL masked = WS_PAYLOAD_IS_MASKED(frame);
+		NSUInteger length = WS_PAYLOAD_LENGTH(frame);
+		nextFrameMasked = masked;
+		maskingKey = nil;
+		if (length <= 125)
+		{
+			if (nextFrameMasked)
+			{
+				[asyncSocket readDataToLength:4 withTimeout:TIMEOUT_NONE tag:TAG_MSG_MASKING_KEY];
+			}
+			[asyncSocket readDataToLength:length withTimeout:TIMEOUT_NONE tag:TAG_MSG_WITH_LENGTH];
+		}
+		else if (length == 126)
+		{
+			[asyncSocket readDataToLength:2 withTimeout:TIMEOUT_NONE tag:TAG_PAYLOAD_LENGTH16];
+		}
+		else
+		{
+			[asyncSocket readDataToLength:8 withTimeout:TIMEOUT_NONE tag:TAG_PAYLOAD_LENGTH64];
+		}
+	}
+	else if (tag == TAG_PAYLOAD_LENGTH16)
+	{
+		UInt8 *pFrame = (UInt8 *)[data bytes];
+		NSUInteger length = ((NSUInteger)pFrame[0] << 8) | (NSUInteger)pFrame[1];
+		if (nextFrameMasked) {
+			[asyncSocket readDataToLength:4 withTimeout:TIMEOUT_NONE tag:TAG_MSG_MASKING_KEY];
+		}
+		[asyncSocket readDataToLength:length withTimeout:TIMEOUT_NONE tag:TAG_MSG_WITH_LENGTH];
+	}
+	else if (tag == TAG_PAYLOAD_LENGTH64)
+	{
+		// FIXME: 64bit data size in memory?
+		[self didClose];
+	}
+	else if (tag == TAG_MSG_WITH_LENGTH)
+	{
+		NSUInteger msgLength = [data length];
+		if (nextFrameMasked && maskingKey) {
+			NSMutableData *masked = data.mutableCopy;
+			UInt8 *pData = (UInt8 *)masked.mutableBytes;
+			UInt8 *pMask = (UInt8 *)maskingKey.bytes;
+			for (NSUInteger i = 0; i < msgLength; i++)
+			{
+				pData[i] = pData[i] ^ pMask[i % 4];
+			}
+			data = masked;
+		}
+		if (nextOpCode == WS_OP_TEXT_FRAME)
+		{
+			NSString *msg = [[NSString alloc] initWithBytes:[data bytes] length:msgLength encoding:NSUTF8StringEncoding];
+			[self didReceiveMessage:msg];
+		}
+		else
+		{
+			[self didClose];
+			return;
+		}
+
+		// Read next frame
+		[asyncSocket readDataToLength:1 withTimeout:TIMEOUT_NONE tag:TAG_PAYLOAD_PREFIX];
+	}
+	else if (tag == TAG_MSG_MASKING_KEY)
+	{
+		maskingKey = data.copy;
+	}
 	else
 	{
 		NSUInteger msgLength = [data length] - 1; // Excluding ending 0xFF frame
@@ -580,7 +775,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		[self didReceiveMessage:msg];
 		
-		[msg release];
 		
 		// Read next message
 		[asyncSocket readDataToLength:1 withTimeout:TIMEOUT_NONE tag:TAG_PREFIX];

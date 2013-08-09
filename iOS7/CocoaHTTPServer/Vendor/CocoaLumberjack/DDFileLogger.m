@@ -5,6 +5,20 @@
 #import <sys/xattr.h>
 #import <libkern/OSAtomic.h>
 
+/**
+ * Welcome to Cocoa Lumberjack!
+ * 
+ * The project page has a wealth of documentation if you have any questions.
+ * https://github.com/robbiehanson/CocoaLumberjack
+ * 
+ * If you're new to the project you may wish to read the "Getting Started" wiki.
+ * https://github.com/robbiehanson/CocoaLumberjack/wiki/GettingStarted
+**/
+
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 // We probably shouldn't be using DDLog() statements within the DDLog implementation.
 // But we still want to leave our log statements for any future debugging,
 // and to allow other developers to trace the implementation (which is a great learning tool).
@@ -22,24 +36,16 @@
 @interface DDLogFileManagerDefault (PrivateAPI)
 
 - (void)deleteOldLogFiles;
+- (NSString *)defaultLogsDirectory;
 
 @end
 
 @interface DDFileLogger (PrivateAPI)
 
-#if GCD_MAYBE_UNAVAILABLE
-
-- (void)lt_getMaximumFileSize:(NSMutableArray *)resultHolder;
-- (void)lt_setMaximumFileSize:(NSNumber *)maximumFileSizeWrapper;
-
-- (void)lt_getRollingFrequency:(NSMutableArray *)resultHolder;
-- (void)lt_setRollingFrequency:(NSNumber *)rollingFrequencyWrapper;
-
-#endif
-
 - (void)rollLogFileNow;
-- (void)maybeRollLogFileDueToAge:(NSTimer *)aTimer;
+- (void)maybeRollLogFileDueToAge;
 - (void)maybeRollLogFileDueToSize;
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,18 +56,27 @@
 
 @synthesize maximumNumberOfLogFiles;
 
-
 - (id)init
+{
+	return [self initWithLogsDirectory:nil];
+}
+
+- (id)initWithLogsDirectory:(NSString *)aLogsDirectory
 {
 	if ((self = [super init]))
 	{
 		maximumNumberOfLogFiles = DEFAULT_LOG_MAX_NUM_LOG_FILES;
 		
+		if (aLogsDirectory)
+			_logsDirectory = [aLogsDirectory copy];
+		else
+			_logsDirectory = [[self defaultLogsDirectory] copy];
+		
 		NSKeyValueObservingOptions kvoOptions = NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew;
 		
 		[self addObserver:self forKeyPath:@"maximumNumberOfLogFiles" options:kvoOptions context:nil];
 		
-		NSLogVerbose(@"DDFileLogManagerDefault: logsDir:\n%@", [self logsDirectory]);
+		NSLogVerbose(@"DDFileLogManagerDefault: logsDirectory:\n%@", [self logsDirectory]);
 		NSLogVerbose(@"DDFileLogManagerDefault: sortedLogFileNames:\n%@", [self sortedLogFileNames]);
 	}
 	return self;
@@ -69,7 +84,7 @@
 
 - (void)dealloc
 {
-	[super dealloc];
+	[self removeObserver:self forKeyPath:@"maximumNumberOfLogFiles"];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,33 +109,10 @@
 	{
 		NSLogInfo(@"DDFileLogManagerDefault: Responding to configuration change: maximumNumberOfLogFiles");
 		
-		if (IS_GCD_AVAILABLE)
-		{
-		#if GCD_MAYBE_AVAILABLE
+		dispatch_async([DDLog loggingQueue], ^{ @autoreleasepool {
 			
-			dispatch_block_t block = ^{
-				NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-				
-				[self deleteOldLogFiles];
-				
-				[pool release];
-			};
-			
-			dispatch_async([DDLog loggingQueue], block);
-			
-		#endif
-		}
-		else
-		{
-		#if GCD_MAYBE_UNAVAILABLE
-			
-			[self performSelector:@selector(deleteOldLogFiles)
-			             onThread:[DDLog loggingThread]
-			           withObject:nil
-			        waitUntilDone:NO];
-			
-		#endif
-		}
+			[self deleteOldLogFiles];
+		}});
 	}
 }
 
@@ -135,9 +127,14 @@
 {
 	NSLogVerbose(@"DDLogFileManagerDefault: deleteOldLogFiles");
 	
-	NSArray *sortedLogFileInfos = [self sortedLogFileInfos];
-	
 	NSUInteger maxNumLogFiles = self.maximumNumberOfLogFiles;
+	if (maxNumLogFiles == 0)
+	{
+		// Unlimited - don't delete any log files
+		return;
+	}
+	
+	NSArray *sortedLogFileInfos = [self sortedLogFileInfos];
 	
 	// Do we consider the first file?
 	// We are only supposed to be deleting archived files.
@@ -169,16 +166,13 @@
 	}
 	
 	NSUInteger i;
-	for (i = 0; i < count; i++)
+	for (i = maxNumLogFiles; i < count; i++)
 	{
-		if (i >= maxNumLogFiles)
-		{
-			DDLogFileInfo *logFileInfo = [sortedArchivedLogFileInfos objectAtIndex:i];
-			
-			NSLogInfo(@"DDLogFileManagerDefault: Deleting file: %@", logFileInfo.fileName);
-			
-			[[NSFileManager defaultManager] removeItemAtPath:logFileInfo.filePath error:nil];
-		}
+		DDLogFileInfo *logFileInfo = [sortedArchivedLogFileInfos objectAtIndex:i];
+		
+		NSLogInfo(@"DDLogFileManagerDefault: Deleting file: %@", logFileInfo.fileName);
+		
+		[[NSFileManager defaultManager] removeItemAtPath:logFileInfo.filePath error:nil];
 	}
 }
 
@@ -187,36 +181,43 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Returns the path to the logs directory.
+ * Returns the path to the default logs directory.
  * If the logs directory doesn't exist, this method automatically creates it.
 **/
-- (NSString *)logsDirectory
+- (NSString *)defaultLogsDirectory
 {
 #if TARGET_OS_IPHONE
-	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *baseDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+	NSString *baseDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+	NSString *logsDirectory = [baseDir stringByAppendingPathComponent:@"Logs"];
+    
 #else
-	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();
-	
 	NSString *appName = [[NSProcessInfo processInfo] processName];
-	
-	NSString *baseDir = [basePath stringByAppendingPathComponent:appName];
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+	NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();
+	NSString *logsDirectory = [[basePath stringByAppendingPathComponent:@"Logs"] stringByAppendingPathComponent:appName];
+
 #endif
+
+	return logsDirectory;
+}
+
+- (NSString *)logsDirectory
+{
+	// We could do this check once, during initalization, and not bother again.
+	// But this way the code continues to work if the directory gets deleted while the code is running.
 	
-	NSString *logsDir = [baseDir stringByAppendingPathComponent:@"Logs"];
-	
-	if(![[NSFileManager defaultManager] fileExistsAtPath:logsDir])
+	if (![[NSFileManager defaultManager] fileExistsAtPath:_logsDirectory])
 	{
 		NSError *err = nil;
-		if(![[NSFileManager defaultManager] createDirectoryAtPath:logsDir
-		                              withIntermediateDirectories:YES attributes:nil error:&err])
+		if (![[NSFileManager defaultManager] createDirectoryAtPath:_logsDirectory
+		                               withIntermediateDirectories:YES attributes:nil error:&err])
 		{
 			NSLogError(@"DDFileLogManagerDefault: Error creating logsDirectory: %@", err);
 		}
 	}
 	
-	return logsDir;
+	return _logsDirectory;
 }
 
 - (BOOL)isLogFile:(NSString *)fileName
@@ -253,7 +254,6 @@
 - (NSArray *)unsortedLogFilePaths
 {
 	NSString *logsDirectory = [self logsDirectory];
-	
 	NSArray *fileNames = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:logsDirectory error:nil];
 	
 	NSMutableArray *unsortedLogFilePaths = [NSMutableArray arrayWithCapacity:[fileNames count]];
@@ -307,7 +307,6 @@
 		DDLogFileInfo *logFileInfo = [[DDLogFileInfo alloc] initWithFilePath:filePath];
 		
 		[unsortedLogFileInfos addObject:logFileInfo];
-		[logFileInfo release];
 	}
 	
 	return unsortedLogFileInfos;
@@ -374,12 +373,12 @@
 	CFUUIDRef uuid = CFUUIDCreate(NULL);
 	
 	CFStringRef fullStr = CFUUIDCreateString(NULL, uuid);
-	CFStringRef shortStr = CFStringCreateWithSubstring(NULL, fullStr, CFRangeMake(0, 6));
+	NSString *result = (__bridge_transfer NSString *)CFStringCreateWithSubstring(NULL, fullStr, CFRangeMake(0, 6));
 	
 	CFRelease(fullStr);
 	CFRelease(uuid);
 	
-	return [NSMakeCollectable(shortStr) autorelease];
+	return result;
 }
 
 /**
@@ -421,11 +420,23 @@
 
 - (id)init
 {
-	if((self = [super init]))
+	return [self initWithDateFormatter:nil];
+}
+
+- (id)initWithDateFormatter:(NSDateFormatter *)aDateFormatter
+{
+	if ((self = [super init]))
 	{
-		dateFormatter = [[NSDateFormatter alloc] init];
-		[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
-		[dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ss:SSS"];
+		if (aDateFormatter)
+		{
+			dateFormatter = aDateFormatter;
+		}
+		else
+		{
+			dateFormatter = [[NSDateFormatter alloc] init];
+			[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4]; // 10.4+ style
+			[dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ss:SSS"];
+		}
 	}
 	return self;
 }
@@ -437,12 +448,6 @@
 	return [NSString stringWithFormat:@"%@  %@", dateAndTime, logMessage->logMsg];
 }
 
-- (void)dealloc
-{
-	[dateFormatter release];
-	[super dealloc];
-}
-
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -451,13 +456,9 @@
 
 @implementation DDFileLogger
 
-@synthesize maximumFileSize;
-@synthesize rollingFrequency;
-@synthesize logFileManager;
-
 - (id)init
 {
-	DDLogFileManagerDefault *defaultLogFileManager = [[[DDLogFileManagerDefault alloc] init] autorelease];
+	DDLogFileManagerDefault *defaultLogFileManager = [[DDLogFileManagerDefault alloc] init];
 	
 	return [self initWithLogFileManager:defaultLogFileManager];
 }
@@ -469,7 +470,7 @@
 		maximumFileSize = DEFAULT_LOG_MAX_FILE_SIZE;
 		rollingFrequency = DEFAULT_LOG_ROLLING_FREQUENCY;
 		
-		logFileManager = [aLogFileManager retain];
+		logFileManager = aLogFileManager;
 		
 		formatter = [[DDLogFileFormatterDefault alloc] init];
 	}
@@ -478,274 +479,138 @@
 
 - (void)dealloc
 {
-	[formatter release];
-	[logFileManager release];
-	
-	[currentLogFileInfo release];
-	
 	[currentLogFileHandle synchronizeFile];
 	[currentLogFileHandle closeFile];
-	[currentLogFileHandle release];
 	
-	[rollingTimer invalidate];
-	[rollingTimer release];
-	
-	[super dealloc];
+	if (rollingTimer)
+	{
+		dispatch_source_cancel(rollingTimer);
+		rollingTimer = NULL;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark Configuration
+#pragma mark Properties
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@synthesize logFileManager;
 
 - (unsigned long long)maximumFileSize
 {
+	__block unsigned long long result;
+	
+	dispatch_block_t block = ^{
+		result = maximumFileSize;
+	};
+	
 	// The design of this method is taken from the DDAbstractLogger implementation.
-	// For documentation please refer to the DDAbstractLogger implementation.
+	// For extensive documentation please refer to the DDAbstractLogger implementation.
 	
-	// Note: The internal implementation should access the maximumFileSize variable directly,
-	// but if we forget to do this, then this method should at least work properly.
+	// Note: The internal implementation MUST access the maximumFileSize variable directly,
+	// This method is designed explicitly for external access.
+	//
+	// Using "self." syntax to go through this method will cause immediate deadlock.
+	// This is the intended result. Fix it by accessing the ivar directly.
+	// Great strides have been take to ensure this is safe to do. Plus it's MUCH faster.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		if (dispatch_get_current_queue() == loggerQueue)
-		{
-			return maximumFileSize;
-		}
-		
-		__block unsigned long long result;
-		
-		dispatch_block_t block = ^{
-			result = maximumFileSize;
-		};
-		dispatch_sync([DDLog loggingQueue], block);
-		
-		return result;
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		NSThread *loggingThread = [DDLog loggingThread];
-		
-		if ([NSThread currentThread] == loggingThread)
-		{
-			return maximumFileSize;
-		}
-		
-		unsigned long long result;
-		NSMutableArray *resultHolder = [[NSMutableArray alloc] init];
-		
-		[self performSelector:@selector(lt_getMaximumFileSize:)
-		             onThread:loggingThread
-		           withObject:resultHolder
-		        waitUntilDone:YES];
-		
-		OSMemoryBarrier();
-		
-		result = [[resultHolder objectAtIndex:0] unsignedLongLongValue];
-		[resultHolder release];
-		
-		return result;
-		
-	#endif
-	}
+	NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
+	NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
+	
+	dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+	
+	dispatch_sync(globalLoggingQueue, ^{
+		dispatch_sync(loggerQueue, block);
+	});
+	
+	return result;
 }
 
 - (void)setMaximumFileSize:(unsigned long long)newMaximumFileSize
 {
-	// The design of this method is taken from the DDAbstractLogger implementation.
-	// For documentation please refer to the DDAbstractLogger implementation.
+	dispatch_block_t block = ^{ @autoreleasepool {
+		
+		maximumFileSize = newMaximumFileSize;
+		[self maybeRollLogFileDueToSize];
+		
+	}};
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		dispatch_block_t block = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			maximumFileSize = newMaximumFileSize;
-			[self maybeRollLogFileDueToSize];
-			
-			[pool release];
-		};
-		
-		if (dispatch_get_current_queue() == loggerQueue)
-			block();
-		else
-			dispatch_async([DDLog loggingQueue], block);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		NSThread *loggingThread = [DDLog loggingThread];
-		NSNumber *newMaximumFileSizeWrapper = [NSNumber numberWithUnsignedLongLong:newMaximumFileSize];
-		
-		if ([NSThread currentThread] == loggingThread)
-		{
-			[self lt_setMaximumFileSize:newMaximumFileSizeWrapper];
-		}
-		else
-		{
-			[self performSelector:@selector(lt_setMaximumFileSize:)
-			             onThread:loggingThread
-			           withObject:newMaximumFileSizeWrapper
-			        waitUntilDone:NO];
-		}
-		
-	#endif
-	}
+	// The design of this method is taken from the DDAbstractLogger implementation.
+	// For extensive documentation please refer to the DDAbstractLogger implementation.
+	
+	// Note: The internal implementation MUST access the maximumFileSize variable directly,
+	// This method is designed explicitly for external access.
+	//
+	// Using "self." syntax to go through this method will cause immediate deadlock.
+	// This is the intended result. Fix it by accessing the ivar directly.
+	// Great strides have been take to ensure this is safe to do. Plus it's MUCH faster.
+	
+	NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
+	NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
+	
+	dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+	
+	dispatch_async(globalLoggingQueue, ^{
+		dispatch_async(loggerQueue, block);
+	});
 }
 
 - (NSTimeInterval)rollingFrequency
 {
+	__block NSTimeInterval result;
+	
+	dispatch_block_t block = ^{
+		result = rollingFrequency;
+	};
+	
 	// The design of this method is taken from the DDAbstractLogger implementation.
-	// For documentation please refer to the DDAbstractLogger implementation.
+	// For extensive documentation please refer to the DDAbstractLogger implementation.
 	
 	// Note: The internal implementation should access the rollingFrequency variable directly,
-	// but if we forget to do this, then this method should at least work properly.
+	// This method is designed explicitly for external access.
+	//
+	// Using "self." syntax to go through this method will cause immediate deadlock.
+	// This is the intended result. Fix it by accessing the ivar directly.
+	// Great strides have been take to ensure this is safe to do. Plus it's MUCH faster.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		if (dispatch_get_current_queue() == loggerQueue)
-		{
-			return rollingFrequency;
-		}
-		
-		__block NSTimeInterval result;
-		
-		dispatch_block_t block = ^{
-			result = rollingFrequency;
-		};
-		dispatch_sync([DDLog loggingQueue], block);
-		
-		return result;
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		NSThread *loggingThread = [DDLog loggingThread];
-		
-		if ([NSThread currentThread] == loggingThread)
-		{
-			return rollingFrequency;
-		}
-		
-		NSTimeInterval result;
-		NSMutableArray *resultHolder = [[NSMutableArray alloc] init];
-		
-		[self performSelector:@selector(lt_getRollingFrequency:)
-		             onThread:loggingThread
-		           withObject:resultHolder
-		        waitUntilDone:YES];
-		
-		OSMemoryBarrier();
-		
-		result = [[resultHolder objectAtIndex:0] doubleValue];
-		[resultHolder release];
-		
-		return result;
-		
-	#endif
-	}
+	NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
+	NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
+	
+	dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+	
+	dispatch_sync(globalLoggingQueue, ^{
+		dispatch_sync(loggerQueue, block);
+	});
+	
+	return result;
 }
 
 - (void)setRollingFrequency:(NSTimeInterval)newRollingFrequency
 {
+	dispatch_block_t block = ^{ @autoreleasepool {
+		
+		rollingFrequency = newRollingFrequency;
+		[self maybeRollLogFileDueToAge];
+	}};
+	
 	// The design of this method is taken from the DDAbstractLogger implementation.
-	// For documentation please refer to the DDAbstractLogger implementation.
+	// For extensive documentation please refer to the DDAbstractLogger implementation.
 	
-	if (IS_GCD_AVAILABLE)
-	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		dispatch_block_t block = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			
-			rollingFrequency = newRollingFrequency;
-			[self maybeRollLogFileDueToAge:nil];
-			
-			[pool release];
-		};
-		
-		if (dispatch_get_current_queue() == loggerQueue)
-			block();
-		else
-			dispatch_async([DDLog loggingQueue], block);
-		
-	#endif
-	}
-	else
-	{
-	#if GCD_MAYBE_UNAVAILABLE
-		
-		NSThread *loggingThread = [DDLog loggingThread];
-		NSNumber *newMaximumRollingFrequencyWrapper = [NSNumber numberWithDouble:newRollingFrequency];
-		
-		if ([NSThread currentThread] == loggingThread)
-		{
-			[self lt_setRollingFrequency:newMaximumRollingFrequencyWrapper];
-		}
-		else
-		{
-			[self performSelector:@selector(lt_setRollingFrequency:)
-			             onThread:loggingThread
-			           withObject:newMaximumRollingFrequencyWrapper
-			        waitUntilDone:NO];
-		}
-		
-	#endif
-	}
+	// Note: The internal implementation should access the rollingFrequency variable directly,
+	// This method is designed explicitly for external access.
+	//
+	// Using "self." syntax to go through this method will cause immediate deadlock.
+	// This is the intended result. Fix it by accessing the ivar directly.
+	// Great strides have been take to ensure this is safe to do. Plus it's MUCH faster.
+	
+	NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
+	NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
+	
+	dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+	
+	dispatch_async(globalLoggingQueue, ^{
+		dispatch_async(loggerQueue, block);
+	});
 }
-
-#if GCD_MAYBE_UNAVAILABLE
-
-- (void)lt_getMaximumFileSize:(NSMutableArray *)resultHolder
-{
-	// This method is executed on the logging thread.
-	
-	[resultHolder addObject:[NSNumber numberWithUnsignedLongLong:maximumFileSize]];
-	OSMemoryBarrier();
-}
-
-- (void)lt_setMaximumFileSize:(NSNumber *)maximumFileSizeWrapper
-{
-	// This method is executed on the logging thread.
-	
-	maximumFileSize = [maximumFileSizeWrapper unsignedLongLongValue];
-	
-	[self maybeRollLogFileDueToSize];
-}
-
-- (void)lt_getRollingFrequency:(NSMutableArray *)resultHolder
-{
-	// This method is executed on the logging thread.
-	
-	[resultHolder addObject:[NSNumber numberWithDouble:rollingFrequency]];
-	OSMemoryBarrier();
-}
-
-- (void)lt_setRollingFrequency:(NSNumber *)rollingFrequencyWrapper
-{
-	// This method is executed on the logging thread.
-	
-	rollingFrequency = [rollingFrequencyWrapper doubleValue];
-	
-	[self maybeRollLogFileDueToAge:nil];
-}
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Rolling
@@ -755,12 +620,11 @@
 {
 	if (rollingTimer)
 	{
-		[rollingTimer invalidate];
-		[rollingTimer release];
-		rollingTimer = nil;
+		dispatch_source_cancel(rollingTimer);
+		rollingTimer = NULL;
 	}
 	
-	if (currentLogFileInfo == nil)
+	if (currentLogFileInfo == nil || rollingFrequency <= 0.0)
 	{
 		return;
 	}
@@ -777,11 +641,26 @@
 	NSLogVerbose(@"DDFileLogger: logFileCreationDate: %@", logFileCreationDate);
 	NSLogVerbose(@"DDFileLogger: logFileRollingDate : %@", logFileRollingDate);
 	
-	rollingTimer = [[NSTimer scheduledTimerWithTimeInterval:[logFileRollingDate timeIntervalSinceNow]
-	                                                 target:self
-	                                               selector:@selector(maybeRollLogFileDueToAge:)
-	                                               userInfo:nil
-	                                                repeats:NO] retain];
+	rollingTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, loggerQueue);
+	
+	dispatch_source_set_event_handler(rollingTimer, ^{ @autoreleasepool {
+		
+		[self maybeRollLogFileDueToAge];
+		
+	}});
+	
+	#if !OS_OBJECT_USE_OBJC
+	dispatch_source_t theRollingTimer = rollingTimer;
+	dispatch_source_set_cancel_handler(rollingTimer, ^{
+		dispatch_release(theRollingTimer);
+	});
+	#endif
+	
+	uint64_t delay = (uint64_t)([logFileRollingDate timeIntervalSinceNow] * NSEC_PER_SEC);
+	dispatch_time_t fireTime = dispatch_time(DISPATCH_TIME_NOW, delay);
+	
+	dispatch_source_set_timer(rollingTimer, fireTime, DISPATCH_TIME_FOREVER, 1.0);
+	dispatch_resume(rollingTimer);
 }
 
 - (void)rollLogFile
@@ -789,29 +668,26 @@
 	// This method is public.
 	// We need to execute the rolling on our logging thread/queue.
 	
-	if (IS_GCD_AVAILABLE)
+	dispatch_block_t block = ^{ @autoreleasepool {
+		
+		[self rollLogFileNow];
+	}};
+	
+	// The design of this method is taken from the DDAbstractLogger implementation.
+	// For extensive documentation please refer to the DDAbstractLogger implementation.
+	
+	if ([self isOnInternalLoggerQueue])
 	{
-	#if GCD_MAYBE_AVAILABLE
-		
-		dispatch_block_t block = ^{
-			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-			[self rollLogFileNow];
-			[pool release];
-		};
-		dispatch_async([DDLog loggingQueue], block);
-		
-	#endif
+		block();
 	}
 	else
 	{
-	#if GCD_MAYBE_UNAVAILABLE
+		dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
+		NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
 		
-		[self performSelector:@selector(rollLogFileNow)
-		             onThread:[DDLog loggingThread]
-		           withObject:nil
-		        waitUntilDone:NO];
-		
-	#endif
+		dispatch_async(globalLoggingQueue, ^{
+			dispatch_async(loggerQueue, block);
+		});
 	}
 }
 
@@ -819,9 +695,11 @@
 {
 	NSLogVerbose(@"DDFileLogger: rollLogFileNow");
 	
+	
+	if (currentLogFileHandle == nil) return;
+	
 	[currentLogFileHandle synchronizeFile];
 	[currentLogFileHandle closeFile];
-	[currentLogFileHandle release];
 	currentLogFileHandle = nil;
 	
 	currentLogFileInfo.isArchived = YES;
@@ -831,13 +709,18 @@
 		[logFileManager didRollAndArchiveLogFile:(currentLogFileInfo.filePath)];
 	}
 	
-	[currentLogFileInfo release];
 	currentLogFileInfo = nil;
+	
+	if (rollingTimer)
+	{
+		dispatch_source_cancel(rollingTimer);
+		rollingTimer = NULL;
+	}
 }
 
-- (void)maybeRollLogFileDueToAge:(NSTimer *)aTimer
+- (void)maybeRollLogFileDueToAge
 {
-	if (currentLogFileInfo.age >= rollingFrequency)
+	if (rollingFrequency > 0.0 && currentLogFileInfo.age >= rollingFrequency)
 	{
 		NSLogVerbose(@"DDFileLogger: Rolling log file due to age...");
 		
@@ -854,16 +737,19 @@
 	// This method is called from logMessage.
 	// Keep it FAST.
 	
-	unsigned long long fileSize = [currentLogFileHandle offsetInFile];
-	
 	// Note: Use direct access to maximumFileSize variable.
 	// We specifically wrote our own getter/setter method to allow us to do this (for performance reasons).
 	
-	if (fileSize >= maximumFileSize) // YES, we are using direct access. Read note above.
+	if (maximumFileSize > 0)
 	{
-		NSLogVerbose(@"DDFileLogger: Rolling log file due to size...");
+		unsigned long long fileSize = [currentLogFileHandle offsetInFile];
 		
-		[self rollLogFileNow];
+		if (fileSize >= maximumFileSize)
+		{
+			NSLogVerbose(@"DDFileLogger: Rolling log file due to size (%qu)...", fileSize);
+			
+			[self rollLogFileNow];
+		}
 	}
 }
 
@@ -896,12 +782,12 @@
 				useExistingLogFile = NO;
 				shouldArchiveMostRecent = NO;
 			}
-			else if (mostRecentLogFileInfo.fileSize >= maximumFileSize)
+			else if (maximumFileSize > 0 && mostRecentLogFileInfo.fileSize >= maximumFileSize)
 			{
 				useExistingLogFile = NO;
 				shouldArchiveMostRecent = YES;
 			}
-			else if (mostRecentLogFileInfo.age >= rollingFrequency)
+			else if (rollingFrequency > 0.0 && mostRecentLogFileInfo.age >= rollingFrequency)
 			{
 				useExistingLogFile = NO;
 				shouldArchiveMostRecent = YES;
@@ -911,7 +797,7 @@
 			{
 				NSLogVerbose(@"DDFileLogger: Resuming logging with file %@", mostRecentLogFileInfo.fileName);
 				
-				currentLogFileInfo = [mostRecentLogFileInfo retain];
+				currentLogFileInfo = mostRecentLogFileInfo;
 			}
 			else
 			{
@@ -944,7 +830,7 @@
 	{
 		NSString *logFilePath = [[self currentLogFileInfo] filePath];
 		
-		currentLogFileHandle = [[NSFileHandle fileHandleForWritingAtPath:logFilePath] retain];
+		currentLogFileHandle = [NSFileHandle fileHandleForWritingAtPath:logFilePath];
 		[currentLogFileHandle seekToEndOfFile];
 		
 		if (currentLogFileHandle)
@@ -984,6 +870,13 @@
 	}
 }
 
+- (void)willRemoveLogger
+{
+	// If you override me be sure to invoke [super willRemoveLogger];
+	
+	[self rollLogFileNow];
+}
+
 - (NSString *)loggerName
 {
 	return @"cocoa.lumberjack.fileLogger";
@@ -1019,7 +912,7 @@
 
 + (id)logFileWithPath:(NSString *)aFilePath
 {
-	return [[[DDLogFileInfo alloc] initWithFilePath:aFilePath] autorelease];
+	return [[DDLogFileInfo alloc] initWithFilePath:aFilePath];
 }
 
 - (id)initWithFilePath:(NSString *)aFilePath
@@ -1031,19 +924,6 @@
 	return self;
 }
 
-- (void)dealloc
-{
-	[filePath release];
-	[fileName release];
-	
-	[fileAttributes release];
-	
-	[creationDate release];
-	[modificationDate release];
-	
-	[super dealloc];
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Standard Info
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1052,7 +932,7 @@
 {
 	if (fileAttributes == nil)
 	{
-		fileAttributes = [[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil] retain];
+		fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
 	}
 	return fileAttributes;
 }
@@ -1061,7 +941,7 @@
 {
 	if (fileName == nil)
 	{
-		fileName = [[filePath lastPathComponent] retain];
+		fileName = [filePath lastPathComponent];
 	}
 	return fileName;
 }
@@ -1070,7 +950,7 @@
 {
 	if (modificationDate == nil)
 	{
-		modificationDate = [[[self fileAttributes] objectForKey:NSFileModificationDate] retain];
+		modificationDate = [[self fileAttributes] objectForKey:NSFileModificationDate];
 	}
 	
 	return modificationDate;
@@ -1103,7 +983,7 @@
 			
 			NSTimeInterval ti = seconds + (nanos / 1000000000.0);
 			
-			creationDate = [[NSDate dateWithTimeIntervalSince1970:ti] retain];
+			creationDate = [NSDate dateWithTimeIntervalSince1970:ti];
 		}
 		else
 		{
@@ -1112,7 +992,7 @@
 		
 	#else
 		
-		creationDate = [[[self fileAttributes] objectForKey:NSFileCreationDate] retain];
+		creationDate = [[self fileAttributes] objectForKey:NSFileCreationDate];
 		
 	#endif
 		
@@ -1133,6 +1013,18 @@
 - (NSTimeInterval)age
 {
 	return [[self creationDate] timeIntervalSinceNow] * -1.0;
+}
+
+- (NSString *)description
+{
+	return [@{@"filePath": self.filePath,
+		@"fileName": self.fileName,
+		@"fileAttributes": self.fileAttributes,
+		@"creationDate": self.creationDate,
+		@"modificationDate": self.modificationDate,
+		@"fileSize": @(self.fileSize),
+		@"age": @(self.age),
+		@"isArchived": @(self.isArchived)} description];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1187,16 +1079,9 @@
 
 - (void)reset
 {
-	[fileName release];
 	fileName = nil;
-	
-	[fileAttributes release];
 	fileAttributes = nil;
-	
-	[creationDate release];
 	creationDate = nil;
-	
-	[modificationDate release];
 	modificationDate = nil;
 }
 
@@ -1219,9 +1104,7 @@
 			NSLogError(@"DDLogFileInfo: Error renaming file (%@): %@", self.fileName, error);
 		}
 		
-		[filePath release];
-		filePath = [newFilePath retain];
-		
+		filePath = newFilePath;
 		[self reset];
 	}
 }

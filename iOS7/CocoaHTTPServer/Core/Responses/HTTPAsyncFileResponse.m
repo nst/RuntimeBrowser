@@ -5,6 +5,10 @@
 #import <unistd.h>
 #import <fcntl.h>
 
+#if ! __has_feature(objc_arc)
+#warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 // Log levels : off, error, warn, info, verbose
 // Other flags: trace
 static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
@@ -38,12 +42,12 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		connection = parent; // Parents retain children, children do NOT retain parents
 		
+		fileFD = NULL_FD;
 		filePath = [fpath copy];
 		if (filePath == nil)
 		{
 			HTTPLogWarn(@"%@: Init failed - Nil filePath", THIS_FILE);
 			
-			[self release];
 			return nil;
 		}
 		
@@ -52,7 +56,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		{
 			HTTPLogWarn(@"%@: Init failed - Unable to get file attributes. filePath: %@", THIS_FILE, filePath);
 			
-			[self release];
 			return nil;
 		}
 		
@@ -63,7 +66,6 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		// We don't bother opening the file here.
 		// If this is a HEAD request we only need to know the fileLength.
-		fileFD = NULL_FD;
 	}
 	return self;
 }
@@ -197,7 +199,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		// Perform the read
 		
-		HTTPLogVerbose(@"%@[%p]: Attempting to read %lu bytes from file", THIS_FILE, self, bytesToRead);
+		HTTPLogVerbose(@"%@[%p]: Attempting to read %lu bytes from file", THIS_FILE, self, (unsigned long)bytesToRead);
 		
 		ssize_t result = read(fileFD, readBuffer + readBufferOffset, (size_t)bytesToRead);
 		
@@ -218,7 +220,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		}
 		else // (result > 0)
 		{
-			HTTPLogVerbose(@"%@[%p]: Read %d bytes from file", THIS_FILE, self, result);
+			HTTPLogVerbose(@"%@[%p]: Read %lu bytes from file", THIS_FILE, self, (unsigned long)result);
 			
 			readOffset += result;
 			readBufferOffset += result;
@@ -230,7 +232,9 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	});
 	
 	int theFileFD = fileFD;
+	#if !OS_OBJECT_USE_OBJC
 	dispatch_source_t theReadSource = readSource;
+	#endif
 	
 	dispatch_source_set_cancel_handler(readSource, ^{
 		
@@ -240,7 +244,9 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 		
 		HTTPLogTrace2(@"%@: cancelBlock - Close fd[%i]", THIS_FILE, theFileFD);
 		
+		#if !OS_OBJECT_USE_OBJC
 		dispatch_release(theReadSource);
+		#endif
 		close(theFileFD);
 	});
 	
@@ -313,14 +319,14 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	{
 		NSUInteger dataLength = [data length];
 		
-		HTTPLogVerbose(@"%@[%p]: Returning data of length %lu", THIS_FILE, self, dataLength);
+		HTTPLogVerbose(@"%@[%p]: Returning data of length %lu", THIS_FILE, self, (unsigned long)dataLength);
 		
 		fileOffset += dataLength;
 		
 		NSData *result = data;
 		data = nil;
 		
-		return [result autorelease];
+		return result;
 	}
 	else
 	{
@@ -388,16 +394,12 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 {
 	HTTPLogTrace();
 	
-	if (fileFD != NULL_FD)
-		dispatch_release(readQueue);
+	#if !OS_OBJECT_USE_OBJC
+	if (readQueue) dispatch_release(readQueue);
+	#endif
 	
 	if (readBuffer)
 		free(readBuffer);
-	
-	[filePath release];
-	[data release];
-	
-	[super dealloc];
 }
 
 @end

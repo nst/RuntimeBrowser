@@ -18,6 +18,8 @@
 	BOOL isStarted;
 	BOOL isOpen;
 	BOOL isVersion76;
+	
+	id __unsafe_unretained delegate;
 }
 
 + (BOOL)isWebSocketRequest:(HTTPMessage *)request;
@@ -30,7 +32,7 @@
  * In most cases it will be easier to subclass WebSocket,
  * but some circumstances may lead one to prefer standard delegate callbacks instead.
 **/
-@property (/* atomic */ assign) id delegate;
+@property (/* atomic */ unsafe_unretained) id delegate;
 
 /**
  * The WebSocket class is thread-safe, generally via it's GCD queue.
@@ -50,11 +52,19 @@
 
 /**
  * Public API
- * 
+ *
  * Sends a message over the WebSocket.
  * This method is thread-safe.
-**/
+ **/
 - (void)sendMessage:(NSString *)msg;
+
+/**
+ * Public API
+ *
+ * Sends a message over the WebSocket.
+ * This method is thread-safe.
+ **/
+- (void)sendData:(NSData *)msg;
 
 /**
  * Subclass API
