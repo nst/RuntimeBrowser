@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4471.1" systemVersion="13A476u" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="8YX-ce-x5E">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="8YX-ce-x5E">
     <dependencies>
         <development version="5000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3697.3"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
     </dependencies>
     <scenes>
         <!--TreeTVC - Tree-->
@@ -14,11 +14,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="H0w-s5-xjI" customClass="RTBClassCell">
+                            <tableViewCell contentMode="scaleToFill" ambiguous="YES" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="H0w-s5-xjI" customClass="RTBClassCell">
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="H0w-s5-xjI" id="2bH-fl-oVs">
-                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="H0w-s5-xjI" id="2bH-fl-oVs">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V0S-Am-9QJ">
@@ -70,7 +70,7 @@
             <objects>
                 <navigationController definesPresentationContext="YES" id="un5-CG-cW7" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="Tree" id="xms-dm-0WI"/>
+                    <tabBarItem key="tabBarItem" title="Tree" image="tree.png" id="xms-dm-0WI"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="9bQ-O4-zMv">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -91,11 +91,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="YKc-kf-0KS" customClass="RTBClassCell">
+                            <tableViewCell contentMode="scaleToFill" ambiguous="YES" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="YKc-kf-0KS" customClass="RTBClassCell">
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="YKc-kf-0KS" id="H8M-9B-3zV">
-                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="YKc-kf-0KS" id="H8M-9B-3zV">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zjf-cr-gM1">
@@ -141,7 +141,7 @@
             <objects>
                 <navigationController definesPresentationContext="YES" id="LuA-Pz-xFy" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="List" id="maM-Wx-RNg"/>
+                    <tabBarItem key="tabBarItem" title="List" image="list.png" id="maM-Wx-RNg"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="aRg-mG-InE">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -166,11 +166,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBFrameworkCell" id="CR2-3n-Ng9" customClass="RTBFrameworkCell">
+                            <tableViewCell contentMode="scaleToFill" ambiguous="YES" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBFrameworkCell" id="CR2-3n-Ng9" customClass="RTBFrameworkCell">
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CR2-3n-Ng9" id="zHu-ao-ntk">
-                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="CR2-3n-Ng9" id="zHu-ao-ntk">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eWK-y5-7dW">
@@ -327,11 +327,11 @@ We have found this to be a useful development tool. Please note, however, that e
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBMethodCell" id="MLO-SK-r0a" customClass="RTBMethodCell">
+                            <tableViewCell contentMode="scaleToFill" ambiguous="YES" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBMethodCell" id="MLO-SK-r0a" customClass="RTBMethodCell">
                                 <rect key="frame" x="0.0" y="86" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="MLO-SK-r0a" id="eNg-ml-svd">
-                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="MLO-SK-r0a" id="eNg-ml-svd">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -404,7 +404,7 @@ We have found this to be a useful development tool. Please note, however, that e
             <objects>
                 <navigationController definesPresentationContext="YES" id="VgO-I6-yJ3" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="Use" id="RCB-AN-s77"/>
+                    <tabBarItem key="tabBarItem" title="Use" image="use.png" id="RCB-AN-s77"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="FcO-g2-ZYp">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -433,11 +433,11 @@ We have found this to be a useful development tool. Please note, however, that e
                             </connections>
                         </searchBar>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="UnG-Kl-Bn5" customClass="RTBClassCell">
+                            <tableViewCell contentMode="scaleToFill" ambiguous="YES" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="UnG-Kl-Bn5" customClass="RTBClassCell">
                                 <rect key="frame" x="0.0" y="66" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="UnG-Kl-Bn5" id="miH-rb-Z9B">
-                                    <rect key="frame" x="0.0" y="0.0" width="322" height="43"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="UnG-Kl-Bn5" id="miH-rb-Z9B">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bOw-c4-seR">
@@ -490,7 +490,7 @@ We have found this to be a useful development tool. Please note, however, that e
             <objects>
                 <navigationController definesPresentationContext="YES" id="KYm-sc-KDE" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="Search" id="k3E-Pg-Twb"/>
+                    <tabBarItem key="tabBarItem" title="Search" image="search.png" id="k3E-Pg-Twb"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="fPg-um-x4F">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -507,7 +507,7 @@ We have found this to be a useful development tool. Please note, however, that e
             <objects>
                 <navigationController definesPresentationContext="YES" id="ufp-Rs-FH7" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="Frameworks" id="7hc-Om-YjW"/>
+                    <tabBarItem key="tabBarItem" title="Frameworks" image="frameworks.png" id="7hc-Om-YjW"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="iZU-fy-LAN">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -545,7 +545,12 @@ We have found this to be a useful development tool. Please note, however, that e
     </scenes>
     <resources>
         <image name="framework.png" width="48" height="48"/>
+        <image name="frameworks.png" width="30" height="30"/>
         <image name="header.png" width="128" height="128"/>
+        <image name="list.png" width="64" height="64"/>
+        <image name="search.png" width="128" height="128"/>
+        <image name="tree.png" width="60" height="60"/>
+        <image name="use.png" width="30" height="30"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

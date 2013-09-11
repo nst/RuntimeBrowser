@@ -35,6 +35,11 @@
 		030959BD17B5434000221D0E /* ContextFilterLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309594517B5434000221D0E /* ContextFilterLogFormatter.m */; };
 		030959BE17B5434000221D0E /* DispatchQueueLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309594717B5434000221D0E /* DispatchQueueLogFormatter.m */; };
 		030959BF17B5434000221D0E /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0309594817B5434000221D0E /* README.txt */; };
+		0315BBDA17E083BF00F226E6 /* frameworks@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBD917E083BF00F226E6 /* frameworks@2x.png */; };
+		0315BBDC17E0859600F226E6 /* use@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBDB17E0859600F226E6 /* use@2x.png */; };
+		0315BBDE17E0861200F226E6 /* list@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBDD17E0861200F226E6 /* list@2x.png */; };
+		0315BBE017E0865A00F226E6 /* tree@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBDF17E0865A00F226E6 /* tree@2x.png */; };
+		0315BBE217E0868900F226E6 /* search@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBE117E0868900F226E6 /* search@2x.png */; };
 		0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0319E3B5179A86BA001F3471 /* Defaults.plist */; };
 		0360F4FE17969BBE00F58672 /* RTBSearchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0360F4FD17969BBE00F58672 /* RTBSearchVC.m */; };
 		0360F50817969FDA00F58672 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F50717969FDA00F58672 /* header.png */; };
@@ -137,6 +142,11 @@
 		0309594617B5434000221D0E /* DispatchQueueLogFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchQueueLogFormatter.h; sourceTree = "<group>"; };
 		0309594717B5434000221D0E /* DispatchQueueLogFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DispatchQueueLogFormatter.m; sourceTree = "<group>"; };
 		0309594817B5434000221D0E /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		0315BBD917E083BF00F226E6 /* frameworks@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "frameworks@2x.png"; sourceTree = "<group>"; };
+		0315BBDB17E0859600F226E6 /* use@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "use@2x.png"; sourceTree = "<group>"; };
+		0315BBDD17E0861200F226E6 /* list@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "list@2x.png"; sourceTree = "<group>"; };
+		0315BBDF17E0865A00F226E6 /* tree@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tree@2x.png"; sourceTree = "<group>"; };
+		0315BBE117E0868900F226E6 /* search@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "search@2x.png"; sourceTree = "<group>"; };
 		0319E3B5179A86BA001F3471 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		0360F4FC17969BBE00F58672 /* RTBSearchVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBSearchVC.h; sourceTree = "<group>"; };
 		0360F4FD17969BBE00F58672 /* RTBSearchVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBSearchVC.m; sourceTree = "<group>"; };
@@ -358,6 +368,11 @@
 		0379BB79179D0B2D00F4B8BF /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				0315BBD917E083BF00F226E6 /* frameworks@2x.png */,
+				0315BBDF17E0865A00F226E6 /* tree@2x.png */,
+				0315BBDB17E0859600F226E6 /* use@2x.png */,
+				0315BBE117E0868900F226E6 /* search@2x.png */,
+				0315BBDD17E0861200F226E6 /* list@2x.png */,
 				0379BB7A179D0B2D00F4B8BF /* NSString+SyntaxColoring.h */,
 				0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */,
 				0379BB81179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.h */,
@@ -545,12 +560,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				0360F50A1796A1F100F58672 /* framework.png in Resources */,
+				0315BBDA17E083BF00F226E6 /* frameworks@2x.png in Resources */,
+				0315BBE017E0865A00F226E6 /* tree@2x.png in Resources */,
+				0315BBE217E0868900F226E6 /* search@2x.png in Resources */,
 				030959BF17B5434000221D0E /* README.txt in Resources */,
 				03959DED176AFC4D002A1FCC /* Images.xcassets in Resources */,
+				0315BBDE17E0861200F226E6 /* list@2x.png in Resources */,
 				03959DDC176AFC4D002A1FCC /* InfoPlist.strings in Resources */,
 				030959B517B5434000221D0E /* About.txt in Resources */,
 				0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */,
 				030959B717B5434000221D0E /* About.txt in Resources */,
+				0315BBDC17E0859600F226E6 /* use@2x.png in Resources */,
 				0360F50817969FDA00F58672 /* header.png in Resources */,
 				03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */,
 				03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */,
