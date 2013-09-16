@@ -1,9 +1,6 @@
 RuntimeBrowser
 ==============
 
-Shmoopi Additions
---------------
-
 ![RuntimeBrowser](art/screenshot_iphone.png "RuntimeBrowser iPhone")
 
 This is a class browser for the Objective-C runtime on iOS and OS X. It gives you full access to all classes loaded in the runtime; allows you to dynamically load new modules and their classes; shows every method implemented on each class; and displays information in a header (.h) file format.
@@ -32,3 +29,16 @@ The OS X version features:
 You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as seen by RuntimeBrowser.
 
 ![Screenshot](art/screenshot.png "RuntimeBrowser Mac OS X")
+
+Shmoopi Additions
+--------------
+
+The iOS version now features:
+
+  * better invocation of methods and allocation of classes
+  * smarter output handling from invocations
+  * better handling of failing messages and void returns from output
+  * now instantiates most all classes including allocation of non-shared instances
+  * allows invocation of most all methods
+  * input parameters at runtime
+  
