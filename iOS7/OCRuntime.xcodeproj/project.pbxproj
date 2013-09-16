@@ -74,6 +74,7 @@
 		03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */; };
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
+		4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -200,6 +201,8 @@
 		03959DFD176AFC4E002A1FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCRuntimeTests.m; sourceTree = "<group>"; };
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
+		4CE3701F17E375DD00CD4BF2 /* UIAlertView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Blocks.h"; sourceTree = "<group>"; };
+		4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Blocks.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -449,6 +452,8 @@
 				0360F50717969FDA00F58672 /* header.png */,
 				0360F5091796A1F100F58672 /* framework.png */,
 				03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */,
+				4CE3701F17E375DD00CD4BF2 /* UIAlertView+Blocks.h */,
+				4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */,
 			);
 			path = OCRuntime;
 			sourceTree = "<group>";
@@ -529,6 +534,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Nicolas Seriot";
 				TargetAttributes = {
+					03959DCD176AFC4D002A1FCC = {
+						DevelopmentTeam = A9KTJUK5PQ;
+					};
 					03959DF1176AFC4E002A1FCC = {
 						TestTargetID = 03959DCD176AFC4D002A1FCC;
 					};
@@ -610,6 +618,7 @@
 				0374034D17969813005D1AFB /* RTBListTVC.m in Sources */,
 				030959BD17B5434000221D0E /* ContextFilterLogFormatter.m in Sources */,
 				03959DE2176AFC4D002A1FCC /* RTBAppDelegate.m in Sources */,
+				4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */,
 				0309594F17B5434000221D0E /* HTTPServer.m in Sources */,
 				037402E617968370005D1AFB /* RTBTreeTVC.m in Sources */,
 				03959DDE176AFC4D002A1FCC /* main.m in Sources */,
@@ -758,10 +767,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OCRuntime/OCRuntime-Prefix.pch";
 				INFOPLIST_FILE = "OCRuntime/OCRuntime-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -771,10 +783,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OCRuntime/OCRuntime-Prefix.pch";
 				INFOPLIST_FILE = "OCRuntime/OCRuntime-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

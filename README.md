@@ -33,6 +33,8 @@ You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as 
 Shmoopi Additions
 --------------
 
+![RuntimeBrowser](art/screenshot_iphone_2.png "RuntimeBrowser iPhone")
+
 The iOS version now features:
 
   * better invocation of methods and allocation of classes
@@ -41,4 +43,3 @@ The iOS version now features:
   * now instantiates most all classes including allocation of non-shared instances
   * allows invocation of most all methods
   * input parameters at runtime
-  
