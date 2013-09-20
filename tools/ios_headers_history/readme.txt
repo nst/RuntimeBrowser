@@ -21,3 +21,5 @@ http://en.wikipedia.org/wiki/IOS_version_history
 
 2012-09	6.0
 2013-01	6.1
+
+2013-09	7.0
