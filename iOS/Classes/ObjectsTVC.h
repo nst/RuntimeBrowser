@@ -14,7 +14,7 @@
 	NSMutableArray *methods;
 }
 
-@property (nonatomic, retain) id object;
-@property (nonatomic, retain) NSMutableArray *methods;
+@property (nonatomic, strong) id object;
+@property (nonatomic, strong) NSMutableArray *methods;
 
 @end
