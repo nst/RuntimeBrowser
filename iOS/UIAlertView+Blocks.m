@@ -63,7 +63,7 @@ static NSString *RIGHT_ACTION_ASS_KEY = @"com.robsaunders.otherbuttonaction";
 
 
 // This is a convenience wrapper for the constructor above
-+ (void) displayAlertWithTitle:(NSString *)title
++ (void) rtb_displayAlertWithTitle:(NSString *)title
                        message:(NSString *)message
                leftButtonTitle:(NSString *)leftButtonTitle
               leftButtonAction:(void (^)(void))leftButtonAction

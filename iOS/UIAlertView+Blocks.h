@@ -44,7 +44,7 @@
  
  */
 
-+ (void) displayAlertWithTitle:(NSString *)title 
++ (void) rtb_displayAlertWithTitle:(NSString *)title 
                        message:(NSString *)message
                leftButtonTitle:(NSString *)leftButtonTitle
               leftButtonAction:(void (^)(void))leftButtonAction

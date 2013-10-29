@@ -192,7 +192,7 @@
         
         for (NSString *objects in [params reverseObjectEnumerator]) {
             // Need to fill in the parameters to run the argument
-            [UIAlertView displayAlertWithTitle:objects
+            [UIAlertView rtb_displayAlertWithTitle:objects
                                        message:method
                                leftButtonTitle:@"Cancel"
                               leftButtonAction:^{
