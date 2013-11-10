@@ -26,7 +26,11 @@
 - (IBAction)showHeaders:(id)sender {
     // TODO: use a notification here
 	id appDelegate = [[UIApplication sharedApplication] delegate];
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 	[appDelegate performSelector:@selector(showHeaderForClassName:) withObject:_label.text];
+#pragma clang diagnostic pop
 }
 
 @end

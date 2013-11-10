@@ -24,9 +24,7 @@
 		0309595717B5434000221D0E /* HTTPFileResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309586B17B5433F00221D0E /* HTTPFileResponse.m */; };
 		0309595817B5434000221D0E /* HTTPRedirectResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309586D17B5433F00221D0E /* HTTPRedirectResponse.m */; };
 		0309595917B5434000221D0E /* WebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309586F17B5433F00221D0E /* WebSocket.m */; };
-		030959B517B5434000221D0E /* About.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0309593417B5434000221D0E /* About.txt */; };
 		030959B617B5434000221D0E /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309593617B5434000221D0E /* GCDAsyncSocket.m */; };
-		030959B717B5434000221D0E /* About.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0309593817B5434000221D0E /* About.txt */; };
 		030959B817B5434000221D0E /* DDAbstractDatabaseLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309593A17B5434000221D0E /* DDAbstractDatabaseLogger.m */; };
 		030959B917B5434000221D0E /* DDASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309593C17B5434000221D0E /* DDASLLogger.m */; };
 		030959BA17B5434000221D0E /* DDFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309593E17B5434000221D0E /* DDFileLogger.m */; };
@@ -575,9 +573,7 @@
 				03959DED176AFC4D002A1FCC /* Images.xcassets in Resources */,
 				0315BBDE17E0861200F226E6 /* list@2x.png in Resources */,
 				03959DDC176AFC4D002A1FCC /* InfoPlist.strings in Resources */,
-				030959B517B5434000221D0E /* About.txt in Resources */,
 				0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */,
-				030959B717B5434000221D0E /* About.txt in Resources */,
 				0315BBDC17E0859600F226E6 /* use@2x.png in Resources */,
 				0360F50817969FDA00F58672 /* header.png in Resources */,
 				03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */,
