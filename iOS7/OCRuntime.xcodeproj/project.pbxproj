@@ -532,9 +532,6 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Nicolas Seriot";
 				TargetAttributes = {
-					03959DCD176AFC4D002A1FCC = {
-						DevelopmentTeam = A9KTJUK5PQ;
-					};
 					03959DF1176AFC4E002A1FCC = {
 						TestTargetID = 03959DCD176AFC4D002A1FCC;
 					};

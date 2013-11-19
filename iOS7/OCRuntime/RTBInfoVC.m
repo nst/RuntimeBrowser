@@ -10,12 +10,20 @@
 #import "RTBAppDelegate.h"
 #import "HTTPServer.h"
 
+@interface RTBInfoVC ()
+
+@property (nonatomic, retain) IBOutlet UILabel *webServerStatusLabel;
+
+@property (nonatomic, retain) IBOutlet UISwitch *showPreludeInHeadersSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *showOCRuntimeClassesSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *toggleWebServerSwitch;
+
+@end
+
 @implementation RTBInfoVC
 
-- (IBAction)closeAction:(id)sender {
-	[self dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
+- (void)dismissModalView:(id)sender {
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)updateWebServerStatus {
@@ -25,6 +33,8 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
     [_showPreludeInHeadersSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"ShowPreludeInHeaders"] boolValue]];
     [_showOCRuntimeClassesSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"ShowOCRuntimeClasses"] boolValue]];
     [_toggleWebServerSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"EnableWebServer"] boolValue]];
@@ -32,9 +42,11 @@
     [self updateWebServerStatus];
 }
 
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.title = NSLocalizedString(@"About", nil);
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissModalView:)];
 }
 
 - (IBAction)openWebSiteAction:(id)sender {
