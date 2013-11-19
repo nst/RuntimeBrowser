@@ -31,15 +31,8 @@
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     RTBInfoVC *infoVC = (RTBInfoVC *)[sb instantiateViewControllerWithIdentifier:@"RTBInfoVC"];
     
-	[self presentViewController:infoVC animated:YES completion:^{
-        //
-    }];
-}
-
-- (IBAction)dismissModalView:(id)sender {
-	[[self navigationController] dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:infoVC];
+	[self presentViewController:navigationController animated:YES completion:nil];
 }
 
 - (void)viewDidLoad {
@@ -80,7 +73,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return [_classStubs count];
+	return 0;//[_classStubs count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

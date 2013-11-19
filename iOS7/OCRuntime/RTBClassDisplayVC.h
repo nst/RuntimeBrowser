@@ -10,13 +10,6 @@
 
 @interface RTBClassDisplayVC : UIViewController
 
-@property (nonatomic, retain) NSString *className;
-
-@property (nonatomic, retain) IBOutlet UINavigationBar *navigationBar;
-@property (nonatomic, retain) IBOutlet UITextView *textView;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *useButton;
-
-- (IBAction)dismissModalView:(id)sender;
-- (IBAction)use:(id)sender;
+@property (nonatomic, copy) NSString *className;
 
 @end
