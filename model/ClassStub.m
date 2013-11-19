@@ -284,7 +284,7 @@ Boston, MA  02111-1307  USA
 }
 
 - (NSString *)nodeInfo {
-    return [NSString stringWithFormat:@"%@ (%d)", [self nodeName], [[self children] count]];
+    return [NSString stringWithFormat:@"%@ (%lu)", [self nodeName], (unsigned long)[[self children] count]];
 }
 
 - (BOOL)canBeSavedAsHeader {
