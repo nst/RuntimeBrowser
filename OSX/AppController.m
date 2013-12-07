@@ -118,7 +118,7 @@
 		
 		RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
 		if(viewType == RBBrowserViewTypeImages) {
-			NSString *rootTitle = [NSString stringWithFormat:@"%d images", [[allClasses allClassStubsByImagePath] count]];
+			NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
 			[classBrowser setTitle:rootTitle ofColumn:0];
 		}
 	}
@@ -252,7 +252,7 @@
             
             [classNames release];
             
-            NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %d classes saved. \n  %d classes failed to save.", [dirURL path], saved, failed];
+            NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %d classes failed to save.", [dirURL path], (unsigned long)saved, failed];
             
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 NSRunInformationalAlertPanel(@"Save All Finished", message, @"OK", nil, nil);
@@ -297,15 +297,15 @@
     
 	NSString *rootTitle = @"";
 	if(viewType == RBBrowserViewTypeList) {
-        rootTitle = [NSString stringWithFormat:@"%d classes", [[rootItem children] count]];
+        rootTitle = [NSString stringWithFormat:@"%lu classes", (unsigned long)[[rootItem children] count]];
         
         if([self isInSearchMode]) {
             rootTitle = @"No classes found";
         }
     }
     
-    if(viewType == RBBrowserViewTypeTree)   rootTitle = [NSString stringWithFormat:@"%d Root Classes", [[rootItem children] count]];
-	if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%d Images", [[rootItem children] count]];
+    if(viewType == RBBrowserViewTypeTree)   rootTitle = [NSString stringWithFormat:@"%lu Root Classes", (unsigned long)[[rootItem children] count]];
+	if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%lu Images", (unsigned long)[[rootItem children] count]];
 	
     [label setStringValue:@""];
     [headerTextView setString:@""];
@@ -386,7 +386,7 @@
                     
                     searchResultsNode.children = searchResults;
                     
-                    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %d classes, searching...", searchString, [searchResults count]];
+                    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes, searching...", searchString, (unsigned long)[searchResults count]];
                     [classBrowser setTitle:rootTitle ofColumn:0];
                     
                     [classBrowser loadColumnZero];
@@ -404,9 +404,9 @@
                 return;
             }
             
-            NSLog(@"-- finished searching for %@, %ul results", searchString, [searchResults count]);
+            NSLog(@"-- finished searching for %@, %lul results", searchString, (unsigned long)[searchResults count]);
             
-            NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %d classes", searchString, [searchResults count]];
+            NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes", searchString, (unsigned long)[searchResults count]];
             [classBrowser setTitle:rootTitle ofColumn:0];
             
         }];

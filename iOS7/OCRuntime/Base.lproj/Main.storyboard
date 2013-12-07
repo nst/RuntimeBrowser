@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="13A569" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="8YX-ce-x5E">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="8YX-ce-x5E">
     <dependencies>
         <development version="5000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3746"/>
     </dependencies>
     <scenes>
         <!--TreeTVC - Tree-->
@@ -215,11 +215,11 @@
                         <viewControllerLayoutGuide type="bottom" id="rEI-HC-PP7"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="e0G-4p-y2g">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j7q-Et-3km">
-                                <rect key="frame" x="20" y="61" width="280" height="204"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j7q-Et-3km">
+                                <rect key="frame" x="20" y="20" width="280" height="278"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">This is a class browser for the Objective-C runtime. You can access all classes loaded in the runtime; dynamically load new frameworks; discover every method implemented on each class; see information in a header (.h) file format and retrieve them from you Mac through HTTP.
@@ -228,48 +228,51 @@ We have found this to be a useful development tool. Please note, however, that e
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vWe-1Y-knG">
-                                <rect key="frame" x="251" y="337" width="51" height="31"/>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vWe-1Y-knG">
+                                <rect key="frame" x="251" y="346" width="51" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="showPreludeInHeadersAction:" destination="z37-Zv-0FS" eventType="valueChanged" id="Txy-ou-MDf"/>
                                 </connections>
                             </switch>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dN9-UO-ZoB">
-                                <rect key="frame" x="251" y="376" width="51" height="31"/>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dN9-UO-ZoB">
+                                <rect key="frame" x="251" y="385" width="51" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="showOCRuntimeClassesAction:" destination="z37-Zv-0FS" eventType="valueChanged" id="qy6-jU-dEh"/>
                                 </connections>
                             </switch>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WZJ-DL-319">
-                                <rect key="frame" x="251" y="415" width="51" height="31"/>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WZJ-DL-319">
+                                <rect key="frame" x="251" y="424" width="51" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="toggleWebServerAction:" destination="z37-Zv-0FS" eventType="valueChanged" id="2e5-PG-5Ug"/>
                                 </connections>
                             </switch>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Show Prelude in Headers" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SAs-Df-U71">
-                                <rect key="frame" x="30" y="342" width="213" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show Prelude in Headers" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SAs-Df-U71">
+                                <rect key="frame" x="30" y="351" width="213" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Show OCRuntime Classes" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tkK-cB-p3M">
-                                <rect key="frame" x="30" y="381" width="213" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show OCRuntime Classes" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tkK-cB-p3M">
+                                <rect key="frame" x="30" y="390" width="213" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Enable Web Server" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Fd-kN-Sty">
-                                <rect key="frame" x="30" y="420" width="213" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enable Web Server" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Fd-kN-Sty">
+                                <rect key="frame" x="30" y="429" width="213" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dk9-Xb-psz">
-                                <rect key="frame" x="30" y="273" width="260" height="44"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dk9-Xb-psz">
+                                <rect key="frame" x="30" y="306" width="270" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="32" id="aML-fJ-HgV"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="http://github.com/nst/RuntimeBrowser">
                                     <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
@@ -282,31 +285,52 @@ We have found this to be a useful development tool. Please note, however, that e
                                     <action selector="openWebSiteAction:" destination="z37-Zv-0FS" eventType="touchUpInside" id="qZO-bi-dl4"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="web server status" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vr7-hh-3aa">
-                                <rect key="frame" x="30" y="449" width="213" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="web server status" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="Vr7-hh-3aa">
+                                <rect key="frame" x="30" y="463" width="270" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="RFV-Ep-0us"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hjQ-hv-IY4">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                <items>
-                                    <navigationItem title="About" id="1Do-im-Nvd">
-                                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="lKK-gs-nwy">
-                                            <connections>
-                                                <action selector="closeAction:" destination="z37-Zv-0FS" id="EJx-XA-ZSJ"/>
-                                            </connections>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="vWe-1Y-knG" firstAttribute="trailing" secondItem="Dk9-Xb-psz" secondAttribute="trailing" id="0eF-or-Fxa"/>
+                            <constraint firstItem="dN9-UO-ZoB" firstAttribute="leading" secondItem="tkK-cB-p3M" secondAttribute="trailing" constant="8" symbolic="YES" id="1JB-pI-Bs8"/>
+                            <constraint firstItem="dN9-UO-ZoB" firstAttribute="leading" secondItem="WZJ-DL-319" secondAttribute="leading" id="7Ci-JJ-Kqf"/>
+                            <constraint firstItem="Dk9-Xb-psz" firstAttribute="top" secondItem="j7q-Et-3km" secondAttribute="bottom" constant="8" symbolic="YES" id="9xA-YI-cZT"/>
+                            <constraint firstItem="j7q-Et-3km" firstAttribute="top" secondItem="e0G-4p-y2g" secondAttribute="top" constant="20" symbolic="YES" id="BnS-Sy-dkC"/>
+                            <constraint firstItem="vWe-1Y-knG" firstAttribute="top" secondItem="Dk9-Xb-psz" secondAttribute="bottom" constant="8" symbolic="YES" id="BqK-HY-gOM"/>
+                            <constraint firstItem="dN9-UO-ZoB" firstAttribute="top" secondItem="vWe-1Y-knG" secondAttribute="bottom" constant="8" symbolic="YES" id="Cnt-SN-aeo"/>
+                            <constraint firstAttribute="bottom" secondItem="Vr7-hh-3aa" secondAttribute="bottom" constant="20" symbolic="YES" id="DlG-y2-LID"/>
+                            <constraint firstItem="SAs-Df-U71" firstAttribute="leading" secondItem="tkK-cB-p3M" secondAttribute="leading" id="G9Q-Yg-Pof"/>
+                            <constraint firstItem="j7q-Et-3km" firstAttribute="leading" secondItem="e0G-4p-y2g" secondAttribute="leading" constant="20" symbolic="YES" id="Ien-si-KiA"/>
+                            <constraint firstItem="WZJ-DL-319" firstAttribute="top" secondItem="dN9-UO-ZoB" secondAttribute="bottom" constant="8" symbolic="YES" id="K4J-M7-ezN"/>
+                            <constraint firstItem="9Fd-kN-Sty" firstAttribute="centerY" secondItem="WZJ-DL-319" secondAttribute="centerY" id="N47-IY-j3O"/>
+                            <constraint firstItem="Dk9-Xb-psz" firstAttribute="leading" secondItem="e0G-4p-y2g" secondAttribute="leading" constant="30" id="OID-SK-FYK"/>
+                            <constraint firstItem="tkK-cB-p3M" firstAttribute="centerY" secondItem="dN9-UO-ZoB" secondAttribute="centerY" id="PQD-Oo-3Oe"/>
+                            <constraint firstAttribute="trailing" secondItem="j7q-Et-3km" secondAttribute="trailing" constant="20" symbolic="YES" id="ScF-6u-H7R"/>
+                            <constraint firstItem="WZJ-DL-319" firstAttribute="leading" secondItem="9Fd-kN-Sty" secondAttribute="trailing" constant="8" symbolic="YES" id="Skm-Y1-bJS"/>
+                            <constraint firstItem="tkK-cB-p3M" firstAttribute="top" secondItem="SAs-Df-U71" secondAttribute="bottom" constant="18" id="Svb-7I-b15"/>
+                            <constraint firstItem="WZJ-DL-319" firstAttribute="trailing" secondItem="Vr7-hh-3aa" secondAttribute="trailing" id="aZ5-Lg-YZR"/>
+                            <constraint firstItem="vWe-1Y-knG" firstAttribute="leading" secondItem="dN9-UO-ZoB" secondAttribute="leading" id="ech-9z-0br"/>
+                            <constraint firstItem="tkK-cB-p3M" firstAttribute="leading" secondItem="9Fd-kN-Sty" secondAttribute="leading" id="gaK-qv-4FI"/>
+                            <constraint firstItem="Vr7-hh-3aa" firstAttribute="leading" secondItem="9Fd-kN-Sty" secondAttribute="leading" id="hCR-zh-pzE"/>
+                            <constraint firstItem="SAs-Df-U71" firstAttribute="centerY" secondItem="vWe-1Y-knG" secondAttribute="centerY" id="hf8-92-Rom"/>
+                            <constraint firstItem="Vr7-hh-3aa" firstAttribute="top" secondItem="WZJ-DL-319" secondAttribute="bottom" constant="8" symbolic="YES" id="itV-gf-stR"/>
+                            <constraint firstItem="Vr7-hh-3aa" firstAttribute="top" secondItem="9Fd-kN-Sty" secondAttribute="bottom" constant="13" id="jHR-Yr-0Ec"/>
+                            <constraint firstItem="j7q-Et-3km" firstAttribute="trailing" secondItem="Dk9-Xb-psz" secondAttribute="trailing" id="kfU-4S-bCQ"/>
+                            <constraint firstItem="Dk9-Xb-psz" firstAttribute="leading" secondItem="SAs-Df-U71" secondAttribute="leading" id="nao-8h-CtU"/>
+                            <constraint firstItem="vWe-1Y-knG" firstAttribute="leading" secondItem="SAs-Df-U71" secondAttribute="trailing" constant="8" symbolic="YES" id="oQ6-KR-ACx"/>
+                            <constraint firstItem="SAs-Df-U71" firstAttribute="top" secondItem="Dk9-Xb-psz" secondAttribute="bottom" constant="13" id="opB-Ca-T6h"/>
+                        </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" id="wiM-Sp-GxD"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="showOCRuntimeClassesSwitch" destination="dN9-UO-ZoB" id="Wlc-cm-Gco"/>
                         <outlet property="showPreludeInHeadersSwitch" destination="vWe-1Y-knG" id="Uto-3S-ysC"/>
@@ -359,39 +383,26 @@ We have found this to be a useful development tool. Please note, however, that e
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3pQ-uc-XSb">
-                                <rect key="frame" x="0.0" y="44" width="320" height="524"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pQ-uc-XSb">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4n5-kL-2e5">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                <items>
-                                    <navigationItem title="Title" id="4BV-NX-uNf">
-                                        <barButtonItem key="leftBarButtonItem" title="Use" id="GQY-ar-j29">
-                                            <connections>
-                                                <action selector="use:" destination="3f0-gh-i7s" id="spS-hS-JWb"/>
-                                            </connections>
-                                        </barButtonItem>
-                                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="n6k-lL-fc7">
-                                            <connections>
-                                                <action selector="dismissModalView:" destination="3f0-gh-i7s" id="JbD-7B-TRi"/>
-                                            </connections>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="3pQ-uc-XSb" secondAttribute="trailing" id="Jr7-4s-yDK"/>
+                            <constraint firstItem="3pQ-uc-XSb" firstAttribute="leading" secondItem="LLs-BJ-6AZ" secondAttribute="leading" id="WSD-i8-SBz"/>
+                            <constraint firstItem="3pQ-uc-XSb" firstAttribute="top" secondItem="LLs-BJ-6AZ" secondAttribute="top" id="eQa-S4-zQT"/>
+                            <constraint firstAttribute="bottom" secondItem="3pQ-uc-XSb" secondAttribute="bottom" id="r3s-1e-XyH"/>
+                        </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
-                        <outlet property="navigationBar" destination="4n5-kL-2e5" id="JZm-lL-S6z"/>
                         <outlet property="textView" destination="3pQ-uc-XSb" id="gVb-2f-vWB"/>
                     </connections>
                 </viewController>

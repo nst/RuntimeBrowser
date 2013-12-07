@@ -72,7 +72,7 @@
 
 - (NSString *)nodeInfo {
     NSArray *pathComponents = [nodeName componentsSeparatedByString:@"/"];
-    return [NSString stringWithFormat:@"%@ (%d)", [pathComponents lastObject], [children count]];
+    return [NSString stringWithFormat:@"%@ (%lu)", [pathComponents lastObject], (unsigned long)[children count]];
 }
 
 - (void)dealloc {

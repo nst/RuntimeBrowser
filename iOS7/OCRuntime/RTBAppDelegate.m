@@ -196,10 +196,8 @@
     RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
     classDisplayVC.className = className;
     
-    UITabBarController *tabBarController = (UITabBarController *)self.window.rootViewController;
-	[tabBarController presentViewController:classDisplayVC animated:YES completion:^{
-        //
-    }];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
+	[self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
 }
 
 //- (IBAction)dismissModalView:(id)sender {
