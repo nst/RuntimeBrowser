@@ -1,0 +1,14 @@
+libAWDProtobufEasyConfig.dylib
+libAWDProtobufFacetimeiMessage.dylib
+libAWDProtobufMMCS.dylib
+libAWDProtobufPower.dylib
+libAWDProtobufVPN.dylib
+libAWDProtobufWifi.dylib
+libAXSafeCategoryBundle.dylib
+libdispatch.dylib
+libmecabra.dylib
+libobjc.A.dylib
+libsystem_blocks.dylib
+libsystem_network.dylib
+libTelephonyUtilDynamic.dylib
+libxpc.dylib
