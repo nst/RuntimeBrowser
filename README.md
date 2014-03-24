@@ -7,7 +7,7 @@ We have found this to be a useful development tool. Please note, however, that e
 
 The [original version](http://www.prajnait.com/source/src_RuntimeBrowser.html) was released in April 2002 by Ezra Epstein. The project is maintained by Nicolas Seriot since August, 2008.
 
-### iOS Versions
+### iOS Version
 
   * browse by class tree, image or indexed list
   * search in classes names
