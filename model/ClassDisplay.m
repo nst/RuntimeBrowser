@@ -592,7 +592,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 }
 
 - (NSString *)atClasses {
-    int i, c = [refdClasses count];
+    int i, c = (int)[refdClasses count];
     NSEnumerator *enumerator = [refdClasses objectEnumerator];
     NSString *className;
     NSString *atClasses = @"";
