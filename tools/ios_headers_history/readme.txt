@@ -1,4 +1,4 @@
-http://en.wikipedia.org/wiki/IOS_version_history
+http://en.wikipedia.org/wiki/History_of_iOS
 
 2007-06	1.0
 2007-09	1.1
@@ -23,3 +23,6 @@ http://en.wikipedia.org/wiki/IOS_version_history
 2013-01	6.1
 
 2013-09	7.0
+2014-03	7.1
+
+2014-09	8.0
