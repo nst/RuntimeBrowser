@@ -20,7 +20,7 @@ char **stringArrayFromNSArray(NSArray *a) {
 	NSUInteger maxLength = [[a objectAtIndex:0] length]; // because a is supposed to be sorted by length, order desc
 	NSUInteger i;
 	
-	char **sa = malloc(count*maxLength*sizeof(unichar));
+	char **sa = malloc(count*maxLength*sizeof(char));
 	for(i = 0; i < count; i++) {
 		sa[i] = (char *)[[a objectAtIndex:i] cStringUsingEncoding:NSUTF8StringEncoding];
 	}
