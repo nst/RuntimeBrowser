@@ -36,6 +36,8 @@
 
 - (void)viewDidLoad {
 	textView.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+    
+    [super viewDidLoad];
 }
 
 - (void)viewDidUnload {
@@ -53,15 +55,21 @@
 	NSArray *forbiddenClasses = [NSArray arrayWithObjects:@"NSMessageBuilder", /*, @"NSObject", @"NSProxy", */@"Object", @"_NSZombie_", nil];
 	
 	useButton.enabled = ![forbiddenClasses containsObject:className];
+    
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
 	textView.text = @"";
+
+    [super viewDidDisappear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
 	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
     textView.text = [cd header];
+
+    [super viewDidAppear:animated];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

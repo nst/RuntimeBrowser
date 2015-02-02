@@ -230,12 +230,6 @@ static const NSUInteger kPrivateFrameworks = 1;
 	[super viewDidAppear:animated];
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-}
-
 - (void)didReceiveMemoryWarning {
 	[super didReceiveMemoryWarning];
 }

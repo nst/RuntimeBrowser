@@ -119,7 +119,9 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-		
+
+    [super viewWillAppear:animated];
+
 	// show all if not showing a framework
 	if(frameworkName == nil) {
 		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs];

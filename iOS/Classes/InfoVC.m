@@ -59,6 +59,8 @@
 
 - (void)viewDidAppear:(BOOL)animated {
 	memoryLabel.text = [self memoryInfo];
+    
+    [super viewDidAppear:animated];
 }
 /*
 - (void)fetchRevisionString {
