@@ -35,22 +35,29 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, ClassStubFilter) {
+    ClassStubAll,
+    ClassStubClass,
+    ClassStubProtocol
+};
+
 @class ClassStub;
 
 @interface AllClasses : NSObject {
-	NSMutableArray *rootClasses;
 	NSMutableDictionary *allClassStubsByName;
 	NSMutableDictionary *allClassStubsByImagePath;
 }
 
-@property (nonatomic, retain) NSMutableArray *rootClasses;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByName;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByImagePath;
+@property (nonatomic, retain) NSMutableDictionary *allProtocolStubsByName;
 
 + (AllClasses *)sharedInstance;
 
-- (ClassStub *)classStubForClassName:(NSString *)classname;
-- (NSArray *)sortedClassStubs;
-- (void)emptyCachesAndReadAllRuntimeClasses; 
+- (NSArray *)rootClassStubs:(ClassStubFilter)filter;
+
+- (NSArray *)sortedClassStubs:(ClassStubFilter)filter;
+
+- (void)emptyCachesAndReadAllRuntimeClasses;
 
 @end

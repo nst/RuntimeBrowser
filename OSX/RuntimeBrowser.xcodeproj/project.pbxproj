@@ -23,6 +23,7 @@
 		5F3E071C13127B04001D2A1C /* class2.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071813127B04001D2A1C /* class2.tiff */; };
 		5F3E071D13127B04001D2A1C /* framework.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071913127B04001D2A1C /* framework.tiff */; };
 		5F3E071E13127B04001D2A1C /* h.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071A13127B04001D2A1C /* h.tiff */; };
+		657EB6BA1A978191000758B0 /* protocol.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 657EB6B91A978191000758B0 /* protocol.tiff */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		B736487D0E3FCD710053523F /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = B73648730E3FCD710053523F /* AppController.m */; };
@@ -58,6 +59,7 @@
 		5F3E071813127B04001D2A1C /* class2.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = class2.tiff; sourceTree = "<group>"; };
 		5F3E071913127B04001D2A1C /* framework.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = framework.tiff; sourceTree = "<group>"; };
 		5F3E071A13127B04001D2A1C /* h.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = h.tiff; sourceTree = "<group>"; };
+		657EB6B91A978191000758B0 /* protocol.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = protocol.tiff; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* RuntimeBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RuntimeBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B73648720E3FCD710053523F /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				657EB6B91A978191000758B0 /* protocol.tiff */,
 				5F3E071713127B04001D2A1C /* class.tiff */,
 				5F3E071813127B04001D2A1C /* class2.tiff */,
 				5F3E071913127B04001D2A1C /* framework.tiff */,
@@ -242,6 +245,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				657EB6BA1A978191000758B0 /* protocol.tiff in Resources */,
 				0315C0320E47AB9F00DFB2F3 /* Keywords.plist in Resources */,
 				0315C2780E47D3A200DFB2F3 /* Defaults.plist in Resources */,
 				03561DB40E4BA18A002FEBCD /* Credits.html in Resources */,
@@ -319,7 +323,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
+				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -342,7 +346,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
 				PROVISIONING_PROFILE = "";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -352,7 +356,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
+				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -371,7 +375,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
 				PROVISIONING_PROFILE = "";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -381,7 +385,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
+				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -395,7 +399,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
 				PROVISIONING_PROFILE = "";
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};

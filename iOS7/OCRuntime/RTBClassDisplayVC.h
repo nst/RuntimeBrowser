@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@class ClassStub;
+
 @interface RTBClassDisplayVC : UIViewController
 
-@property (nonatomic, copy) NSString *className;
+//@property (nonatomic, copy) NSString *className;
+@property (nonatomic, retain) ClassStub *classStub;
 
 @end

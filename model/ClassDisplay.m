@@ -1,4 +1,4 @@
-/* 
+/*
  
  ClassDisplay.m created by eepstein on Sun 17-Mar-2002
  
@@ -53,6 +53,7 @@
  */
 
 #import "ClassDisplay.h"
+#import "ClassStub.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -60,6 +61,11 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #endif
+
+// Private method exported in OS X 10.8 and iOS 6 and above. It returns enhanced type information for protocol methods.
+OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *p, SEL sel, BOOL isRequiredMethod, BOOL isInstanceMethod)
+__OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
+
 
 static NSString *TYPE_LABEL = @"type";
 static NSString *MODIFIER_LABEL = @"modifier";
@@ -110,8 +116,18 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 	return [cd autorelease];
 }
 
++ (ClassDisplay *)classDisplayWithProtocol:(Protocol *)proto {
+    ClassDisplay *cd = [[self alloc] init];
+    [cd setRepresentedProtocol:proto];
+    return [cd autorelease];
+}
+
 - (void)setRepresentedClass:(Class)klass {
 	representedClass = klass;
+}
+
+- (void)setRepresentedProtocol:(Protocol *)proto {
+    representedProtocol = proto;
 }
 
 - (NSDictionary *)typeEncWarning:(NSString *)inParse startingIVT:(const char*)startingIVT origResult:(NSDictionary *)origResult {
@@ -819,27 +835,101 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     return ms;
 }
 
-- (NSString *)header {
+- (NSString *)protocolMethods:(Protocol *)protocol forRequiredMethod:(BOOL)requiredMethod andInstanceMethod:(BOOL)instanceMethod {
+    
+    NSDictionary *cTypeDeclInfo;
+    NSUInteger i, j, offset;
+    const char *tmp;
+    char sign = instanceMethod ? '-' : '+';
+    
+    NSMutableString *header = [NSMutableString stringWithString:@""];
+    
+    unsigned int methodListCount;
+    struct objc_method_description *methodList = protocol_copyMethodDescriptionList(protocol, requiredMethod, instanceMethod, &methodListCount); // FIXME: handle exception here
+    
+    if (methodListCount > 0) {
+        [header appendString:(requiredMethod ? @"@required\n" : @"@optional\n")];
+    }
+    
+    for ( j = methodListCount; j > 0; j-- ) {
+        struct objc_method_description currMethod = (methodList[j-1]);
+        
+        NSString *mName = [NSString stringWithCString:sel_getName(currMethod.name) encoding:NSASCIIStringEncoding];
+
+        ivT = nil;
+        if (_protocol_getMethodTypeEncoding != NULL)
+            ivT = _protocol_getMethodTypeEncoding(protocol, currMethod.name, requiredMethod, instanceMethod);
+        
+        if (ivT == nil) {
+            ivT = currMethod.types;
+        }
+        NSString *mParms = [NSString stringWithCString:ivT encoding:NSASCIIStringEncoding];
+        
+        methodWarning = currentWarning = NO;
+        cTypeDeclInfo = [self flatCTypeDeclForEncType];
+        
+        [header appendFormat:@"%c (%@%@)", sign, [cTypeDeclInfo objectForKey:TYPE_LABEL], [cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+        
+        currentWarning = NO;
+        tmp = strchr(ivT, ':');
+        if (tmp != NULL)
+            ivT = tmp+1;
+        else
+            ivT += strlen(ivT);
+        
+        // NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
+        NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
+        if ([mNameParts count] == 1) {
+            [header appendString:[mNameParts lastObject]];
+        }
+        for (i=1; i<[mNameParts count]; ++i) {
+            offset = atoi(ivT); // ignored;
+            while (isdigit (*++ivT));
+            currentWarning = NO;
+            cTypeDeclInfo = [self flatCTypeDeclForEncType];
+            [header appendFormat:@"%@:(%@%@)arg%lu%s",
+             [mNameParts objectAtIndex:i-1],
+             [cTypeDeclInfo objectForKey:TYPE_LABEL],
+             [cTypeDeclInfo objectForKey:MODIFIER_LABEL],
+             (unsigned long)i,
+             ((i==([mNameParts count]-1))?"":" ")];
+        }
+
+        //[header appendFormat:@"; /* %@ */\n", mParms];
+        [header appendFormat:@";\n"];
+        if (methodWarning)
+            [header appendFormat:@"     /* Encoded args for previous method: %@ */\n\n", mParms];
+        // PENDING -- error parsing unions ... different format than structs ??
+        
+    }
+    
+    free(methodList);
+    
+    
+    return header;
+}
+
+- (NSString *)headerForClass {
     NSMutableString *header = [NSMutableString string];
-	
+    
     NSInteger i;
-	unsigned int protocolListCount;
-	
+    unsigned int protocolListCount;
+    
     NSArray *instanceMethods;
     NSArray *classMethods;
-	
+    
     showFunctionSignatureNote = NO;
     showUnhandledWarning = NO;
     self.refdClasses = [NSMutableSet set];
     self.namedStructs = [NSMutableDictionary dictionary];
-	
+    
     // Start of @interface declaration for this class
     [header appendFormat: @"@interface %s ", class_getName(representedClass)];
-	
+    
     // with inheritence
     if (class_getSuperclass(representedClass) != nil)
         [header appendFormat: @": %s ", class_getName(class_getSuperclass(representedClass))];
-	
+    
     // conforming to protocols
     Protocol **protocolList = class_copyProtocolList(representedClass, &protocolListCount);
     if (protocolList != NULL && (protocolListCount > 0)) {
@@ -852,18 +942,18 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         }
         [header appendString: @">"];
     }
-	free(protocolList);
-//    [header appendString: @"\n"];
-	
+    free(protocolList);
+    //    [header appendString: @"\n"];
+    
     // begin Ivars
-    [header appendString: @" {\n"]; 
-	
+    [header appendString: @" {\n"];
+    
     // Meta-Class has no Ivars.
-	
+    
     // instance ivars;
-	unsigned int ivarListCount;
-	Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
-	
+    unsigned int ivarListCount;
+    Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
+    
     if (ivarList != NULL && (ivarListCount>0)) {
         for ( i = 0; i < ivarListCount; ++i ) {
             Ivar rtIvar = ivarList[i];
@@ -880,39 +970,39 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 }
                 if (currentWarning)
                     [header appendFormat:@"\n  /* Error parsing encoded ivar type info: %s */\n", ivar_getTypeEncoding(rtIvar)];
-				
+                
                 [header appendString:IVAR_TAB];
                 [header appendString:[cTypeDeclInfo objectForKey:TYPE_LABEL]];
                 if (ivar_getName(rtIvar)) // compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
                     [header appendFormat:@"%s", ivar_getName(rtIvar)];
                 else
                     [header appendString:@"/* ? */"];
-				
+                
                 [header appendString:[cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
-				
+                
                 [header appendString:@";\n"];
                 if (currentWarning) [header appendString:@"\n"];
             }
         }
     }
-	free(ivarList);
-	
+    free(ivarList);
+    
     // end Ivars
     [header appendString: @"}\n\n"];
-	
-	// obj-c 2.0 properties
-	unsigned int propertyListCount;
-	objc_property_t *propertyList = class_copyPropertyList(representedClass, &propertyListCount);
-	NSUInteger p;
+    
+    // obj-c 2.0 properties
+    unsigned int propertyListCount;
+    objc_property_t *propertyList = class_copyPropertyList(representedClass, &propertyListCount);
+    NSUInteger p;
     for(p = 0; p < propertyListCount; p++) {
-		objc_property_t prop = propertyList[p];
-		[header appendString:[self propertyDescription:prop]];
-	}
-	free(propertyList);
-	
-	if(propertyListCount > 0)
-		[header appendString:@"\n"];
-	
+        objc_property_t prop = propertyList[p];
+        [header appendString:[self propertyDescription:prop]];
+    }
+    free(propertyList);
+    
+    if(propertyListCount > 0)
+        [header appendString:@"\n"];
+    
     // Class methods
     classMethods = [self methodLinesWithSign:'+'];
     i = [classMethods count];
@@ -920,7 +1010,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [header appendString:[classMethods objectAtIndex:(i-1)]];
         [header appendString: @"\n"];
     }
-	
+    
     // Instance methods
     instanceMethods = [self methodLinesWithSign:'-'];
     i = [instanceMethods count];
@@ -928,18 +1018,88 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [header appendString:[instanceMethods objectAtIndex:(i-1)]];
         [header appendString: @"\n"];
     }
-		
+    
     [header appendString: @"@end\n"];
-		
+    
     return [NSString stringWithFormat:@"/* Generated by RuntimeBrowser.\n   Image: %s\n */\n\n%@%@%@%@",
-			  class_getImageName(representedClass),
-			  unhandledWarning(showUnhandledWarning),
-			  functionSignatureNote(showFunctionSignatureNote),
-			  [self atClasses],
-			  header];
-		
+            class_getImageName(representedClass),
+            unhandledWarning(showUnhandledWarning),
+            functionSignatureNote(showFunctionSignatureNote),
+            [self atClasses],
+            header];
+    
     // PENDING -- use refdClasses
     // @class line goes here.
+}
+
+- (NSString *)headerForProtocol {
+    NSMutableString *header = [NSMutableString string];
+    
+    showFunctionSignatureNote = NO;
+    showUnhandledWarning = NO;
+    self.refdClasses = [NSMutableSet set];
+    self.namedStructs = [NSMutableDictionary dictionary];
+    
+    [header appendFormat:@"@protocol %s", (representedProtocol ? protocol_getName(representedProtocol) : "")];
+    
+    // conforming to protocols
+    unsigned int i, conformToProtocolListCount;
+    Protocol **conformToProtocolList = protocol_copyProtocolList(representedProtocol, &conformToProtocolListCount);
+    if (conformToProtocolList != NULL && (conformToProtocolListCount > 0)) {
+        [header appendString: @"<"];
+        for ( i = 0; i < conformToProtocolListCount; ++i ) {
+            if (i != 0)
+                [header appendString: @", "];
+            Protocol *conformToProtocol = conformToProtocolList[i];
+            [header appendFormat:@"%s", (conformToProtocol ? protocol_getName(conformToProtocol) : "")];
+        }
+        [header appendString: @">"];
+    }
+    free(conformToProtocolList);
+    [header appendString: @"\n"];
+    
+    
+    // obj-c 2.0 properties
+    unsigned int propertyListCount;
+    objc_property_t *propertyList = protocol_copyPropertyList(representedProtocol, &propertyListCount);
+    NSUInteger p;
+    for(p = 0; p < propertyListCount; p++) {
+        objc_property_t prop = propertyList[p];
+        [header appendString:[self propertyDescription:prop]];
+    }
+    free(propertyList);
+    
+    if(propertyListCount > 0)
+        [header appendString:@"\n"];
+    
+    // Class methods
+    [header appendString:[self protocolMethods:representedProtocol forRequiredMethod:YES andInstanceMethod:NO]];
+    [header appendString:[self protocolMethods:representedProtocol forRequiredMethod:NO andInstanceMethod:NO]];
+    // Instance methods
+    [header appendString:[self protocolMethods:representedProtocol forRequiredMethod:YES andInstanceMethod:YES]];
+    [header appendString:[self protocolMethods:representedProtocol forRequiredMethod:NO andInstanceMethod:YES]];
+    [header appendString: @"\n"];
+    
+    [header appendString:@"@end\n\n"];
+    
+
+    return [NSString stringWithFormat:@"/* Generated by RuntimeBrowser.\n */\n\n%@%@%@%@",
+            unhandledWarning(showUnhandledWarning),
+            functionSignatureNote(showFunctionSignatureNote),
+            [self atClasses],
+            header];
+    
+    // PENDING -- use refdClasses
+    // @class line goes here.
+}
+
+
+- (NSString *)header {
+    if (representedClass != nil)
+        return [self headerForClass];
+    else
+        return [self headerForProtocol];
+    
 }
 
 @end

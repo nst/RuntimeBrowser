@@ -39,7 +39,7 @@
     [super viewDidLoad];
 	self.allClasses = [AllClasses sharedInstance];
 	if(!_isSubLevel) {
-		self.classStubs = [_allClasses rootClasses];
+		self.classStubs = [_allClasses rootClassStubs:ClassStubAll];
 //		self.title = @"Tree";
 		self.navigationItem.title = @"Root Classes";
 	}
@@ -52,7 +52,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
 	if(!_isSubLevel) {
-		self.classStubs = [_allClasses rootClasses]; // classes might have changed because of dynamic loading
+		self.classStubs = [_allClasses rootClassStubs:ClassStubAll]; // classes might have changed because of dynamic loading
 	}
     [super viewWillAppear:animated];
 }
@@ -84,7 +84,8 @@
 	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
 //    cell.imageView.image = [UIImage imageNamed:@"header.png"];
 //    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
-    cell.className = cs.stubClassname;
+    cell.classStub = cs;
+    //cell.className = cs.stubClassname;
 	cell.accessoryType = [[cs subclassesStubs] count] > 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 	
 	return cell;

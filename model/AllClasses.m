@@ -47,18 +47,30 @@
 
 static AllClasses *sharedInstance;
 
+@interface AllClasses()
+
+@property (nonatomic, retain) NSMutableArray *rootClasses;
+@property (nonatomic, retain) NSMutableArray *rootProtocols;
+
+@end
+
+
 @implementation AllClasses
 
-@synthesize rootClasses;
+@synthesize rootClasses = _rootClasses;
+@synthesize rootProtocols = _rootProtocols;
 @synthesize allClassStubsByName;
 @synthesize allClassStubsByImagePath;
+@synthesize allProtocolStubsByName;
 
 + (AllClasses *)sharedInstance {
 	if(sharedInstance == nil) {
 		sharedInstance = [[AllClasses alloc] init];
 		sharedInstance.rootClasses = [NSMutableArray array];
+        sharedInstance.rootProtocols = [NSMutableArray array];
 		sharedInstance.allClassStubsByName = [NSMutableDictionary dictionary];
 		sharedInstance.allClassStubsByImagePath = [NSMutableDictionary dictionary];
+        sharedInstance.allProtocolStubsByName = [NSMutableDictionary dictionary];
 	}
 	
 	return sharedInstance;
@@ -67,14 +79,20 @@ static AllClasses *sharedInstance;
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
 - (void)dealloc {
-	[rootClasses release];
+	[self.rootClasses release];
+    [self.rootProtocols release];
 	[allClassStubsByName release];
 	[allClassStubsByImagePath release];
+    [allProtocolStubsByName release];
 	[super dealloc];
 }
 
 - (ClassStub *)classStubForClassName:(NSString *)classname {
     return [allClassStubsByName valueForKey:classname];
+}
+
+- (ClassStub *)classStubForProtocolName:(NSString *)protocolname {
+    return [allProtocolStubsByName valueForKey:protocolname];
 }
 
 - (ClassStub *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
@@ -130,18 +148,82 @@ static AllClasses *sharedInstance;
 	} else  // If there is no superclass, then klass is a root class.
 		[[self rootClasses] addObject:cs];
 	
+    unsigned int i, numAdoptedProtocol;
+    Protocol **adoptedProtocols = class_copyProtocolList(klass, &numAdoptedProtocol);
+    for (i = 0; i < numAdoptedProtocol; i++) {
+        ClassStub *parentCs = [self classStubForProtocolName:NSStringFromProtocol(adoptedProtocols[i])];
+        [parentCs addSubclassStub:cs];  // we are a class adopting the protocol.
+    }
+    free (adoptedProtocols);
+    
     return cs;
 }
 
-- (NSArray *)sortedClassStubs {
-	if([allClassStubsByName count] == 0) [self rootClasses];
+- (ClassStub *)getOrCreateProtocolStubsRecursivelyForProtocol:(Protocol *)proto {
+    
+    //Lookup the ClassStub for klass or create one if none exists and add it to +allClassStuds.
+    NSString *protocolName = NSStringFromProtocol(proto);
+    
+    // First check if we've already got a ClassStub for klass. If yes, we'll return it.
+    ClassStub *cs = [self classStubForProtocolName:protocolName];
+    if(cs) return cs;
+    
+    // klass doesn't yet have a ClassStub...
+    cs = [ClassStub classStubWithProtocol:proto]; // Create a ClassStub for klass
+    
+    if(cs == nil) {
+        NSLog(@"-- cannot create classStub for %@, ignore it", protocolName);
+        return nil;
+    }
+    
+    [allProtocolStubsByName setObject:cs forKey:protocolName]; // Add it to our uniquing dictionary.
+    
+    unsigned int i, numAdoptedProtocol;
+    Protocol **adoptedProtocols = protocol_copyProtocolList(proto, &numAdoptedProtocol);
+    if (adoptedProtocols != NULL) {
+        for (i = 0; i < numAdoptedProtocol; i++) {
+            ClassStub *parentCs = [self getOrCreateProtocolStubsRecursivelyForProtocol:adoptedProtocols[i]];
+            [parentCs addSubclassStub:cs];  // we are a protocol adopting the parent protocol.
+        }
+        free (adoptedProtocols);
+    } else { // No adopted protocol, proto is a root protocol
+        [[self rootProtocols] addObject:cs];
+    }
+    
+    return cs;
+}
+
+
+
+- (NSArray *)sortedClassStubs:(ClassStubFilter)filter {
+	if([allClassStubsByName count] == 0) [self readAllRuntimeClasses];
 	
-	NSMutableArray *stubs = [NSMutableArray arrayWithArray:[allClassStubsByName allValues]];
+    NSMutableArray *stubs = [NSMutableArray array];
+    if (filter == ClassStubClass || filter == ClassStubAll) {
+        [stubs addObjectsFromArray:[allClassStubsByName allValues]];
+    }
+    if (filter == ClassStubProtocol || filter == ClassStubAll) {
+        [stubs addObjectsFromArray:[allProtocolStubsByName allValues]];
+    }
 	[stubs sortUsingSelector:@selector(compare:)];
 	return stubs;
 }
 
+- (void)readAllRuntimeProtocols {
+    unsigned int i, numProtocols = 0;
+    Protocol **protocols = objc_copyProtocolList(&numProtocols);
+    
+    for (i=0; i<numProtocols; ++i)
+        [self getOrCreateProtocolStubsRecursivelyForProtocol:protocols[i]];
+    
+    free(protocols);
+    
+    // [rootClasses sortUsingSelector:@selector(compare:)];
+}
+
 - (void)readAllRuntimeClasses {
+    [self readAllRuntimeProtocols];
+    
 	int i, numClasses = 0;
 	int newNumClasses = objc_getClassList(NULL, 0);
 	Class *classes = NULL;
@@ -157,7 +239,8 @@ static AllClasses *sharedInstance;
 
 	free(classes);
 	
-	[rootClasses sortUsingSelector:@selector(compare:)];
+	//[self.rootClasses sortUsingSelector:@selector(compare:)];
+    //[self.rootProtocols sortUsingSelector:@selector(compare:)];
 }
 
 - (NSMutableDictionary *)allClassStubsByImagePath {
@@ -167,12 +250,21 @@ static AllClasses *sharedInstance;
 	return allClassStubsByImagePath;
 }
 
-- (NSMutableArray *)rootClasses {
+- (NSArray *)rootClassStubs:(ClassStubFilter)filter {
     /*" Classes are wrapped by ClassStub.  This array contains wrappers for root classes (classes that have no superclass). "*/
-	if ([rootClasses count] == 0) {
-		[self readAllRuntimeClasses];
-	}
-	return rootClasses;
+    if ([self.rootClasses count] == 0) {
+        [self readAllRuntimeClasses];
+    }
+    
+    NSMutableArray *stubs = [NSMutableArray array];
+    if (filter == ClassStubClass || filter == ClassStubAll) {
+        [stubs addObjectsFromArray:self.rootClasses];
+    }
+    if (filter == ClassStubProtocol || filter == ClassStubAll) {
+        [stubs addObjectsFromArray:self.rootProtocols];
+    }
+    [stubs sortUsingSelector:@selector(compare:)];
+    return stubs;
 }
 
 - (void)emptyCachesAndReadAllRuntimeClasses {
@@ -185,6 +277,7 @@ We autorelease and reset the nil the global, static containers that
  bundles (via "File -> Open..." in the UI's menu).
 "*/	
 	self.rootClasses = [NSMutableArray array];
+    self.rootProtocols = [NSMutableArray array];
 	self.allClassStubsByName = [NSMutableDictionary dictionary];
 	self.allClassStubsByImagePath = [NSMutableDictionary dictionary];
 	

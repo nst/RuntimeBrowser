@@ -245,6 +245,32 @@
                 }
             }
             
+            classNames = [[[allClasses allProtocolStubsByName] allKeys] copy];
+            for(NSString *className in classNames) {
+                NSString *filename = className;
+                // to avoid name conflict (like NSObject class and protocol)
+                while ([[allClasses allClassStubsByName] objectForKey:filename] != nil) {
+                    filename = [filename stringByAppendingString:@"_"];
+                }
+                
+                filename = [NSString stringWithFormat:@"%@.h", filename];
+                NSURL *url = [dirURL URLByAppendingPathComponent:filename];
+                
+                ClassDisplay *cd = [ClassDisplay classDisplayWithProtocol:NSProtocolFromString(className)];
+                NSString *header = [cd header];
+                
+                NSError *error = nil;
+                BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
+                
+                if (success) {
+                    ++saved;
+                } else {
+                    ++failed;
+                    NSLog(@"-- error, could not save protocol %@ at URL %@, error %@", className, url, error);
+                }
+            }
+            
+            
             [[NSProcessInfo processInfo] enableSuddenTermination];
             //               if(canUseLionAPIs) {
             //                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
@@ -252,7 +278,7 @@
             
             [classNames release];
             
-            NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %d classes failed to save.", [dirURL path], (unsigned long)saved, failed];
+            NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %lu classes failed to save.", [dirURL path], (unsigned long)saved, (unsigned long)failed];
             
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 NSRunInformationalAlertPanel(@"Save All Finished", message, @"OK", nil, nil);
@@ -336,6 +362,7 @@
 	
     BOOL isInSearchMode = [self isInSearchMode];
     
+    
     [searchQueue cancelAllOperations];
     
     if(isInSearchMode == NO) {
@@ -349,7 +376,7 @@
 	
     NSString *searchString = [[[searchField stringValue] copy] autorelease];
     
-    NSArray *classStubs = [[AllClasses sharedInstance] sortedClassStubs];
+    NSArray *classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubAll];
     
     self.searchQueue = [[[NSOperationQueue alloc] init] autorelease];
     
@@ -544,22 +571,23 @@
         return;
 	}
     
-    NSString *classname = [[sender selectedCell] stringValue];
-    Class klass = nil;
-	
-    if ([classname length]) {
-		[label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
-		
-		klass = NSClassFromString(classname);
+    if (![item isKindOfClass:[ClassStub class]]) {
+        return;
     }
-	
+    
+    ClassStub *classStub = (ClassStub *)item;
+    
+    [label setStringValue:[NSString stringWithFormat:@"%@.h", classStub.stubClassname]];
+
+    /*
 	if(klass == nil) {
 		[label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
 		[headerTextView setString:[NSString stringWithFormat:@"can't load class with name: %@", classname]];
 		return;
 	}
+     */
 	
-	ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
+    ClassDisplay *classDisplay = [classStub getClassDisplay];
 	classDisplay.displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
     NSString *header = [classDisplay header];
 	
@@ -630,7 +658,8 @@
 }
 
 - (id)browser:(NSBrowser *)browser objectValueForItem:(id)item {
-	return [item nodeName];
+    return item;
+	//return [item nodeName];
 }
 
 #pragma mark ** Dragging Source Methods **

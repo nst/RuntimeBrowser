@@ -37,6 +37,7 @@ Boston, MA  02111-1307  USA
 
 @interface ClassDisplay : NSObject {
 	Class representedClass;
+    Protocol *representedProtocol;
     NSMutableSet *refdClasses;
     NSMutableDictionary *namedStructs;
     const char* ivT;  // the currently-processed Ivar type string.
@@ -55,6 +56,7 @@ Boston, MA  02111-1307  USA
 @property BOOL displayPropertiesDefaultValues;
 
 + (ClassDisplay *)classDisplayWithClass:(Class)klass;
++ (ClassDisplay *)classDisplayWithProtocol:(Protocol *)proto;
 
 - (NSString *)header;
 - (NSArray *)methodLinesWithSign:(char)mType;

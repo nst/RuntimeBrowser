@@ -97,7 +97,7 @@
 		
 	// show all if not showing a framework
 	if(_frameworkName == nil) {
-		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs];
+		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubAll];
 	}
 }
 
@@ -148,7 +148,8 @@
 	NSArray *theClassStubs = [[d allValues] lastObject];
 	
 	ClassStub *cs = [theClassStubs objectAtIndex:indexPath.row];
-    cell.className = cs.stubClassname;
+    cell.classStub = cs;
+    //cell.className = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
 	return cell;

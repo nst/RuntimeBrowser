@@ -124,7 +124,7 @@
 
 	// show all if not showing a framework
 	if(frameworkName == nil) {
-		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs];
+		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubClass];
 	}
 }
 

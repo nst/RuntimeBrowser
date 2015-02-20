@@ -35,6 +35,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class ClassDisplay;
+
 /*"
 The runtime tells us the superclass of a class, but we don't directly know which are 
 the subclasses of a class.
@@ -50,8 +52,10 @@ The purpose of ClassStub is to have a way of accessing ALL of a class's currentl
 
 @property (nonatomic, retain) NSString *stubClassname;
 @property (nonatomic, retain) NSMutableArray *subclassesStubs;
+@property (nonatomic) BOOL isProtocol;
 
 + (ClassStub *)classStubWithClass:(Class)klass;
++ (ClassStub *)classStubWithProtocol:(Protocol *)proto;
 
 - (NSArray *)subclassesStubs;
 
@@ -65,6 +69,7 @@ The purpose of ClassStub is to have a way of accessing ALL of a class's currentl
 - (BOOL)containsSearchString:(NSString *)searchString;
 
 - (BOOL)writeAtPath:(NSString *)path;
+- (ClassDisplay *)getClassDisplay;
 
 // BrowserNode protocol
 

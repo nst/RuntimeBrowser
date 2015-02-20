@@ -67,7 +67,7 @@
 	
 	[xhtml appendString:@"<HTML>\n<HEAD>\n<TITLE>iPhone OS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n"];
 	
-	NSArray *classes = [allClasses sortedClassStubs];
+	NSArray *classes = [allClasses sortedClassStubs:ClassStubClass];
 	for(ClassStub *cs in classes) {
 		[xhtml appendFormat:@"<A HREF=\"%@.h\">%@.h</A><BR />\n", cs.stubClassname, cs.stubClassname];
 	}
