@@ -12,6 +12,14 @@
 #import "RTBClassDisplayVC.h"
 #import "ClassStub.h"
 
+@interface RTBListTVC()
+
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *toggleProtocolViewButton;
+@property (nonatomic) BOOL isProtocolView;
+
+@end
+
+
 @implementation RTBListTVC
 
 - (IBAction)dismissModalView:(id)sender {	
@@ -24,7 +32,7 @@
 	NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
 						
 		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-			NSString *s = _frameworkName ? _frameworkName : @"All Classes";
+            NSString *s = _frameworkName ? _frameworkName : (self.isProtocolView ? @"All Protocols" : @"All Classes");
 			self.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", s, [_classStubs count]];
 		}];
 		
@@ -81,6 +89,7 @@
 	
 //	self.title = @"List";
 	self.navigationItem.title = _frameworkName ? _frameworkName : @"All Classes";
+    self.isProtocolView = NO;
 	
 	//[self setupIndexedClassStubs];
 
@@ -97,8 +106,11 @@
 		
 	// show all if not showing a framework
 	if(_frameworkName == nil) {
-		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubAll];
+        self.classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubClass];
 	}
+    else {
+        self.navigationItem.rightBarButtonItem = nil;
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -178,6 +190,19 @@
 	}
 	
 	return a;
+}
+
+- (IBAction)toggleProtocolView:(id)sender {
+    self.isProtocolView = !self.isProtocolView;
+    if (self.isProtocolView) {
+        self.classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubProtocol];
+        self.toggleProtocolViewButton.title = @"Classes";
+    }
+    else {
+        self.classStubs = [[AllClasses sharedInstance] sortedClassStubs:ClassStubClass];
+        self.toggleProtocolViewButton.title = @"Protocols";
+    }
+    [self setupIndexedClassStubs];
 }
 
 @end

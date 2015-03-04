@@ -16,6 +16,7 @@
 
 @property BOOL isSubLevel;
 @property (nonatomic, retain) NSArray *classStubs;
+@property (nonatomic, retain) NSArray *protocolStubs;
 @property (nonatomic, retain) AllClasses *allClasses;
 @property (nonatomic, retain) RTBClassDisplayVC *classDisplayVC;
 @property (nonatomic, retain) RTBInfoVC *infoVC;

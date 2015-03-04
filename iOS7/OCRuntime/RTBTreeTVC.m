@@ -39,7 +39,8 @@
     [super viewDidLoad];
 	self.allClasses = [AllClasses sharedInstance];
 	if(!_isSubLevel) {
-		self.classStubs = [_allClasses rootClassStubs:ClassStubAll];
+		self.classStubs = [_allClasses rootClassStubs:ClassStubClass];
+        self.protocolStubs = [_allClasses rootClassStubs:ClassStubProtocol];
 //		self.title = @"Tree";
 		self.navigationItem.title = @"Root Classes";
 	}
@@ -69,11 +70,22 @@
 #pragma mark Table view methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return [_classStubs count];
+    if (section == 0)
+        return [_classStubs count];
+    else
+        return [_protocolStubs count];
+}
+
+-(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    if (section == 0)
+        return @"Classes";
+    else
+        return @"Protocols";
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -81,7 +93,12 @@
     RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
     
 	// Set up the cell
-	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
+    ClassStub *cs;
+    if (indexPath.section == 0)
+        cs = [_classStubs objectAtIndex:indexPath.row];
+    else
+        cs = [_protocolStubs objectAtIndex:indexPath.row];
+    
 //    cell.imageView.image = [UIImage imageNamed:@"header.png"];
 //    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
     cell.classStub = cs;
@@ -92,14 +109,29 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
+    ClassStub *cs;
+    if (indexPath.section == 0)
+        cs = [_classStubs objectAtIndex:indexPath.row];
+    else
+        cs = [_protocolStubs objectAtIndex:indexPath.row];
 	
 	if([[cs subclassesStubs] count] == 0) return;
 	
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     RTBTreeTVC *tvc = (RTBTreeTVC *)[sb instantiateViewControllerWithIdentifier:@"RTBTreeTVC"];
     tvc.isSubLevel = YES;
-	tvc.classStubs = [cs subclassesStubs];
+    
+    NSMutableArray *classes = [NSMutableArray array];
+    NSMutableArray *protocols = [NSMutableArray array];
+    for (ClassStub *sub in [cs subclassesStubs]) {
+        if (sub.isProtocol)
+            [protocols addObject:sub];
+        else
+            [classes addObject:sub];
+    }
+	tvc.classStubs = classes;
+    tvc.protocolStubs = protocols;
+    
 	tvc.title = cs.stubClassname;
 	[self.navigationController pushViewController:tvc animated:YES];
 }
