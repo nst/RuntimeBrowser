@@ -16,13 +16,13 @@
 
 + (BrowserNode *)rootNodeList {
 	BrowserNode *rn = [[BrowserNode alloc] init];
-	rn.children = [[AllClasses sharedInstance] sortedClassStubs];
+    rn.children = [[AllClasses sharedInstance] sortedClassStubs:ClassStubAll];
 	return [rn autorelease];
 }
 
 + (BrowserNode *)rootNodeTree {
 	BrowserNode *rn = [[BrowserNode alloc] init];
-	rn.children = [[AllClasses sharedInstance] rootClasses];
+	rn.children = [[AllClasses sharedInstance] rootClassStubs:ClassStubAll];
 	return [rn autorelease];
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "RTBClassCell.h"
+#import "ClassStub.h"
 
 @interface RTBClassCell ()
 @property (nonatomic, retain) IBOutlet UILabel *label;
@@ -15,13 +16,22 @@
 
 @implementation RTBClassCell
 
-- (void)setClassName:(NSString *)s {
-    _label.text = s;
+@synthesize classStub = _classStub;
+
+- (void)setClassStub:(ClassStub *)classStub {
+    _classStub = classStub;
+    _label.text = classStub.stubClassname;
 }
 
+- (ClassStub *)classStub {
+    return _classStub;
+}
+
+/*
 - (NSString *)className {
     return _label.text;
 }
+*/
 
 - (IBAction)showHeaders:(id)sender {
     // TODO: use a notification here
@@ -29,7 +39,7 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-	[appDelegate performSelector:@selector(showHeaderForClassName:) withObject:_label.text];
+	[appDelegate performSelector:@selector(showHeaderForClassStub:) withObject:self.classStub];
 #pragma clang diagnostic pop
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "RTBClassDisplayVC.h"
+#import "ClassStub.h"
 #import "ClassDisplay.h"
 #import "RTBAppDelegate.h"
 #import "RTBObjectsTVC.h"
@@ -23,11 +24,13 @@
 
 - (void)use:(id)sender {
 
-	[self dismissViewControllerAnimated:YES completion:^{
-        
-        RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
-        [appDelegate useClass:self.className];
-    }];
+    if (!self.classStub.isProtocol) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+            RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
+            [appDelegate useClass:self.classStub.stubClassname];
+        }];
+    }
 }
 
 - (void)dismissModalView:(id)sender {
@@ -48,12 +51,12 @@
     [super viewWillAppear:animated];
     
 	self.textView.text = @"";
-	self.title = _className;
+	self.title = self.classStub.stubClassname;
 	
 	// FIXME: ??
 	NSArray *forbiddenClasses = [NSArray arrayWithObjects:@"NSMessageBuilder", /*, @"NSObject", @"NSProxy", */@"Object", @"_NSZombie_", nil];
 	
-	self.useButton.enabled = ![forbiddenClasses containsObject:self.className];
+    self.useButton.enabled = ![forbiddenClasses containsObject:self.classStub.stubClassname] && !self.classStub.isProtocol;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -63,7 +66,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(self.className)];
+	ClassDisplay *cd = [self.classStub getClassDisplay];
     self.textView.text = [cd header];
     
     NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];

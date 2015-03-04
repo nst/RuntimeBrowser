@@ -73,7 +73,8 @@
     
 	// Set up the cell
 	ClassStub *cs = [_foundClasses objectAtIndex:indexPath.row];
-	cell.className = cs.stubClassname;
+    cell.classStub = cs;
+	// cell.className = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
     return cell;
@@ -117,7 +118,7 @@
 	[_foundClasses removeAllObjects];
 	
 	NSRange range;
-	for(ClassStub *cs in [_allClasses sortedClassStubs]) {
+    for(ClassStub *cs in [_allClasses sortedClassStubs:ClassStubAll]) {
 		range = [[cs description] rangeOfString:searchBar.text options:NSCaseInsensitiveSearch];
 		if(range.location != NSNotFound) {
 			//NSLog(@"-- add %@", cs);

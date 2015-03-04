@@ -58,7 +58,7 @@
     [super viewDidLoad];
 	self.allClasses = [AllClasses sharedInstance];
 	if(!isSubLevel) {
-		self.classStubs = [allClasses rootClasses];
+		self.classStubs = [allClasses rootClassStubs:ClassStubClass];
 		self.title = @"Tree";
 		self.navigationItem.title = @"Root Classes";
 	}
@@ -71,7 +71,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
 	if(!isSubLevel) {
-		self.classStubs = [allClasses rootClasses]; // classes might have changed because of dynamic loading
+		self.classStubs = [allClasses rootClassStubs:ClassStubClass]; // classes might have changed because of dynamic loading
 	}
     [super viewWillAppear:animated];
 }

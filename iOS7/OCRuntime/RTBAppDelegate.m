@@ -94,11 +94,19 @@
 	NSMutableString *xhtml = [[NSMutableString alloc] init];
 	
 	[xhtml appendString:@"<HTML>\n<HEAD>\n<TITLE>iPhone OS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n"];
+    [xhtml appendString:@"<a name='Classes' /><H1>Classes | <a href='#protocols'>Protocols</a></H1>\n"];
 	
-	NSArray *classes = [_allClasses sortedClassStubs];
+	NSArray *classes = [_allClasses sortedClassStubs:ClassStubClass];
 	for(ClassStub *cs in classes) {
-		[xhtml appendFormat:@"<A HREF=\"%@.h\">%@.h</A><BR />\n", cs.stubClassname, cs.stubClassname];
+		[xhtml appendFormat:@"<A HREF=\"classes/%@.h\">%@.h</A><BR />\n", cs.stubClassname, cs.stubClassname];
 	}
+    
+    [xhtml appendString:@"<a name='protocols' /><H1><a href='#classes'>Classes</a> | Protocols</H1>\n"];
+    
+    classes = [_allClasses sortedClassStubs:ClassStubProtocol];
+    for(ClassStub *cs in classes) {
+        [xhtml appendFormat:@"<A HREF=\"protocols/%@.h\">%@.h</A><BR />\n", cs.stubClassname, cs.stubClassname];
+    }
     
 	[xhtml appendString:@"</BODY>\n</HTML>\n"];
     
@@ -111,11 +119,22 @@
 	if([path isEqualToString:@"/"]) {
 		return [self htmlIndex];
 	}
+
+    NSString *itemType = [path stringByDeletingLastPathComponent];
+    BOOL isProtocol = NO;
+    if ([itemType isEqualToString:@"/protocols"])
+        isProtocol = YES;
+    
+    NSString *fileName = [path lastPathComponent];
 	
-	NSString *fileName = [path length] ? [path substringFromIndex:1] : @"";
-	NSString *className = [fileName stringByDeletingPathExtension];
+	// NSString *fileName = [path length] ? [path substringFromIndex:1] : @"";
+	NSString *itemName = [fileName stringByDeletingPathExtension];
 	
-	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
+    ClassDisplay *cd;
+    if (isProtocol)
+        cd = [ClassDisplay classDisplayWithProtocol:NSProtocolFromString(itemName)];
+    else
+        cd = [ClassDisplay classDisplayWithClass:NSClassFromString(itemName)];
 	
 	NSString *header = [cd header];
 	
@@ -190,11 +209,11 @@
 	return [_httpServer port];
 }
 
-- (void)showHeaderForClassName:(NSString *)className {
+- (void)showHeaderForClassStub:(ClassStub *)classStub {
 
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
-    classDisplayVC.className = className;
+    classDisplayVC.classStub = classStub;
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
 	[self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];

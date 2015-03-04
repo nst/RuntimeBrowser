@@ -1,4 +1,4 @@
-/* 
+/*
 
 ClassStub.m created by eepstein on Sat 16-Mar-2002
 
@@ -53,9 +53,14 @@ Boston, MA  02111-1307  USA
 @synthesize stubClassname;
 @synthesize imagePath;
 @synthesize subclassesStubs;
+@synthesize isProtocol;
 
 + (ClassStub *)classStubWithClass:(Class)klass {
     return [[[ClassStub alloc] initWithClass:klass] autorelease];
+}
+
++ (ClassStub *)classStubWithProtocol:(Protocol *)proto {
+    return [[[ClassStub alloc] initWithProtocol:proto] autorelease];
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {
@@ -67,8 +72,7 @@ Boston, MA  02111-1307  USA
 
 	NSURL *pathURL = [NSURL fileURLWithPath:path];
 	
-	Class klass = NSClassFromString(stubClassname);
-	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:klass];
+    ClassDisplay * cd = [self getClassDisplay];
 	NSString *header = [cd header];
 	
 	NSError *error = nil;	
@@ -80,61 +84,104 @@ Boston, MA  02111-1307  USA
 	return success;
 }
 
+- (ClassDisplay *)getClassDisplay {
+    
+    ClassDisplay *cd;
+    if (isProtocol) {
+        Protocol *proto = NSProtocolFromString(stubClassname);
+        cd = [ClassDisplay classDisplayWithProtocol:proto];
+        
+    } else {
+        Class klass = NSClassFromString(stubClassname);
+        cd = [ClassDisplay classDisplayWithClass:klass];
+    }
+    return cd;
+}
+
 - (NSMutableSet *)ivarTokens {
-	Class klass = NSClassFromString(stubClassname);
 
 	NSMutableSet *ms = [NSMutableSet set];
-	
-	unsigned int ivarListCount;
-	Ivar *ivarList = class_copyIvarList(klass, &ivarListCount);
-	
-    if (ivarList != NULL && (ivarListCount>0)) {
-        NSUInteger i;
-        for (i = 0; i < ivarListCount; ++i ) {
-            Ivar rtIvar = ivarList[i];
-			const char* ivarName = ivar_getName(rtIvar);
-			if(ivarName) [ms addObject:[[NSString stringWithCString:ivarName encoding:NSUTF8StringEncoding] lowercaseString]];
-		}
-	}
-	
-	free(ivarList);
-	
-	[ms removeObject:@""];
-	
+    if (!isProtocol) {
+        
+        Class klass = NSClassFromString(stubClassname);
+        
+        unsigned int ivarListCount;
+        Ivar *ivarList = class_copyIvarList(klass, &ivarListCount);
+        
+        if (ivarList != NULL && (ivarListCount>0)) {
+            NSUInteger i;
+            for (i = 0; i < ivarListCount; ++i ) {
+                Ivar rtIvar = ivarList[i];
+                const char* ivarName = ivar_getName(rtIvar);
+                if(ivarName) [ms addObject:[[NSString stringWithCString:ivarName encoding:NSUTF8StringEncoding] lowercaseString]];
+            }
+        }
+        
+        free(ivarList);
+        
+        [ms removeObject:@""];
+    }
 	return ms;
 }
 
 - (NSMutableSet *)methodsTokensForClass:(Class)klass {
 	NSMutableSet *ms = [NSMutableSet set];
 	
-	unsigned int methodListCount;
-	Method *methodList = class_copyMethodList(klass, &methodListCount);
-	
+    unsigned int methodListCount;
+    Method *methodList = class_copyMethodList(klass, &methodListCount);
+    
     NSUInteger i;
-	for (i = 0; i < methodListCount; i++) {
-		Method currMethod = (methodList[i]);
-		NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
-		NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
-		for(NSString *mNamePart in mNameParts) {
-			[ms addObject:[mNamePart lowercaseString]];
-		}
+    for (i = 0; i < methodListCount; i++) {
+        Method currMethod = (methodList[i]);
+        NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
+        NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
+        for(NSString *mNamePart in mNameParts) {
+            [ms addObject:[mNamePart lowercaseString]];
+        }
     }
-	
-	free(methodList);
-
+    
+    free(methodList);
+    
 	return ms;
 }
 
-- (NSMutableSet *)methodsTokens {
-	Class klass = NSClassFromString(stubClassname);
-	Class metaClass = objc_getMetaClass(class_getName(klass));
+- (NSMutableSet *)methodsTokensForProtocol:(Protocol *)proto forRequiredMethod:(BOOL)requiredMethod andInstanceMethod:(BOOL)instanceMethod{
+    NSMutableSet *ms = [NSMutableSet set];
+    
+    unsigned int methodListCount;
+    struct objc_method_description *methodList = protocol_copyMethodDescriptionList(proto, requiredMethod, instanceMethod, &methodListCount);
+    NSUInteger i;
+    for (i = 0; i < methodListCount; i++) {
+        NSString *mName = [NSString stringWithCString:sel_getName(methodList[i].name) encoding:NSASCIIStringEncoding];
+        NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
+        for(NSString *mNamePart in mNameParts) {
+            [ms addObject:[mNamePart lowercaseString]];
+        }
+    }
+    free(methodList);
+    
+    return ms;
+}
 
+
+- (NSMutableSet *)methodsTokens {
 	NSMutableSet *ms = [NSMutableSet set];
 	
-	[ms addObjectsFromArray:[[self methodsTokensForClass:klass] allObjects]];
-	[ms addObjectsFromArray:[[self methodsTokensForClass:metaClass] allObjects]];
-	
-	[ms removeObject:@""];
+    if (isProtocol) {
+        Protocol *proto = NSProtocolFromString(stubClassname);
+        [ms addObjectsFromArray:[[self methodsTokensForProtocol:proto forRequiredMethod:YES andInstanceMethod:NO] allObjects]];
+        [ms addObjectsFromArray:[[self methodsTokensForProtocol:proto forRequiredMethod:NO andInstanceMethod:NO] allObjects]];
+        [ms addObjectsFromArray:[[self methodsTokensForProtocol:proto forRequiredMethod:YES andInstanceMethod:YES] allObjects]];
+        [ms addObjectsFromArray:[[self methodsTokensForProtocol:proto forRequiredMethod:NO andInstanceMethod:YES] allObjects]];
+    }
+    else {
+        Class klass = NSClassFromString(stubClassname);
+        Class metaClass = objc_getMetaClass(class_getName(klass));
+        
+        [ms addObjectsFromArray:[[self methodsTokensForClass:klass] allObjects]];
+        [ms addObjectsFromArray:[[self methodsTokensForClass:metaClass] allObjects]];
+    }
+    [ms removeObject:@""];
 	
 	return ms;
 }
@@ -172,10 +219,34 @@ Boston, MA  02111-1307  USA
 	return ms;
 }
 
-- (NSMutableSet *)protocolsTokens {
-	Class klass = NSClassFromString(stubClassname);
+- (NSMutableSet *)protocolsTokensForProtocol:(Protocol *)proto {
+    NSMutableSet *ms = [NSMutableSet set];
+    
+    unsigned int protocolListCount;
+    Protocol **protocolList = protocol_copyProtocolList(proto, &protocolListCount);
+    if (protocolList != NULL && (protocolListCount > 0)) {
+        NSUInteger i;
+        for(i = 0; i < protocolListCount; i++) {
+            Protocol *p = protocolList[i];
+            const char* protocolName = protocol_getName(p);
+            if(protocolName) [ms addObject:[[NSString stringWithCString:protocolName encoding:NSUTF8StringEncoding] lowercaseString]];
+        }
+    }
+    free(protocolList);
+    
+    return ms;
+}
 
-	return [self protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
+- (NSMutableSet *)protocolsTokens {
+
+    if (isProtocol) {
+        Protocol *proto = NSProtocolFromString(stubClassname);
+        return [self protocolsTokensForProtocol:proto];
+    }
+    else {
+        Class klass = NSClassFromString(stubClassname);
+        return [self protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
+    }
 }
 
 - (NSString *)imagePath {
@@ -204,6 +275,21 @@ Boston, MA  02111-1307  USA
 	self.subclassesStubs = [NSMutableArray array];
     subclassesAreSorted = NO;
 	shouldSortSubclasses = YES;
+    isProtocol = NO;
+    return self;
+}
+
+- (ClassStub *)initWithProtocol:(Protocol *)proto {
+    self = [super init];
+    
+    NSString *protocolName = NSStringFromProtocol(proto);
+    
+    [self setStubClassname:protocolName];
+    
+    self.subclassesStubs = [NSMutableArray array];
+    subclassesAreSorted = NO;
+    shouldSortSubclasses = YES;
+    isProtocol = YES;
     return self;
 }
 
@@ -225,6 +311,8 @@ Boston, MA  02111-1307  USA
 }
 
 - (NSComparisonResult)compare:(ClassStub *)otherCS {
+    if (otherCS.isProtocol != self.isProtocol)
+        return self.isProtocol ? NSOrderedDescending : NSOrderedAscending;
     return [stubClassname compare:[otherCS stubClassname]];
 }
 

@@ -129,7 +129,7 @@
 	[foundClasses removeAllObjects];
 	
 	NSRange range;
-	for(ClassStub *cs in [allClasses sortedClassStubs]) {
+	for(ClassStub *cs in [allClasses sortedClassStubs:ClassStubClass]) {
 		range = [[cs description] rangeOfString:searchBar.text options:NSCaseInsensitiveSearch];
 		if(range.location != NSNotFound) {
 			//NSLog(@"-- add %@", cs);

@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@class ClassStub;
 
 @interface RTBClassCell : UITableViewCell
 
-@property (nonatomic, retain) NSString *className;
+@property (nonatomic, retain) ClassStub *classStub;
 
 - (IBAction)showHeaders:(id)sender;
 
