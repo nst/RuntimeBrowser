@@ -21,11 +21,21 @@
 }
 
 - (void)setupIndexedClassStubs {
+    
+    __weak typeof(self) weakSelf = self;
+    
 	NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
-						
+
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if(strongSelf == nil) return;
+
 		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-			NSString *s = _frameworkName ? _frameworkName : @"All Classes";
-			self.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", s, [_classStubs count]];
+
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if(strongSelf == nil) return;
+
+            NSString *s = strongSelf.frameworkName ? strongSelf.frameworkName : @"All Classes";
+			strongSelf.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", s, [strongSelf.classStubs count]];
 		}];
 		
 		NSMutableArray *ma = [[NSMutableArray alloc] init];
@@ -34,7 +44,7 @@
 		unichar currentLetter = 0;
 		NSMutableArray *currentLetterClassStubs = [[NSMutableArray alloc] init];
 		
-		for(ClassStub *cs in _classStubs) {
+		for(ClassStub *cs in strongSelf.classStubs) {
 			if([cs.stubClassname length] < 1) continue;
 				
 			firstLetter = [cs.stubClassname characterAtIndex:0];
@@ -55,7 +65,7 @@
 
 			[currentLetterClassStubs addObject:cs];
 			
-			if(cs == [_classStubs lastObject]) {
+			if(cs == [strongSelf.classStubs lastObject]) {
 				NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterClassStubs
 															  forKey:[NSString stringWithFormat:@"%c", currentLetter]];
 				[ma addObject:d];
@@ -63,11 +73,19 @@
 		}
 		
 		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-			self.classStubsDictionaries = ma;
+            
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if(strongSelf == nil) return;
+
+			strongSelf.classStubsDictionaries = ma;
 		}];
 						
 		[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-			[self.tableView reloadData];
+            
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if(strongSelf == nil) return;
+
+			[strongSelf.tableView reloadData];
 		}];
 		
 	}];
@@ -162,7 +180,7 @@
 	
 	NSString *letter = [[d allKeys] lastObject];
 	NSUInteger i = [[[d allValues] lastObject] count];
-	return [NSString stringWithFormat:@"%@ (%d)", letter, i];
+	return [NSString stringWithFormat:@"%@ (%@)", letter, @(i)];
 }
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {

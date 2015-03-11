@@ -93,14 +93,15 @@
 - (NSObject<HTTPResponse> *)htmlIndex {
 	NSMutableString *xhtml = [[NSMutableString alloc] init];
 	
-	[xhtml appendString:@"<HTML>\n<HEAD>\n<TITLE>iPhone OS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n"];
+	[xhtml appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
 	
 	NSArray *classes = [_allClasses sortedClassStubs];
 	for(ClassStub *cs in classes) {
-		[xhtml appendFormat:@"<A HREF=\"%@.h\">%@.h</A><BR />\n", cs.stubClassname, cs.stubClassname];
+        //if([cs.stubClassname compare:@"S"] == NSOrderedAscending) continue;
+		[xhtml appendFormat:@"<A HREF=\"%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
 	}
     
-	[xhtml appendString:@"</BODY>\n</HTML>\n"];
+	[xhtml appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
 	NSData *data = [xhtml dataUsingEncoding:NSISOLatin1StringEncoding];
 	

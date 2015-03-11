@@ -172,7 +172,7 @@
                 range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
                 
                 // Make a string of the arg number
-                NSString *argNumber = [NSString stringWithFormat:@"arg%d", params.count + 1];
+                NSString *argNumber = [NSString stringWithFormat:@"arg%@", @(params.count + 1)];
                 
                 // Check to see if we have a space or a semi colon to separate the arguments
                 if ([method rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location == NSNotFound) {
