@@ -1,4 +1,4 @@
-/* 
+/*
  
  ClassDisplay.m created by eepstein on Sun 17-Mar-2002
  
@@ -69,14 +69,14 @@ static NSString *IVAR_TAB = @"    ";
 #define isTypeSpecifier(fc) (fc=='r'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='!')
 
 NSString * argTypeSpecifierForEncoding(char fc) {
-	if(fc == 'r') return @"const ";
-	if(fc == 'n') return @"in ";
-	if(fc == 'N') return @"inout ";
-	if(fc == 'o') return @"out ";
-	if(fc == 'O') return @"bycopy ";
-	if(fc == 'V') return @"oneway ";
-	if(fc == '!') return @""; // garbage-collector marked invisible -> ignore
-	return nil;
+    if(fc == 'r') return @"const ";
+    if(fc == 'n') return @"in ";
+    if(fc == 'N') return @"inout ";
+    if(fc == 'o') return @"out ";
+    if(fc == 'O') return @"bycopy ";
+    if(fc == 'V') return @"oneway ";
+    if(fc == '!') return @""; // garbage-collector marked invisible -> ignore
+    return nil;
 }
 
 NSString *unhandledWarning(BOOL showUnhandledWarning) {
@@ -105,31 +105,31 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 @synthesize displayPropertiesDefaultValues;
 
 + (ClassDisplay *)classDisplayWithClass:(Class)klass {
-	ClassDisplay *cd = [[self alloc] init];
-	[cd setRepresentedClass:klass];
-	return [cd autorelease];
+    ClassDisplay *cd = [[self alloc] init];
+    [cd setRepresentedClass:klass];
+    return [cd autorelease];
 }
 
 - (void)setRepresentedClass:(Class)klass {
-	representedClass = klass;
+    representedClass = klass;
 }
 
 - (NSDictionary *)typeEncWarning:(NSString *)inParse startingIVT:(const char*)startingIVT origResult:(NSDictionary *)origResult {
     NSString *typeS = [origResult objectForKey:TYPE_LABEL];
     NSString *modifierS = [origResult objectForKey:MODIFIER_LABEL];
-	
+    
     typeS = [NSString stringWithFormat:@"/* Warning: unhandled %@encoding: '%s' */ %@", inParse, startingIVT, typeS];
     currentWarning = YES;  // indicated that we've already issued a warning on this pass through the ivar parser.
     methodWarning = showUnhandledWarning = YES;
-	
+    
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }
 
 // See the "Definitions of filer types" #define(s) in objc-class.h
 - (NSString *)typeForFilerCode:(char)fc spaceAfter:(BOOL)spaceAfter {
     NSString *rs;
-	
-	/*
+    
+    /*
      #define _C_ID       '@'
      #define _C_CLASS    '#'
      #define _C_SEL      ':'
@@ -160,8 +160,8 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
      #define _C_STRUCT_E '}'
      #define _C_VECTOR   '!'
      #define _C_CONST    'r'
-	 */
-	
+     */
+    
     switch (fc) {
         case '@' :
             rs = @"id";
@@ -229,7 +229,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             }
             break;
     }
-	
+    
     if (spaceAfter) {
         switch (fc) {
             case '@' : case '#' : case ':' : case 'c' : case 'C' :
@@ -239,7 +239,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 break;
         }
     }
-	
+    
     return rs;
 }
 
@@ -248,22 +248,22 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
      NeXT: bit field encoding format 'bN', where N is the size, an integer.
      Later GCC: encoding format 'bOtN',  where O (an int) is the offset, t (char) is the type, N (int) is the size.
      "*/
-    NSDictionary *result;    
+    NSDictionary *result;
     NSString *typeS = nil;
     NSString *modifierS = nil;
     int sizeModifier;    // size of this bitfield
-	
-	/* PENDING PENDING
-	 position = atoi (type + 1);
-	 while (isdigit (*++type));
-	 
-	 size = atoi (type + 1);
-	 
-	 startByte = position / BITS_PER_UNIT;
-	 endByte = (position + size) / BITS_PER_UNIT;
-	 return endByte - startByte;
-	 */
-	
+    
+    /* PENDING PENDING
+     position = atoi (type + 1);
+     while (isdigit (*++type));
+     
+     size = atoi (type + 1);
+     
+     startByte = position / BITS_PER_UNIT;
+     endByte = (position + size) / BITS_PER_UNIT;
+     return endByte - startByte;
+     */
+    
     // or use:    sizeModifier=atoi(ivT)
     if (sscanf(ivT, "%d", &sizeModifier) == 1) {  // parse the integer
         while (isdigit(*++ivT));       // skip the digits
@@ -308,11 +308,11 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 - (NSDictionary *)typeEncParseArrayOf:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
     NSString *typeS = nil;
     NSString *modifierS = nil;
-    int sizeModifier;    // size of this array 
-	
+    int sizeModifier;    // size of this array
+    
     if (sscanf(ivT, "%d", &sizeModifier) == 1) {  // Array encoding starts with the size of the array
         NSDictionary *innerTypeInfo;
-		
+        
         while (isdigit(*ivT)) ++ivT;      // move past the digits (size)
         innerTypeInfo = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:NO inLine:inLine inParam:inParam spaceAfter:spaceAfter]; // what TYPE of array
         typeS = [innerTypeInfo objectForKey:TYPE_LABEL];  // get the inner type
@@ -330,14 +330,14 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         }
         modifierS = @"[ /* ? */ ]"; // size unknown.
     }
-	
+    
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }
 
 - (NSDictionary *)typeEncParsePointerTo:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
-	NSString *typeS = nil;
+    NSString *typeS = nil;
     NSString *modifierS = nil;
-	
+    
     if (*ivT == '?') { // function pointer
         ++ivT;
         typeS = @"int (*";
@@ -345,11 +345,11 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         showFunctionSignatureNote = YES;
     } else {
         NSDictionary *innerTypeInfo = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:NO inLine:inLine inParam:inParam spaceAfter:spaceAfter]; // Get the type
-      
+        
         modifierS = [innerTypeInfo objectForKey:MODIFIER_LABEL];  // and it's modifier
         typeS = [[innerTypeInfo objectForKey:TYPE_LABEL] stringByAppendingString:@"*"];  // make type a pointer
     }
-	
+    
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }
 
@@ -368,18 +368,18 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     NSDictionary *structInfo;
     NSString *partName;
     int i;
-	
+    
     //parse each char as an (unnamed) type ... we then need to assign names.
     for (i=1; *ivT != endCh; ++i) {
         //structInfo = cTypeDeclForEncType(depth, i, YES, inLine, inParam, YES);
-		structInfo = [self cTypeDeclForEncTypeDepth:depth sPart:i inStruct:YES inLine:inLine inParam:inParam spaceAfter:YES];
-		
+        structInfo = [self cTypeDeclForEncTypeDepth:depth sPart:i inStruct:YES inLine:inLine inParam:inParam spaceAfter:YES];
+        
         // Naming for nested pieces is a bit of a kludge.
         // To support arbitrary nesting w/ unique naming (not required to compile)
         // we'd need an array of sPart[] and increment sPart[depth] and output
         // all sParts in sequence to generate a unique name (based on location)
         if (sPart > 1 || *depth > 1) { // PENDING -- make var (and arg, and category and ...) names a parameter
-            partName = [NSString stringWithFormat:@"x_%d_%d_%d", sPart, (*depth)-1, i]; 
+            partName = [NSString stringWithFormat:@"x_%d_%d_%d", sPart, (*depth)-1, i];
         } else {
             partName = [NSString stringWithFormat:@"x%d", i]; // PENDING -- make var names a parameter
         }
@@ -388,40 +388,40 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [structS appendString:[structInfo objectForKey:MODIFIER_LABEL]];
         [structS appendString:@"; "];
     }
-	
+    
     return structS;
 }
 
 - (NSDictionary *)typeEncParseStructOrUnionWithEncType:(NSString *)encType endCh:(char)endCh depth:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
-	//ivT = "?=i[3f]b128i3b131i2c}"; // http://gcc.gnu.org/onlinedocs/gcc-3.0.4/gcc_7.html#SEC130
+    //ivT = "?=i[3f]b128i3b131i2c}"; // http://gcc.gnu.org/onlinedocs/gcc-3.0.4/gcc_7.html#SEC130
     
     NSString *typeS = @"";
     NSString *modifierS = @"";
     char *eqPos = strchr(ivT, '=');
     char *innerSPos = strchr(ivT, '{');
     char *innerUPos = strchr(ivT, '(');
-	
+    
     ++(*depth);
     // Check for a definition (after an '=') within this (possibly nested) struct/union (e.g., before endCh).
     // The '=' must come before the end of this struct/union and before the beginning of another.
     if ( eqPos != NULL && eqPos < strchr(ivT, endCh) &&
-		(innerUPos==NULL || eqPos < innerUPos) && (innerSPos==NULL || eqPos < innerSPos) ) {
+        (innerUPos==NULL || eqPos < innerUPos) && (innerSPos==NULL || eqPos < innerSPos) ) {
         // struct or union definition provided (parsed by parseStructOrUnion()).
         typeS = [self parseStructOrUnionEndCh:endCh depth:depth sPart:sPart inLine:inLine inParam:inParam spaceAfter:spaceAfter];
     } else {   // named struct or union (name only)
         const char *tmp = strchr(ivT, endCh);
         if (tmp != NULL) {
-			
+            
             if (*ivT != '?') {
-				
+                
                 // need parse union's differently
                 if (endCh == ')') {  // Learned this later... no longer a generic Struct/Unin parser. Alas.
                     typeS =  [self _parseUnnamedStructOrUnionVarEndCh:endCh depth:depth sPart:sPart inLine:inLine inParam:inParam];
                     // PENDING curly braces -- add 'em inside func.
                     typeS = [NSString stringWithFormat:@"{ %@} ", typeS];
-				} else {
-					NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
-					typeS = [s substringToIndex:tmp-ivT];
+                } else {
+                    NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+                    typeS = [s substringToIndex:tmp-ivT];
                     if (spaceAfter)
                         typeS = [typeS stringByAppendingString:@" {} "];
                     else
@@ -431,19 +431,23 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             } else {
                 typeS = (spaceAfter ? @"{ /* ? */ } " : @"{ /* ? */ }");
             }
-			
+            
             ivT = tmp;
         }
     }
     
-    typeS = [encType stringByAppendingString:typeS];
+    if(typeS != nil) {
+        typeS = [encType stringByAppendingString:typeS];
+    } else {
+        typeS = encType;
+    }
     --(*depth);
     
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }
 
 - (NSString *)parseStructOrUnionEndCh:(char)endCh depth:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter {
-	NSDictionary *structInfo;
+    NSDictionary *structInfo;
     NSMutableString *structS;
     NSMutableString *depthS = (NSMutableString *)@"";
     NSString *name = nil;
@@ -454,27 +458,27 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     int i;
     
     const char *tmp = strchr(ivT, '=');
-	
+    
     if (*ivT != '?') {
-		NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
-		name = [s substringToIndex:tmp-ivT]; // get the name
-	}
+        NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+        name = [s substringToIndex:tmp-ivT]; // get the name
+    }
     
     ivT = tmp + 1;
-	
+    
     if (*ivT == '"') {
         structS = [NSMutableString string];
         while (*ivT == '"') {
             ++ivT;
             tmp = strchr(ivT, '"');
-			
-			NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
-			partName = [s substringToIndex:tmp-ivT]; // get the name
+            
+            NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+            partName = [s substringToIndex:tmp-ivT]; // get the name
             
             ivT = tmp + 1;
-			
+            
             //structInfo = cTypeDeclForEncType(depth, sPart, YES, inLine, inParam, YES);
-			structInfo = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:YES inLine:inLine inParam:inParam spaceAfter:YES];
+            structInfo = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:YES inLine:inLine inParam:inParam spaceAfter:YES];
             
             if (!inLine) {
                 depthS = [NSMutableString string];
@@ -482,7 +486,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                     [depthS appendString:IVAR_TAB];
                 [structS appendFormat:@"\n%@", IVAR_TAB];
                 [structS appendString:depthS];
-            } 
+            }
             [structS appendString:[structInfo objectForKey:TYPE_LABEL]];
             [structS appendString:partName];
             [structS appendString:[structInfo objectForKey:MODIFIER_LABEL]];
@@ -493,7 +497,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     } else {  // usually means inParam == YES
         structS = [self _parseUnnamedStructOrUnionVarEndCh:endCh depth:depth sPart:sPart inLine:inLine inParam:inParam];
     }
-	
+    
     // PENDING... wierdness here
     if (name == nil) // do something similar as with the 'namedStructs' (perhaps the same)
         return [NSString stringWithFormat:fmt1, structS, depthS];
@@ -520,7 +524,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     const char *startingIVT = ivT;  // used in "Warning" string
     char closingChar = '\0';        // for array, struct and union (null ('\0') for all else)
     NSString *parsedTypeName = nil; // one of: @"array", @"struct", @"union" or nil
-	
+    
     switch (*ivT) {  // what sort of thing are we parsing
         case '!' :   // "weak" pointer specifier (for new Garbage collection...).
             ++ivT; // '!' indicates a runtime (non-declarative) feature, skip it and continue
@@ -542,7 +546,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         case '[' :   // array
             ++ivT;
             result = [self typeEncParseArrayOf:depth sPart:sPart inLine:inLine inParam:inParam spaceAfter:spaceAfter];
-
+            
             closingChar = ']';  parsedTypeName = @"array ";
             break;
         case '{' :   // struct
@@ -554,7 +558,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         case '(' :   // union -- version for Yellow Box from WO 4.5, may need fixing.
             ++ivT;
             closingChar = ')';  parsedTypeName = @"union ";
-//            result = typeEncParseStructOrUnion(parsedTypeName, closingChar, depth, sPart, inLine, inParam, spaceAfter);
+            //            result = typeEncParseStructOrUnion(parsedTypeName, closingChar, depth, sPart, inLine, inParam, spaceAfter);
             result = [self typeEncParseStructOrUnionWithEncType:parsedTypeName endCh:closingChar depth:depth sPart:sPart inLine:inLine inParam:inParam spaceAfter:spaceAfter];
             break;
         default :    // a simple type or starts with a type specifier
@@ -569,9 +573,9 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 modifier = @"";
                 ++ivT;
             } else {
-//                result = cTypeDeclForEncType(depth, sPart, inStruct, inLine, inParam, spaceAfter);
+                //                result = cTypeDeclForEncType(depth, sPart, inStruct, inLine, inParam, spaceAfter);
                 result = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:inStruct inLine:inLine inParam:inParam spaceAfter:spaceAfter];
-                type = [typeSpec stringByAppendingString:[result objectForKey:TYPE_LABEL]];                
+                type = [typeSpec stringByAppendingString:[result objectForKey:TYPE_LABEL]];
                 modifier =[result objectForKey:MODIFIER_LABEL];
             }
             result = [NSDictionary dictionaryWithObjectsAndKeys:type, TYPE_LABEL, modifier, MODIFIER_LABEL, nil];
@@ -586,7 +590,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             [self advanceIVTPast:closingChar];
         }
     }
-	
+    
     --depth;
     return result;
 }
@@ -596,7 +600,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     NSEnumerator *enumerator = [refdClasses objectEnumerator];
     NSString *className;
     NSString *atClasses = @"";
-	
+    
     if (c > 0) {
         atClasses = @"@class ";
         for (i=0; (className = [enumerator nextObject]); ++i) {
@@ -614,14 +618,14 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     NSString *modifierS = @"";
     BOOL isUnnamedType = YES;
     const char *tmp;
-	
+    
     if ((*ivT == '"') && (!inStruct || [self hasClassName])) {  // '@' followed by '"' implies the class name is supplied.
         ++ivT;  // skip the quote
         tmp = strchr(ivT, '"');  // go to the end of the quoted class name
         if (tmp != NULL) {       // (should never happen) no end quote -- default to type 'id' and hope this is parsed elsewhere
             isUnnamedType = NO;    // NO --> this is a named class (type)
-			NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
-			typeS = [s substringToIndex:tmp-ivT]; // get the name
+            NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
+            typeS = [s substringToIndex:tmp-ivT]; // get the name
             [refdClasses addObject:typeS];  // make sure it gets added to the @class ... declaration.
             typeS = [typeS stringByAppendingString:@" *"];  // And, of course, id is a pointer to a class reference.
             ivT = tmp + 1;       // moved to the end of the name and the closing quote
@@ -629,77 +633,77 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     }
     if (isUnnamedType)
         typeS = (spaceAfter ? @"id " : @"id");
-	
+    
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }
 
 - (NSDictionary *)flatCTypeDeclForEncType:(const char*)encType {
-	ivT = encType;
-	return [self flatCTypeDeclForEncType];
+    ivT = encType;
+    return [self flatCTypeDeclForEncType];
 }
 
 - (NSDictionary *)ivarCTypeDeclForEncType:(const char*)encType {
-	ivT = encType;
-	return [self ivarCTypeDeclForEncType];
+    ivT = encType;
+    return [self ivarCTypeDeclForEncType];
 }
 
 - (NSArray *)methodLinesWithSign:(char)sign {
-
-	Class metaClass = objc_getMetaClass(class_getName(representedClass)); // where class methods live
-
-	Class klass = (sign == '+') ? metaClass : representedClass;
-	
+    
+    Class metaClass = objc_getMetaClass(class_getName(representedClass)); // where class methods live
+    
+    Class klass = (sign == '+') ? metaClass : representedClass;
+    
     NSDictionary *cTypeDeclInfo;
     NSUInteger i, j, offset;
     const char *tmp;
-	
-	NSMutableString *header = [NSMutableString stringWithString:@""];
     
-	unsigned int methodListCount;
-	Method *methodList = class_copyMethodList(klass, &methodListCount); // FIXME: handle exception here
-	
-	for ( j = methodListCount; j > 0; j-- ) {
-		Method currMethod = (methodList[j-1]);
-		ivT = method_getTypeEncoding(currMethod);
-		
-		methodWarning = currentWarning = NO;
-		cTypeDeclInfo = [self flatCTypeDeclForEncType];
-		
-		[header appendFormat:@"%c (%@%@)", sign, [cTypeDeclInfo objectForKey:TYPE_LABEL], [cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
-		
-		currentWarning = NO;
-		tmp = strchr(ivT, ':');
-		if (tmp != NULL)
-			ivT = tmp+1;
-		else
-			ivT += strlen(ivT);
-		
-		NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
-		NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
-		if ([mNameParts count] == 1) {
-			[header appendString:[mNameParts lastObject]];
-		}
-		for (i=1; i<[mNameParts count]; ++i) {
-			offset = atoi(ivT); // ignored;
-			while (isdigit (*++ivT));
-			currentWarning = NO;
-			cTypeDeclInfo = [self flatCTypeDeclForEncType];
-			[header appendFormat:@"%@:(%@%@)arg%lu%s",
-			 [mNameParts objectAtIndex:i-1],
-			 [cTypeDeclInfo objectForKey:TYPE_LABEL],
-			 [cTypeDeclInfo objectForKey:MODIFIER_LABEL],
-			 (unsigned long)i,
-			 ((i==([mNameParts count]-1))?"":" ")];
-		}
-		[header appendString:@";\n"];
-		if (methodWarning)
-			[header appendFormat:@"     /* Encoded args for previous method: %s */\n\n", method_getTypeEncoding(currMethod)];
-		// PENDING -- error parsing unions ... different format than structs ?? 
+    NSMutableString *header = [NSMutableString stringWithString:@""];
+    
+    unsigned int methodListCount;
+    Method *methodList = class_copyMethodList(klass, &methodListCount); // FIXME: handle exception here
+    
+    for ( j = methodListCount; j > 0; j-- ) {
+        Method currMethod = (methodList[j-1]);
+        ivT = method_getTypeEncoding(currMethod);
+        
+        methodWarning = currentWarning = NO;
+        cTypeDeclInfo = [self flatCTypeDeclForEncType];
+        
+        [header appendFormat:@"%c (%@%@)", sign, [cTypeDeclInfo objectForKey:TYPE_LABEL], [cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+        
+        currentWarning = NO;
+        tmp = strchr(ivT, ':');
+        if (tmp != NULL)
+            ivT = tmp+1;
+        else
+            ivT += strlen(ivT);
+        
+        NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
+        NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
+        if ([mNameParts count] == 1) {
+            [header appendString:[mNameParts lastObject]];
+        }
+        for (i=1; i<[mNameParts count]; ++i) {
+            offset = atoi(ivT); // ignored;
+            while (isdigit (*++ivT));
+            currentWarning = NO;
+            cTypeDeclInfo = [self flatCTypeDeclForEncType];
+            [header appendFormat:@"%@:(%@%@)arg%lu%s",
+             [mNameParts objectAtIndex:i-1],
+             [cTypeDeclInfo objectForKey:TYPE_LABEL],
+             [cTypeDeclInfo objectForKey:MODIFIER_LABEL],
+             (unsigned long)i,
+             ((i==([mNameParts count]-1))?"":" ")];
+        }
+        [header appendString:@";\n"];
+        if (methodWarning)
+            [header appendFormat:@"     /* Encoded args for previous method: %s */\n\n", method_getTypeEncoding(currMethod)];
+        // PENDING -- error parsing unions ... different format than structs ??
     }
-	
-	free(methodList);
-	
-	return [NSArray arrayWithObject:header];
+    
+    free(methodList);
+    
+    return [NSArray arrayWithObject:header];
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
@@ -707,96 +711,96 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 - (void)dealloc {
     [refdClasses release];
     [namedStructs release];
-	[super dealloc];
+    [super dealloc];
 }
 
 - (NSString *)propertyDescription:(objc_property_t)p {
-	NSString *name = [NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding];
-	NSString *attr = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
-	
-	NSString *getter = nil;
-	NSString *setter = nil;
-	NSString *type = nil;
-	NSString *memory = nil;
-	NSString *rw = nil;
-	NSString *comment = nil;
-	
-	NSArray *comps = [attr componentsSeparatedByString:@","];
-	for(NSString *comp in comps) {
-		unichar c = [comp characterAtIndex:0];
-		NSString *rest = [comp substringFromIndex:1];
-		switch (c) {
-            // unhandled yet: t<encoding>: Specifies the type using old-style encoding.
-			case 'R':
-				rw = @"readonly";
-				break;
-			case 'C':
-				memory = @"copy";
-				break;				
-			case '&':
-				memory = @"retain";
-				break;
-			case 'G':
-				getter = rest;
-				break;
-			case 'S':
-				setter = rest;
-				break;
-			case 'T':
-			case 't':
-			{
-				NSDictionary *d = [self flatCTypeDeclForEncType:[rest cStringUsingEncoding:NSUTF8StringEncoding]];
-				type = [NSString stringWithFormat:@"%@ ", [d valueForKey:TYPE_LABEL]];
-				break;
-			}
-			case 'D': // The property is dynamic (@dynamic)
+    NSString *name = [NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding];
+    NSString *attr = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
+    
+    NSString *getter = nil;
+    NSString *setter = nil;
+    NSString *type = nil;
+    NSString *memory = nil;
+    NSString *rw = nil;
+    NSString *comment = nil;
+    
+    NSArray *comps = [attr componentsSeparatedByString:@","];
+    for(NSString *comp in comps) {
+        unichar c = [comp characterAtIndex:0];
+        NSString *rest = [comp substringFromIndex:1];
+        switch (c) {
+                // unhandled yet: t<encoding>: Specifies the type using old-style encoding.
+            case 'R':
+                rw = @"readonly";
+                break;
+            case 'C':
+                memory = @"copy";
+                break;
+            case '&':
+                memory = @"retain";
+                break;
+            case 'G':
+                getter = rest;
+                break;
+            case 'S':
+                setter = rest;
+                break;
+            case 'T':
+            case 't':
+            {
+                NSDictionary *d = [self flatCTypeDeclForEncType:[rest cStringUsingEncoding:NSUTF8StringEncoding]];
+                type = [NSString stringWithFormat:@"%@ ", [d valueForKey:TYPE_LABEL]];
+                break;
+            }
+            case 'D': // The property is dynamic (@dynamic)
             case 'W': // The property is a weak reference (__weak)
-			case 'P': // The property is eligible for garbage collection
-			case 'N': // The property is non-atomic (nonatomic)
-			case 'V': // oneway
-				break;
-			default:
-				comment = [NSString stringWithFormat:@"/* unknown property attribute: %@ */", comp];
-				break;
-		}
-	}
-	
-	if(displayPropertiesDefaultValues) {
-		if(!memory) memory = @"assign";
-		if(!rw) rw = @"readwrite";
-	}
-
-	NSMutableString *desc = [NSMutableString stringWithString:@"@property"];
-	
-	NSMutableArray *at = [[NSMutableArray alloc] init];
-	if(getter) [at addObject:[NSString stringWithFormat:@"getter=%@", getter]];
-	if(setter) [at addObject:[NSString stringWithFormat:@"setter=%@", setter]];
-	if(memory) [at addObject:memory];
-	if(rw)     [at addObject:rw];
-	
-	if([at count] > 0) {
-		NSString *attributes = [NSString stringWithFormat:@"(%@)", [at componentsJoinedByString:@","]];
-		[desc appendString:attributes];
-	}
-	[at release];
-	
-	[desc appendFormat:@" %@%@;", type, name];
-	
-	if(comment)
-		[desc appendFormat:@" %@", comment];
-	
-	[desc appendString:@"\n"];
-	
-	return desc;
+            case 'P': // The property is eligible for garbage collection
+            case 'N': // The property is non-atomic (nonatomic)
+            case 'V': // oneway
+                break;
+            default:
+                comment = [NSString stringWithFormat:@"/* unknown property attribute: %@ */", comp];
+                break;
+        }
+    }
+    
+    if(displayPropertiesDefaultValues) {
+        if(!memory) memory = @"assign";
+        if(!rw) rw = @"readwrite";
+    }
+    
+    NSMutableString *desc = [NSMutableString stringWithString:@"@property"];
+    
+    NSMutableArray *at = [[NSMutableArray alloc] init];
+    if(getter) [at addObject:[NSString stringWithFormat:@"getter=%@", getter]];
+    if(setter) [at addObject:[NSString stringWithFormat:@"setter=%@", setter]];
+    if(memory) [at addObject:memory];
+    if(rw)     [at addObject:rw];
+    
+    if([at count] > 0) {
+        NSString *attributes = [NSString stringWithFormat:@"(%@)", [at componentsJoinedByString:@","]];
+        [desc appendString:attributes];
+    }
+    [at release];
+    
+    [desc appendFormat:@" %@%@;", type, name];
+    
+    if(comment)
+        [desc appendFormat:@" %@", comment];
+    
+    [desc appendString:@"\n"];
+    
+    return desc;
 }
 
 - (NSSet *)ivarsTypeTokens {
-
+    
     NSMutableSet *ms = [NSMutableSet set];
     
-	unsigned int ivarListCount;
-	Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
-	
+    unsigned int ivarListCount;
+    Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
+    
     if (ivarList != NULL && (ivarListCount>0)) {
         NSUInteger i;
         for ( i = 0; i < ivarListCount; ++i ) {
@@ -809,37 +813,37 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 NSString *type = [cTypeDeclInfo valueForKey:TYPE_LABEL];
                 
                 NSArray *components = [type componentsSeparatedByString:@" "];
-//                NSLog(@"---- %@", components);
-				[ms addObjectsFromArray:components];
+                //                NSLog(@"---- %@", components);
+                [ms addObjectsFromArray:components];
             }
         }
     }
-	free(ivarList);
+    free(ivarList);
     
     return ms;
 }
 
 - (NSString *)header {
     NSMutableString *header = [NSMutableString string];
-	
+    
     NSInteger i;
-	unsigned int protocolListCount;
-	
+    unsigned int protocolListCount;
+    
     NSArray *instanceMethods;
     NSArray *classMethods;
-	
+    
     showFunctionSignatureNote = NO;
     showUnhandledWarning = NO;
     self.refdClasses = [NSMutableSet set];
     self.namedStructs = [NSMutableDictionary dictionary];
-	
+    
     // Start of @interface declaration for this class
     [header appendFormat: @"@interface %s ", class_getName(representedClass)];
-	
+    
     // with inheritence
     if (class_getSuperclass(representedClass) != nil)
         [header appendFormat: @": %s ", class_getName(class_getSuperclass(representedClass))];
-	
+    
     // conforming to protocols
     Protocol **protocolList = class_copyProtocolList(representedClass, &protocolListCount);
     if (protocolList != NULL && (protocolListCount > 0)) {
@@ -852,18 +856,18 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         }
         [header appendString: @">"];
     }
-	free(protocolList);
-//    [header appendString: @"\n"];
-	
+    free(protocolList);
+    //    [header appendString: @"\n"];
+    
     // begin Ivars
-    [header appendString: @" {\n"]; 
-	
+    [header appendString: @" {\n"];
+    
     // Meta-Class has no Ivars.
-	
+    
     // instance ivars;
-	unsigned int ivarListCount;
-	Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
-	
+    unsigned int ivarListCount;
+    Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
+    
     if (ivarList != NULL && (ivarListCount>0)) {
         for ( i = 0; i < ivarListCount; ++i ) {
             Ivar rtIvar = ivarList[i];
@@ -880,39 +884,39 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 }
                 if (currentWarning)
                     [header appendFormat:@"\n  /* Error parsing encoded ivar type info: %s */\n", ivar_getTypeEncoding(rtIvar)];
-				
+                
                 [header appendString:IVAR_TAB];
                 [header appendString:[cTypeDeclInfo objectForKey:TYPE_LABEL]];
                 if (ivar_getName(rtIvar)) // compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
                     [header appendFormat:@"%s", ivar_getName(rtIvar)];
                 else
                     [header appendString:@"/* ? */"];
-				
+                
                 [header appendString:[cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
-				
+                
                 [header appendString:@";\n"];
                 if (currentWarning) [header appendString:@"\n"];
             }
         }
     }
-	free(ivarList);
-	
+    free(ivarList);
+    
     // end Ivars
     [header appendString: @"}\n\n"];
-	
-	// obj-c 2.0 properties
-	unsigned int propertyListCount;
-	objc_property_t *propertyList = class_copyPropertyList(representedClass, &propertyListCount);
-	NSUInteger p;
+    
+    // obj-c 2.0 properties
+    unsigned int propertyListCount;
+    objc_property_t *propertyList = class_copyPropertyList(representedClass, &propertyListCount);
+    NSUInteger p;
     for(p = 0; p < propertyListCount; p++) {
-		objc_property_t prop = propertyList[p];
-		[header appendString:[self propertyDescription:prop]];
-	}
-	free(propertyList);
-	
-	if(propertyListCount > 0)
-		[header appendString:@"\n"];
-	
+        objc_property_t prop = propertyList[p];
+        [header appendString:[self propertyDescription:prop]];
+    }
+    free(propertyList);
+    
+    if(propertyListCount > 0)
+        [header appendString:@"\n"];
+    
     // Class methods
     classMethods = [self methodLinesWithSign:'+'];
     i = [classMethods count];
@@ -920,7 +924,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [header appendString:[classMethods objectAtIndex:(i-1)]];
         [header appendString: @"\n"];
     }
-	
+    
     // Instance methods
     instanceMethods = [self methodLinesWithSign:'-'];
     i = [instanceMethods count];
@@ -928,16 +932,16 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [header appendString:[instanceMethods objectAtIndex:(i-1)]];
         [header appendString: @"\n"];
     }
-		
+    
     [header appendString: @"@end\n"];
-		
+    
     return [NSString stringWithFormat:@"/* Generated by RuntimeBrowser.\n   Image: %s\n */\n\n%@%@%@%@",
-			  class_getImageName(representedClass),
-			  unhandledWarning(showUnhandledWarning),
-			  functionSignatureNote(showFunctionSignatureNote),
-			  [self atClasses],
-			  header];
-		
+            class_getImageName(representedClass),
+            unhandledWarning(showUnhandledWarning),
+            functionSignatureNote(showFunctionSignatureNote),
+            [self atClasses],
+            header];
+    
     // PENDING -- use refdClasses
     // @class line goes here.
 }
