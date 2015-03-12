@@ -20,9 +20,14 @@ def ios_path_in_header(header_path):
 
 def dst_dir_for_ios_path(ios_path):
     ios_path_comps_full = ios_path.split(os.path.sep)
-        
-    if len(ios_path_comps_full) >= 6:
-        ios_path_comps = ios_path_comps_full[3:5]
+    
+    if len(ios_path_comps_full) < 2:
+        return None
+    
+    is_framework = ios_path_comps_full[-2].endswith('.framework')
+    
+    if is_framework:
+        ios_path_comps = ios_path_comps_full[3:-1]
     else:
         ios_path_comps = ["lib", ios_path_comps_full[-1]]
 
@@ -40,11 +45,15 @@ for root, dirs, files in os.walk('.'):
         ios_path = ios_path_in_header(path)
         
         dst_dir = dst_dir_for_ios_path(ios_path)
+        if not dst_dir:
+            print "-- can't find dst_dir for", ios_path
+            continue
         
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
-        
+                
         dst = os.path.join(dst_dir, f)
-        
+
         print dst
+
         shutil.move(path, dst)

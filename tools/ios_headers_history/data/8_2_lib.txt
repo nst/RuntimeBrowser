@@ -2,6 +2,7 @@ libauthinstall.dylib
 libAWDSupportFramework.dylib
 libAXSafeCategoryBundle.dylib
 libAXSpeechManager.dylib
+libdispatch.dylib
 libextension.dylib
 libmecabra.dylib
 libobjc.A.dylib
