@@ -101,7 +101,7 @@
 - (NSObject<HTTPResponse> *)responseForList {
     NSMutableString *html = [NSMutableString string];
     
-    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
+    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - List View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     
     NSArray *classes = [_allClasses sortedClassStubs];
     for(ClassStub *cs in classes) {
@@ -111,7 +111,7 @@
     
     [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
-    NSData *data = [html dataUsingEncoding:NSISOLatin1StringEncoding];
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
 }
@@ -151,9 +151,9 @@
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeFrameworkWithPath:(NSString *)path {
+- (NSObject<HTTPResponse> *)responseForTreeFrameworkOrDylibWithPath:(NSString *)path {
 
-    if([[path pathExtension] isEqualToString:@"framework"] == NO) return nil;
+    if([[path pathExtension] isEqualToString:@"framework"] == NO && [[path pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
     NSString *basePath = [[self class] basePath];
     
@@ -173,6 +173,7 @@
     }
     
     NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+    
     __block NSArray *classes = nil;
     [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         if([key containsString:path]) {
@@ -184,13 +185,13 @@
     /**/
     
     NSMutableString *html = [NSMutableString string];
-    [html appendString:@"<pre>\n"];
+    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     for(NSString *s in classes) {
         [html appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", path, s, s];
     }
-    [html appendString:@"</pre>\n"];
+    [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
-    NSData *data = [html dataUsingEncoding:NSISOLatin1StringEncoding];
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
 }
@@ -201,9 +202,8 @@
     
     NSString *fullPath = [basePath stringByAppendingPathComponent:path];
 
-    if([[fullPath pathExtension] isEqualToString:@"framework"]) {
-        return [self responseForTreeFrameworkWithPath:path];
-    }
+    NSObject <HTTPResponse> *response = [self responseForTreeFrameworkOrDylibWithPath:path];
+    if(response) return response;
     
     NSError *error = nil;
     NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
@@ -211,15 +211,15 @@
         NSLog(@"-- %@", error);
     }
     
-    NSMutableString *ms = [NSMutableString string];
-    [ms appendString:@"<pre>"];
+    NSMutableString *html = [NSMutableString string];
+    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     for(NSString *fileName in files) {
         NSString *filePath = [path stringByAppendingPathComponent:fileName];
-        [ms appendFormat:@"<a href=\"/tree%@\">%@</a>\n", filePath, fileName];
+        [html appendFormat:@"<a href=\"/tree%@\">%@</a>\n", filePath, fileName];
     }
-    [ms appendString:@"</pre>"];
+    [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
-    NSData *data = [ms dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
 }
@@ -236,7 +236,15 @@
         NSString *subPath = [path substringFromIndex:[@"/tree" length]];
         return [self responseForTreeWithPath:subPath];
     } else {
-        return nil;
+        NSMutableString *html = [NSMutableString string];
+        [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
+        [html appendString:@"<A HREF=\"/list/\">list</A>\n"];
+        [html appendString:@"<A HREF=\"/tree/\">tree</A>\n"];
+        [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
+        
+        NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+        
+        return [[HTTPDataResponse alloc] initWithData:data];
     }
 }
 
