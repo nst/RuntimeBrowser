@@ -149,7 +149,7 @@
     [oPanel setCanChooseFiles:YES];
 	
     [oPanel beginSheetModalForWindow:mainWindow completionHandler:^(NSInteger result) {
-        if (result == NSOKButton) {
+        if (result == NSModalResponseOK) {
             NSArray *urlsToOpen = [oPanel URLs];
             [self loadBundlesURLs:urlsToOpen];
         }
@@ -171,7 +171,7 @@
 	
     [sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
 		
-		if ( result != NSOKButton ) return;
+		if ( result != NSModalResponseOK ) return;
 		
 		NSString *fileContents = [headerTextView string];
 		NSURL *fileURL = [sp URL];
@@ -211,7 +211,7 @@
 	
 	[sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
         
-        if ( result != NSOKButton ) return;
+        if ( result != NSModalResponseOK ) return;
         
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperationWithBlock:^{
