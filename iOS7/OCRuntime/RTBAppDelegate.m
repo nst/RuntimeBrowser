@@ -153,18 +153,18 @@
 - (NSObject<HTTPResponse> *)responseForHeaderPath:(NSString *)headerPath {
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
-
+    
     ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
-
+    
     NSString *header = [cd header];
-
+    
     NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
-
+    
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
 - (NSObject<HTTPResponse> *)responseForTreeFrameworkOrDylibWithDirectory:(NSString *)dir name:(NSString *)name {
-
+    
     if([[name pathExtension] isEqualToString:@"framework"] == NO &&
        [[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
@@ -233,7 +233,7 @@
 - (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
     
     NSString *basePath = [[self class] basePath];
-
+    
     NSObject <HTTPResponse> *response = [self responseForTreeFrameworkOrDylibWithDirectory:@"/System/Library/" name:path];
     if(response) return response;
     
@@ -257,13 +257,43 @@
         if(files == nil) {
             NSLog(@"-- %@", error);
         }
-
+        
         NSMutableArray *ma = [NSMutableArray array];
         [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if([self canListFileAtPath:obj] == NO) return;
             [ma addObject:obj];
         }];
-
+        
+        return [self responseForTreeWithFiles:ma dirPath:path];
+    }
+    
+    if([@[@"/lib/"] containsObject:path]) {
+        NSMutableArray *files = [NSMutableArray array];
+        {
+            NSError *error = nil;
+            NSString *fullPath = [NSString stringWithFormat:@"%@/usr/lib/", basePath];
+            NSArray *a = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
+            if(a == nil) {
+                NSLog(@"-- %@", error);
+            }
+            [files addObjectsFromArray:a];
+        }
+        {
+            NSError *error = nil;
+            NSString *fullPath = [NSString stringWithFormat:@"%@/usr/lib/system/introspection/", basePath];
+            NSArray *a = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
+            if(a == nil) {
+                NSLog(@"-- %@", error);
+            }
+            [files addObjectsFromArray:a];
+        }
+        
+        NSMutableArray *ma = [NSMutableArray array];
+        [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if([self canListFileAtPath:obj] == NO) return;
+            [ma addObject:obj];
+        }];
+        
         return [self responseForTreeWithFiles:ma dirPath:path];
     }
     
@@ -271,7 +301,7 @@
 }
 
 - (NSObject<HTTPResponse> *)responseForPath:(NSString *)path {
-
+    
     if([path hasSuffix:@".h"]) {
         return [self responseForHeaderPath:path];
     }
