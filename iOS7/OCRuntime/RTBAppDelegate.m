@@ -313,11 +313,10 @@
         NSString *subPath = [path substringFromIndex:[@"/tree" length]];
         return [self responseForTreeWithPath:subPath];
     } else {
-        NSMutableString *html = [NSMutableString string];
-        [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
-        [html appendString:@"<A HREF=\"/list/\">list</A>\n"];
-        [html appendString:@"<A HREF=\"/tree/\">tree</A>\n"];
-        [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
+        NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
+        NSError *error = nil;
+        NSMutableString *html = [[NSString stringWithContentsOfFile:htmlPath encoding:NSUTF8StringEncoding error:&error] mutableCopy];
+        [html replaceOccurrencesOfString:@"__MY_IP__" withString:[self myIPAddress] options:0 range:NSMakeRange(0, [html length])];
         
         NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
         

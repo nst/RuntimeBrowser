@@ -33,6 +33,7 @@
 		030959BD17B5434000221D0E /* ContextFilterLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309594517B5434000221D0E /* ContextFilterLogFormatter.m */; };
 		030959BE17B5434000221D0E /* DispatchQueueLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309594717B5434000221D0E /* DispatchQueueLogFormatter.m */; };
 		030959BF17B5434000221D0E /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0309594817B5434000221D0E /* README.txt */; };
+		030B0B4B1AC5FB3800DC272E /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 030B0B4A1AC5FB3800DC272E /* index.html */; };
 		0315BBDA17E083BF00F226E6 /* frameworks@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBD917E083BF00F226E6 /* frameworks@2x.png */; };
 		0315BBDC17E0859600F226E6 /* use@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBDB17E0859600F226E6 /* use@2x.png */; };
 		0315BBDE17E0861200F226E6 /* list@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBDD17E0861200F226E6 /* list@2x.png */; };
@@ -141,6 +142,7 @@
 		0309594617B5434000221D0E /* DispatchQueueLogFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DispatchQueueLogFormatter.h; sourceTree = "<group>"; };
 		0309594717B5434000221D0E /* DispatchQueueLogFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DispatchQueueLogFormatter.m; sourceTree = "<group>"; };
 		0309594817B5434000221D0E /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		030B0B4A1AC5FB3800DC272E /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		0315BBD917E083BF00F226E6 /* frameworks@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "frameworks@2x.png"; sourceTree = "<group>"; };
 		0315BBDB17E0859600F226E6 /* use@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "use@2x.png"; sourceTree = "<group>"; };
 		0315BBDD17E0861200F226E6 /* list@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "list@2x.png"; sourceTree = "<group>"; };
@@ -421,6 +423,7 @@
 		03959DD7176AFC4D002A1FCC /* OCRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				030B0B4A1AC5FB3800DC272E /* index.html */,
 				0319E3B5179A86BA001F3471 /* Defaults.plist */,
 				03959DE3176AFC4D002A1FCC /* Main.storyboard */,
 				03959DE0176AFC4D002A1FCC /* RTBAppDelegate.h */,
@@ -569,6 +572,7 @@
 				030959BF17B5434000221D0E /* README.txt in Resources */,
 				03959DED176AFC4D002A1FCC /* Images.xcassets in Resources */,
 				0315BBDE17E0861200F226E6 /* list@2x.png in Resources */,
+				030B0B4B1AC5FB3800DC272E /* index.html in Resources */,
 				03959DDC176AFC4D002A1FCC /* InfoPlist.strings in Resources */,
 				0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */,
 				0315BBDC17E0859600F226E6 /* use@2x.png in Resources */,
