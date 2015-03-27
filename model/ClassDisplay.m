@@ -918,16 +918,30 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     [header appendString: @"}\n\n"];
     
     // obj-c 2.0 properties
+    NSMutableArray *propertiesDictionaries = [NSMutableArray array];
+    
     unsigned int propertyListCount;
     objc_property_t *propertyList = class_copyPropertyList(representedClass, &propertyListCount);
-    NSUInteger p;
-    for(p = 0; p < propertyListCount; p++) {
+
+    for(NSUInteger p = 0; p < propertyListCount; p++) {
         objc_property_t prop = propertyList[p];
-        [header appendString:[self propertyDescription:prop]];
+
+        NSString *propertyName = [NSString stringWithCString:property_getName(prop) encoding:NSUTF8StringEncoding];
+        NSString *propertyDescription = [self propertyDescription:prop];
+        
+        [propertiesDictionaries addObject:@{@"name":propertyName, @"s":propertyDescription}];
     }
     free(propertyList);
     
-    if(propertyListCount > 0)
+    NSArray *sortedPropertiesDictionaries = [propertiesDictionaries sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1[@"name"] compare:obj2[@"name"]];
+    }];
+    
+    for(NSDictionary *d in sortedPropertiesDictionaries) {
+        [header appendString:d[@"s"]];
+    }
+    
+    if(sortedPropertiesDictionaries > 0)
         [header appendString:@"\n"];
     
     // Class methods
