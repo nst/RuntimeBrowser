@@ -163,14 +163,14 @@
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeFrameworkOrDylibWithPath:(NSString *)path {
+- (NSObject<HTTPResponse> *)responseForTreeFrameworkOrDylibWithDirectory:(NSString *)dir name:(NSString *)name {
 
-    if([[path pathExtension] isEqualToString:@"framework"] == NO &&
-       [[path pathExtension] isEqualToString:@"dylib"] == NO) return nil;
+    if([[name pathExtension] isEqualToString:@"framework"] == NO &&
+       [[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
     NSString *basePath = [[self class] basePath];
     
-    NSString *fullPath = [basePath stringByAppendingPathComponent:path];
+    NSString *fullPath = [[basePath stringByAppendingPathComponent:dir] stringByAppendingPathComponent:name];
     
     NSBundle *b = [NSBundle bundleWithPath:fullPath];
     
@@ -189,7 +189,7 @@
     
     __block NSArray *classes = nil;
     [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        if([key containsString:path]) {
+        if([key containsString:name]) {
             classes = obj;
             *stop = YES;
         }
@@ -198,9 +198,9 @@
     /**/
     
     NSMutableString *html = [NSMutableString string];
-    [html appendFormat:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - %@</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n", [path lastPathComponent]];
+    [html appendFormat:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - %@</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n", [name lastPathComponent]];
     for(NSString *s in classes) {
-        [html appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", path, s, s];
+        [html appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", name, s, s];
     }
     [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
@@ -217,44 +217,57 @@
     return [whiteListedTreePaths containsObject:filePath];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
-    
-    NSString *basePath = [[self class] basePath];
-    
-    NSString *fullPath = [basePath stringByAppendingPathComponent:path];
-
-    NSObject <HTTPResponse> *response = [self responseForTreeFrameworkOrDylibWithPath:path];
-    if(response) return response;
-    
-    NSArray *whiteListedTreePaths = [[self class] whiteListedTreePaths];
-    
-    if([whiteListedTreePaths containsObject:path] == NO) {
-        NSLog(@"-- path not whitelisted: %@", path);
-        return nil;
-    }
-    
-    NSError *error = nil;
-    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
-    if(files == nil) {
-        NSLog(@"-- %@", error);
-    }
-    
+- (NSObject<HTTPResponse> *)responseForTreeWithFiles:(NSArray *)files dirPath:(NSString *)dirPath {
     NSMutableString *html = [NSMutableString string];
     [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     for(NSString *fileName in files) {
-        NSString *filePath = [NSString stringWithFormat:@"%@%@/", path, fileName];
-        BOOL canListFile = [self canListFileAtPath:filePath];
-        if(canListFile == NO) {
-            NSLog(@"-- can't list %@", filePath);
-            continue;
-        }
-        [html appendFormat:@"<a href=\"/tree%@\">%@/</a>\n", filePath, fileName];
+        [html appendFormat:@"<a href=\"/tree/%@\">%@/</a>\n", fileName, fileName];
     }
     [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
+}
+
+- (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
+    
+    NSString *basePath = [[self class] basePath];
+
+    NSObject <HTTPResponse> *response = [self responseForTreeFrameworkOrDylibWithDirectory:@"/System/Library/" name:path];
+    if(response) return response;
+    
+    if([path isEqualToString:@"/"]) {
+        NSMutableString *html = [NSMutableString string];
+        [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
+        [html appendString:@"<a href=\"/tree/Frameworks/\">/Frameworks/</a>\n"];
+        [html appendString:@"<a href=\"/tree/PrivateFrameworks/\">/PrivateFrameworks/</a>\n"];
+        [html appendString:@"<a href=\"/tree/lib/\">/lib/</a>\n"];
+        [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
+        
+        NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+        
+        return [[HTTPDataResponse alloc] initWithData:data];
+    }
+    
+    if([@[@"/Frameworks/", @"/PrivateFrameworks/"] containsObject:path]) {
+        NSError *error = nil;
+        NSString *fullPath = [NSString stringWithFormat:@"%@/System/Library%@", basePath, path];
+        NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
+        if(files == nil) {
+            NSLog(@"-- %@", error);
+        }
+
+        NSMutableArray *ma = [NSMutableArray array];
+        [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if([self canListFileAtPath:obj] == NO) return;
+            [ma addObject:obj];
+        }];
+
+        return [self responseForTreeWithFiles:ma dirPath:path];
+    }
+    
+    return nil;
 }
 
 - (NSObject<HTTPResponse> *)responseForPath:(NSString *)path {
