@@ -104,6 +104,7 @@
     [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - List View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     
     NSArray *classes = [_allClasses sortedClassStubs];
+    [html appendFormat:@"%@ classes loaded\n\n", @([classes count])];
     for(ClassStub *cs in classes) {
         //if([cs.stubClassname compare:@"S"] == NSOrderedAscending) continue;
         [html appendFormat:@"<A HREF=\"/list/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
@@ -114,6 +115,17 @@
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
+}
+
++ (NSArray *)whiteListedTreePaths {
+    return @[@"/",
+             @"/System/",
+             @"/System/Library/",
+             @"/System/Library/Frameworks/",
+             @"/System/Library/PrivateFrameworks/",
+             @"/usr/",
+             @"/usr/lib/",
+             @"/usr/lib/system/"];
 }
 
 + (NSString *)basePath {
@@ -153,7 +165,8 @@
 
 - (NSObject<HTTPResponse> *)responseForTreeFrameworkOrDylibWithPath:(NSString *)path {
 
-    if([[path pathExtension] isEqualToString:@"framework"] == NO && [[path pathExtension] isEqualToString:@"dylib"] == NO) return nil;
+    if([[path pathExtension] isEqualToString:@"framework"] == NO &&
+       [[path pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
     NSString *basePath = [[self class] basePath];
     
@@ -185,7 +198,7 @@
     /**/
     
     NSMutableString *html = [NSMutableString string];
-    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
+    [html appendFormat:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - %@</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n", [path lastPathComponent]];
     for(NSString *s in classes) {
         [html appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", path, s, s];
     }
@@ -194,6 +207,14 @@
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
+}
+
+- (BOOL)canListFileAtPath:(NSString *)filePath {
+    NSArray *whiteListedTreePaths = [[self class] whiteListedTreePaths];
+    
+    if([[[filePath lastPathComponent] pathExtension] isEqualToString:@"framework"] ||
+       [[[filePath lastPathComponent] pathExtension] isEqualToString:@"dylib"]) return YES;
+    return [whiteListedTreePaths containsObject:filePath];
 }
 
 - (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
@@ -205,6 +226,13 @@
     NSObject <HTTPResponse> *response = [self responseForTreeFrameworkOrDylibWithPath:path];
     if(response) return response;
     
+    NSArray *whiteListedTreePaths = [[self class] whiteListedTreePaths];
+    
+    if([whiteListedTreePaths containsObject:path] == NO) {
+        NSLog(@"-- path not whitelisted: %@", path);
+        return nil;
+    }
+    
     NSError *error = nil;
     NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
     if(files == nil) {
@@ -214,8 +242,13 @@
     NSMutableString *html = [NSMutableString string];
     [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     for(NSString *fileName in files) {
-        NSString *filePath = [path stringByAppendingPathComponent:fileName];
-        [html appendFormat:@"<a href=\"/tree%@\">%@</a>\n", filePath, fileName];
+        NSString *filePath = [NSString stringWithFormat:@"%@%@/", path, fileName];
+        BOOL canListFile = [self canListFileAtPath:filePath];
+        if(canListFile == NO) {
+            NSLog(@"-- can't list %@", filePath);
+            continue;
+        }
+        [html appendFormat:@"<a href=\"/tree%@\">%@/</a>\n", filePath, fileName];
     }
     [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
