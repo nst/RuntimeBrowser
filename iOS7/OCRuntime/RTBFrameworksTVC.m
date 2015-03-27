@@ -145,9 +145,11 @@ static const NSUInteger kPrivateFrameworks = 1;
             
             @try {
                 NSLog(@"-- %@", b);
-                BOOL success = [b load];
+                NSError *loadError = nil;
+                BOOL success = [b loadAndReturnError:&loadError];
                 if(success == NO) {
-                    NSLog(@"-- couln't load %@", b);
+                    //NSLog(@"-- couln't load %@", b);
+                    NSLog(@"-- error: %@", [loadError localizedDescription]);
                 }
             } @catch (NSException * e) {
                 NSLog(@"-- exception while loading bundle %@", b);

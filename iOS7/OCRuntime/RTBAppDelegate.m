@@ -189,7 +189,8 @@
     
     __block NSArray *classes = nil;
     [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        if([key containsString:name]) {
+        BOOL isDylib = [[key pathExtension] isEqualToString:@"dylib"];
+        if([key containsString:name] || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
             classes = obj;
             *stop = YES;
         }
@@ -221,7 +222,7 @@
     NSMutableString *html = [NSMutableString string];
     [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
     for(NSString *fileName in files) {
-        [html appendFormat:@"<a href=\"/tree/%@\">%@/</a>\n", fileName, fileName];
+        [html appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", dirPath, fileName, fileName];
     }
     [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
