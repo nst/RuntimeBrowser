@@ -660,7 +660,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     unsigned int methodListCount;
     Method *methodList = class_copyMethodList(klass, &methodListCount); // FIXME: handle exception here
     
-    NSMutableArray *dictionaries = [NSMutableArray array];
+    NSMutableArray *methodsDictionaries = [NSMutableArray array];
     
     for ( j = methodListCount; j > 0; j-- ) {
         NSMutableString *ms = [NSMutableString string];
@@ -702,21 +702,16 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             [ms appendFormat:@"     /* Encoded args for previous method: %s */\n\n", method_getTypeEncoding(currMethod)];
         // PENDING -- error parsing unions ... different format than structs ??
         
-        [dictionaries addObject:@{@"s":ms, @"name":mName}];
+        [methodsDictionaries addObject:@{@"s":ms, @"name":mName}];
     }
     
     free(methodList);
     
-    NSArray *sortedDictionaries = [dictionaries sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
+    [methodsDictionaries sortUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
         return [d1[@"name"] compare:d2[@"name"]];
     }];
     
-    NSMutableArray *ma = [NSMutableArray array];
-    for (NSDictionary *d in sortedDictionaries) {
-        [ma addObject:d[@"s"]];
-    }
-    
-    return ma;
+    return [methodsDictionaries valueForKey:@"s"];
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
@@ -881,11 +876,17 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     unsigned int ivarListCount;
     Ivar *ivarList = class_copyIvarList(representedClass, &ivarListCount);
     
+    NSMutableArray *ivarDictionaries = [NSMutableArray array];
+    
     if (ivarList != NULL && (ivarListCount>0)) {
+        
         for ( i = 0; i < ivarListCount; ++i ) {
             Ivar rtIvar = ivarList[i];
             
             if (rtIvar && ivar_getTypeEncoding(rtIvar)) {
+
+                NSMutableString *ms = [NSMutableString string];
+
                 ivT = ivar_getTypeEncoding(rtIvar);
                 
                 currentWarning = NO;
@@ -893,26 +894,37 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 if (*ivT != '\0') {
                     currentWarning = YES;
                     showUnhandledWarning = YES;
-                    [header appendFormat:@"\n  /* Unexpected information at end of encoded ivar type: %s */", ivT];
+                    [ms appendFormat:@"\n  /* Unexpected information at end of encoded ivar type: %s */", ivT];
                 }
                 if (currentWarning)
-                    [header appendFormat:@"\n  /* Error parsing encoded ivar type info: %s */\n", ivar_getTypeEncoding(rtIvar)];
+                    [ms appendFormat:@"\n  /* Error parsing encoded ivar type info: %s */\n", ivar_getTypeEncoding(rtIvar)];
                 
-                [header appendString:IVAR_TAB];
-                [header appendString:[cTypeDeclInfo objectForKey:TYPE_LABEL]];
-                if (ivar_getName(rtIvar)) // compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
-                    [header appendFormat:@"%s", ivar_getName(rtIvar)];
-                else
-                    [header appendString:@"/* ? */"];
+                [ms appendString:IVAR_TAB];
+                [ms appendString:[cTypeDeclInfo objectForKey:TYPE_LABEL]];
                 
-                [header appendString:[cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+                const char* ivar_name = ivar_getName(rtIvar); // compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
+                NSString *iVarName = ivar_name ? [NSString stringWithFormat:@"%s", ivar_name] : @"/* ? */";
+                [ms appendString:iVarName];
                 
-                [header appendString:@";\n"];
-                if (currentWarning) [header appendString:@"\n"];
+                [ms appendString:[cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+                
+                [ms appendString:@";\n"];
+                if (currentWarning) [ms appendString:@"\n"];
+                
+                NSString *name = ivar_name ? [NSString stringWithFormat:@"%s", ivar_name] : [NSString stringWithFormat:@"__________%@", @(i)];
+                [ivarDictionaries addObject:@{@"name":name, @"s":ms}];
             }
         }
     }
     free(ivarList);
+
+    [ivarDictionaries sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1[@"name"] compare:obj2[@"name"]];
+    }];
+                                       
+    for(NSDictionary *d in ivarDictionaries) {
+        [header appendString:d[@"s"]];
+    }
     
     // end Ivars
     [header appendString: @"}\n\n"];
@@ -933,15 +945,15 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     }
     free(propertyList);
     
-    NSArray *sortedPropertiesDictionaries = [propertiesDictionaries sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+    [propertiesDictionaries sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1[@"name"] compare:obj2[@"name"]];
     }];
     
-    for(NSDictionary *d in sortedPropertiesDictionaries) {
+    for(NSDictionary *d in propertiesDictionaries) {
         [header appendString:d[@"s"]];
     }
     
-    if(sortedPropertiesDictionaries > 0)
+    if(propertiesDictionaries > 0)
         [header appendString:@"\n"];
     
     // Class methods
