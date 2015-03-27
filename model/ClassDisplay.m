@@ -647,7 +647,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     return [self ivarCTypeDeclForEncType];
 }
 
-- (NSArray *)methodLinesWithSign:(char)sign {
+- (NSArray *)sortedMethodLinesWithSign:(char)sign {
     
     Class metaClass = objc_getMetaClass(class_getName(representedClass)); // where class methods live
     
@@ -657,19 +657,21 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     NSUInteger i, j, offset;
     const char *tmp;
     
-    NSMutableString *header = [NSMutableString stringWithString:@""];
-    
     unsigned int methodListCount;
     Method *methodList = class_copyMethodList(klass, &methodListCount); // FIXME: handle exception here
     
+    NSMutableArray *dictionaries = [NSMutableArray array];
+    
     for ( j = methodListCount; j > 0; j-- ) {
+        NSMutableString *ms = [NSMutableString string];
+        
         Method currMethod = (methodList[j-1]);
         ivT = method_getTypeEncoding(currMethod);
         
         methodWarning = currentWarning = NO;
         cTypeDeclInfo = [self flatCTypeDeclForEncType];
         
-        [header appendFormat:@"%c (%@%@)", sign, [cTypeDeclInfo objectForKey:TYPE_LABEL], [cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
+        [ms appendFormat:@"%c (%@%@)", sign, [cTypeDeclInfo objectForKey:TYPE_LABEL], [cTypeDeclInfo objectForKey:MODIFIER_LABEL]];
         
         currentWarning = NO;
         tmp = strchr(ivT, ':');
@@ -681,29 +683,40 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
         NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
         if ([mNameParts count] == 1) {
-            [header appendString:[mNameParts lastObject]];
+            [ms appendString:[mNameParts lastObject]];
         }
         for (i=1; i<[mNameParts count]; ++i) {
             offset = atoi(ivT); // ignored;
             while (isdigit (*++ivT));
             currentWarning = NO;
             cTypeDeclInfo = [self flatCTypeDeclForEncType];
-            [header appendFormat:@"%@:(%@%@)arg%lu%s",
+            [ms appendFormat:@"%@:(%@%@)arg%lu%s",
              [mNameParts objectAtIndex:i-1],
              [cTypeDeclInfo objectForKey:TYPE_LABEL],
              [cTypeDeclInfo objectForKey:MODIFIER_LABEL],
              (unsigned long)i,
              ((i==([mNameParts count]-1))?"":" ")];
         }
-        [header appendString:@";\n"];
+        [ms appendString:@";\n"];
         if (methodWarning)
-            [header appendFormat:@"     /* Encoded args for previous method: %s */\n\n", method_getTypeEncoding(currMethod)];
+            [ms appendFormat:@"     /* Encoded args for previous method: %s */\n\n", method_getTypeEncoding(currMethod)];
         // PENDING -- error parsing unions ... different format than structs ??
+        
+        [dictionaries addObject:@{@"s":ms, @"name":mName}];
     }
     
     free(methodList);
     
-    return [NSArray arrayWithObject:header];
+    NSArray *sortedDictionaries = [dictionaries sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
+        return [d1[@"name"] compare:d2[@"name"]];
+    }];
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    for (NSDictionary *d in sortedDictionaries) {
+        [ma addObject:d[@"s"]];
+    }
+    
+    return ma;
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
@@ -918,20 +931,18 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [header appendString:@"\n"];
     
     // Class methods
-    classMethods = [self methodLinesWithSign:'+'];
-    i = [classMethods count];
-    if (i>0) {   // The last one in the list contains the original methods implemented by the class.
-        [header appendString:[classMethods objectAtIndex:(i-1)]];
-        [header appendString: @"\n"];
+    classMethods = [self sortedMethodLinesWithSign:'+'];
+    for(NSString *line in classMethods) {
+        [header appendString:line];
     }
+    [header appendString:@"\n"];
     
     // Instance methods
-    instanceMethods = [self methodLinesWithSign:'-'];
-    i = [instanceMethods count];
-    if (i>0) {
-        [header appendString:[instanceMethods objectAtIndex:(i-1)]];
-        [header appendString: @"\n"];
+    instanceMethods = [self sortedMethodLinesWithSign:'-'];
+    for(NSString *line in instanceMethods) {
+        [header appendString:line];
     }
+    [header appendString:@"\n"];
     
     [header appendString: @"@end\n"];
     

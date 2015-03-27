@@ -57,7 +57,7 @@ Boston, MA  02111-1307  USA
 + (ClassDisplay *)classDisplayWithClass:(Class)klass;
 
 - (NSString *)header;
-- (NSArray *)methodLinesWithSign:(char)mType;
+- (NSArray *)sortedMethodLinesWithSign:(char)mType;
 
 /* for search */
 - (NSSet *)ivarsTypeTokens;

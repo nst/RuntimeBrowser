@@ -40,12 +40,12 @@
 		ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[_object class]];
 
 		if(_object == [_object class]) {
-			m = [cd methodLinesWithSign:'+'];
+			m = [cd sortedMethodLinesWithSign:'+'];
             if (m.count == 1) {
                 m = [NSArray arrayWithObject:[NSString stringWithFormat:@"%@%@", [m objectAtIndex:0], @"+ (id)alloc;\n"]];
             }
 		} else {
-			m = [cd methodLinesWithSign:'-'];
+			m = [cd sortedMethodLinesWithSign:'-'];
 		}
 		
 		self.methods = [NSMutableArray arrayWithArray:[[m lastObject] componentsSeparatedByString:@"\n"]];
