@@ -234,7 +234,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         switch (fc) {
             case '@' : case '#' : case ':' : case 'c' : case 'C' :
             case 's' : case 'S' : case 'i' : case 'I' : case 'l' : case 'L' : case 'q' : case 'Q' :
-            case 'f' : case 'd' : case 'v' :
+            case 'f' : case 'd' : case 'v' : case 'B':
                 rs = [rs stringByAppendingString:@" "];
                 break;
         }
@@ -911,7 +911,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
                 [ms appendString:@";\n"];
                 if (currentWarning) [ms appendString:@"\n"];
                 
-                NSString *name = ivar_name ? [NSString stringWithFormat:@"%s", ivar_name] : [NSString stringWithFormat:@"__________%@", @(i)];
+                NSString *name = ivar_name ? [NSString stringWithFormat:@"%s", ivar_name] : [NSString stringWithFormat:@"|||||%@", @(i)];
                 [ivarDictionaries addObject:@{@"name":name, @"s":ms}];
             }
         }
