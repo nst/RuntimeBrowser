@@ -99,19 +99,18 @@
 }
 
 - (NSObject<HTTPResponse> *)responseForList {
-    NSMutableString *html = [NSMutableString string];
-    
-    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - List View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
+    NSMutableString *ms = [NSMutableString string];
     
     NSArray *classes = [_allClasses sortedClassStubs];
-    [html appendFormat:@"%@ classes loaded\n\n", @([classes count])];
+    [ms appendFormat:@"%@ classes loaded\n\n", @([classes count])];
     for(ClassStub *cs in classes) {
         //if([cs.stubClassname compare:@"S"] == NSOrderedAscending) continue;
-        [html appendFormat:@"<A HREF=\"/list/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
+        [ms appendFormat:@"<A HREF=\"/list/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
     }
     
-    [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
     
+    NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - List View"];
+
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
@@ -198,13 +197,19 @@
     
     /**/
     
-    NSMutableString *html = [NSMutableString string];
-    [html appendFormat:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - %@</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n", [name lastPathComponent]];
-    for(NSString *s in classes) {
-        [html appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", name, s, s];
-    }
-    [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
+    NSMutableString *ms = [NSMutableString string];
+    [ms appendFormat:@"%@\n%@ classes\n\n", name, @([classes count])];
     
+    NSArray *sortedClasses = [classes sortedArrayUsingComparator:^NSComparisonResult(NSString *s1, NSString *s2) {
+        return [s1 compare:s2];
+    }];
+    
+    for(NSString *s in sortedClasses) {
+        [ms appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", name, s, s];
+    }
+
+    NSString *html = [self htmlPageWithContents:ms title:[name lastPathComponent]];
+
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
@@ -219,12 +224,15 @@
 }
 
 - (NSObject<HTTPResponse> *)responseForTreeWithFiles:(NSArray *)files dirPath:(NSString *)dirPath {
-    NSMutableString *html = [NSMutableString string];
-    [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
+    NSMutableString *ms = [NSMutableString string];
+
+    [ms appendFormat:@"%@\n%@ frameworks or dylibs\n\n", dirPath, @([files count])];
+    
     for(NSString *fileName in files) {
-        [html appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", dirPath, fileName, fileName];
+        [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", dirPath, fileName, fileName];
     }
-    [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
+    
+    NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Tree View"];
     
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -239,13 +247,13 @@
     if(response) return response;
     
     if([path isEqualToString:@"/"]) {
-        NSMutableString *html = [NSMutableString string];
-        [html appendString:@"<HTML>\n<HEAD>\n<TITLE>iOS Runtime Browser - Tree View</TITLE>\n</HEAD>\n<BODY>\n<PRE>\n"];
-        [html appendString:@"<a href=\"/tree/Frameworks/\">/Frameworks/</a>\n"];
-        [html appendString:@"<a href=\"/tree/PrivateFrameworks/\">/PrivateFrameworks/</a>\n"];
-        [html appendString:@"<a href=\"/tree/lib/\">/lib/</a>\n"];
-        [html appendString:@"</PRE>\n</BODY>\n</HTML>\n"];
         
+        NSString *s = @"<a href=\"/tree/Frameworks/\">/Frameworks/</a>\n"
+                       "<a href=\"/tree/PrivateFrameworks/\">/PrivateFrameworks/</a>\n"
+                       "<a href=\"/tree/lib/\">/lib/</a>\n";
+        
+        NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser - Tree View"];
+
         NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
         
         return [[HTTPDataResponse alloc] initWithData:data];
@@ -301,6 +309,21 @@
     return nil;
 }
 
+- (NSString *)htmlHeader {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"header" ofType:@"html"];
+    return [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+}
+
+- (NSString *)htmlFooter {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"footer" ofType:@"html"];
+    return [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+}
+
+- (NSString *)htmlPageWithContents:(NSString *)contents title:(NSString *)title {
+    NSString *header = [[[self htmlHeader] mutableCopy] stringByReplacingOccurrencesOfString:@"__TITLE__" withString:title];
+    return [@[header, contents, [self htmlFooter]] componentsJoinedByString:@"\n"];
+}
+
 - (NSObject<HTTPResponse> *)responseForPath:(NSString *)path {
     
     if([path hasSuffix:@".h"]) {
@@ -313,10 +336,12 @@
         NSString *subPath = [path substringFromIndex:[@"/tree" length]];
         return [self responseForTreeWithPath:subPath];
     } else {
-        NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
-        NSError *error = nil;
-        NSMutableString *html = [[NSString stringWithContentsOfFile:htmlPath encoding:NSUTF8StringEncoding error:&error] mutableCopy];
-        [html replaceOccurrencesOfString:@"__MY_IP__" withString:[self myIPAddress] options:0 range:NSMakeRange(0, [html length])];
+        NSString *s = [NSString stringWithFormat:
+                       @" You can browse the loaded classes either by <a href=\"/list/\">list</a> or by <a href=\"/tree/\">tree</a>.\n\n"
+                       " To retrieve the headers as on <a href=\"https://github.com/nst/iOS-Runtime-Headers\">https://github.com/nst/iOS-Runtime-Headers</a>:\n\n"
+                       "     $ wget -r http://%@:10000/tree/\n", [self myIPAddress]];
+        
+        NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser"];
         
         NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
         
