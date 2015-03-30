@@ -55,7 +55,7 @@ Boston, MA  02111-1307  USA
 @synthesize subclassesStubs;
 
 + (ClassStub *)classStubWithClass:(Class)klass {
-    return [[[ClassStub alloc] initWithClass:klass] autorelease];
+    return [[ClassStub alloc] initWithClass:klass];
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {
@@ -143,7 +143,7 @@ Boston, MA  02111-1307  USA
 	NSMutableSet *ms = [NSMutableSet set];
 
 	unsigned int protocolListCount;
-	Protocol **protocolList = class_copyProtocolList(c, &protocolListCount);
+	__unsafe_unretained Protocol **protocolList = class_copyProtocolList(c, &protocolListCount);
 	if (protocolList != NULL && (protocolListCount > 0)) {
 		NSUInteger i;
         for(i = 0; i < protocolListCount; i++) {
@@ -226,13 +226,6 @@ Boston, MA  02111-1307  USA
 
 - (NSComparisonResult)compare:(ClassStub *)otherCS {
     return [stubClassname compare:[otherCS stubClassname]];
-}
-
-- (void)dealloc {
-	[imagePath release];
-    [stubClassname release];
-    [subclassesStubs release];
-    [super dealloc];
 }
 
 - (BOOL)containsSearchString:(NSString *)searchString {

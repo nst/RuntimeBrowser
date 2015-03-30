@@ -54,9 +54,9 @@
 		0374034D17969813005D1AFB /* RTBListTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0374034A17969813005D1AFB /* RTBListTVC.m */; };
 		0374034E17969813005D1AFB /* RTBFrameworksTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0374034C17969813005D1AFB /* RTBFrameworksTVC.m */; };
 		03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03740350179698CC005D1AFB /* RTBFrameworkCell.m */; };
-		0379BB2617980CF600F4B8BF /* AllClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2117980CF600F4B8BF /* AllClasses.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		0379BB2717980CF600F4B8BF /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2317980CF600F4B8BF /* ClassDisplay.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2517980CF600F4B8BF /* ClassStub.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		0379BB2617980CF600F4B8BF /* AllClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2117980CF600F4B8BF /* AllClasses.m */; };
+		0379BB2717980CF600F4B8BF /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2317980CF600F4B8BF /* ClassDisplay.m */; };
+		0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2517980CF600F4B8BF /* ClassStub.m */; };
 		0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */; };
 		0379BB83179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB82179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m */; };
 		03959DD2176AFC4D002A1FCC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD1176AFC4D002A1FCC /* Foundation.framework */; };

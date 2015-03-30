@@ -66,13 +66,6 @@ static AllClasses *sharedInstance;
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
-- (void)dealloc {
-	[rootClasses release];
-	[allClassStubsByName release];
-	[allClassStubsByImagePath release];
-	[super dealloc];
-}
-
 - (ClassStub *)classStubForClassName:(NSString *)classname {
     return [allClassStubsByName valueForKey:classname];
 }
@@ -148,7 +141,7 @@ static AllClasses *sharedInstance;
 
 	while (numClasses < newNumClasses) {
 		numClasses = newNumClasses;
-		classes = realloc(classes, sizeof(Class) * numClasses);
+		classes = (Class *)realloc(classes, sizeof(Class) * numClasses);
 		newNumClasses = objc_getClassList(classes, numClasses);
 	}
 

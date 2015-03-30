@@ -107,7 +107,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 + (ClassDisplay *)classDisplayWithClass:(Class)klass {
     ClassDisplay *cd = [[self alloc] init];
     [cd setRepresentedClass:klass];
-    return [cd autorelease];
+    return cd;
 }
 
 - (void)setRepresentedClass:(Class)klass {
@@ -716,12 +716,6 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
-- (void)dealloc {
-    [refdClasses release];
-    [namedStructs release];
-    [super dealloc];
-}
-
 - (NSString *)propertyDescription:(objc_property_t)p {
     NSString *name = [NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding];
     NSString *attr = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
@@ -780,7 +774,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     
     NSMutableString *desc = [NSMutableString stringWithString:@"@property"];
     
-    NSMutableArray *at = [[NSMutableArray alloc] init];
+    NSMutableArray *at = [NSMutableArray array];
     if(getter) [at addObject:[NSString stringWithFormat:@"getter=%@", getter]];
     if(setter) [at addObject:[NSString stringWithFormat:@"setter=%@", setter]];
     if(memory) [at addObject:memory];
@@ -790,7 +784,6 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         NSString *attributes = [NSString stringWithFormat:@"(%@)", [at componentsJoinedByString:@","]];
         [desc appendString:attributes];
     }
-    [at release];
     
     [desc appendFormat:@" %@%@;", type, name];
     
@@ -831,11 +824,35 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     return ms;
 }
 
++ (NSArray *)sortedProtocolsForClass:(Class)class {
+    NSMutableArray *protocols = [NSMutableArray array];
+    
+    unsigned int protocolListCount = 0;
+    __unsafe_unretained Protocol **protocolList = class_copyProtocolList(class, &protocolListCount);
+    for(unsigned int i = 0; i < protocolListCount; i++) {
+        Protocol *p = protocolList[i];
+        if(p == NULL) continue;
+        
+        const char* pName = protocol_getName(p);
+        if(pName == NULL) continue;
+        
+        NSString *name = [NSString stringWithCString:pName encoding:NSUTF8StringEncoding];
+        if(name == nil) continue;
+        
+        [protocols addObject:name];
+    }
+    
+    free(protocolList);
+    
+    [protocols sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2];
+    }];
+    
+    return protocols;
+}
+
 - (NSString *)header {
     NSMutableString *header = [NSMutableString string];
-    
-    NSInteger i;
-    unsigned int protocolListCount;
     
     NSArray *instanceMethods;
     NSArray *classMethods;
@@ -853,20 +870,12 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         [header appendFormat: @": %s ", class_getName(class_getSuperclass(representedClass))];
     
     // conforming to protocols
-    Protocol **protocolList = class_copyProtocolList(representedClass, &protocolListCount);
-    if (protocolList != NULL && (protocolListCount > 0)) {
-        [header appendString: @"<"];
-        Protocol *rtProtocol = protocolList[0];
-        [header appendFormat:@"%s", (rtProtocol ?  protocol_getName(rtProtocol) : "")];
-        for ( i = 1; i < protocolListCount; ++i ) {
-            rtProtocol = protocolList[i];
-            [header appendFormat:@", %s", (rtProtocol ? protocol_getName(rtProtocol) : "")];
-        }
-        [header appendString: @">"];
+    NSArray *protocols = [[self class] sortedProtocolsForClass:representedClass];
+    if([protocols count] > 0) {
+        NSString *protocolsString = [protocols componentsJoinedByString:@", "];
+        [header appendFormat:@"<%@>", protocolsString];
     }
-    free(protocolList);
-    //    [header appendString: @"\n"];
-    
+        
     // begin Ivars
     [header appendString: @" {\n"];
     
@@ -880,13 +889,13 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     
     if (ivarList != NULL && (ivarListCount>0)) {
         
-        for ( i = 0; i < ivarListCount; ++i ) {
+        for (unsigned int i = 0; i < ivarListCount; ++i ) {
             Ivar rtIvar = ivarList[i];
             
             if (rtIvar && ivar_getTypeEncoding(rtIvar)) {
-
+                
                 NSMutableString *ms = [NSMutableString string];
-
+                
                 ivT = ivar_getTypeEncoding(rtIvar);
                 
                 currentWarning = NO;
@@ -917,11 +926,11 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
         }
     }
     free(ivarList);
-
+    
     [ivarDictionaries sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1[@"name"] compare:obj2[@"name"]];
     }];
-                                       
+    
     for(NSDictionary *d in ivarDictionaries) {
         [header appendString:d[@"s"]];
     }
@@ -930,30 +939,30 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     [header appendString: @"}\n\n"];
     
     // obj-c 2.0 properties
-    NSMutableArray *propertiesDictionaries = [NSMutableArray array];
+    NSMutableSet *propertiesDictionariesSet = [NSMutableSet set];
     
     unsigned int propertyListCount;
     objc_property_t *propertyList = class_copyPropertyList(representedClass, &propertyListCount);
-
-    for(NSUInteger p = 0; p < propertyListCount; p++) {
-        objc_property_t prop = propertyList[p];
-
+    
+    for(NSUInteger i = 0; i < propertyListCount; i++) {
+        objc_property_t prop = propertyList[i];
+        
         NSString *propertyName = [NSString stringWithCString:property_getName(prop) encoding:NSUTF8StringEncoding];
         NSString *propertyDescription = [self propertyDescription:prop];
         
-        [propertiesDictionaries addObject:@{@"name":propertyName, @"s":propertyDescription}];
+        [propertiesDictionariesSet addObject:@{@"name":propertyName, @"s":propertyDescription}];
     }
     free(propertyList);
     
-    [propertiesDictionaries sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+    NSArray *sortedPropertiesDictionaries = [[propertiesDictionariesSet allObjects] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1[@"name"] compare:obj2[@"name"]];
     }];
     
-    for(NSDictionary *d in propertiesDictionaries) {
+    for(NSDictionary *d in sortedPropertiesDictionaries) {
         [header appendString:d[@"s"]];
     }
     
-    if(propertiesDictionaries > 0)
+    if(sortedPropertiesDictionaries > 0)
         [header appendString:@"\n"];
     
     // Class methods
