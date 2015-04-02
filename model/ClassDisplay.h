@@ -59,12 +59,11 @@ Boston, MA  02111-1307  USA
 - (NSString *)header;
 - (NSArray *)sortedMethodLinesWithSign:(char)mType;
 
-/* for search */
+// for search
 - (NSSet *)ivarsTypeTokens;
 
-#ifdef UNIT_TESTS
+// for tests
 - (NSDictionary *)flatCTypeDeclForEncType:(const char*)encType;
 - (NSDictionary *)ivarCTypeDeclForEncType:(const char*)encType;
-#endif
 
 @end
