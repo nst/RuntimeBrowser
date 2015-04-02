@@ -596,21 +596,10 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 }
 
 - (NSString *)atClasses {
-    int i, c = [refdClasses count];
-    NSEnumerator *enumerator = [refdClasses objectEnumerator];
-    NSString *className;
-    NSString *atClasses = @"";
-    
-    if (c > 0) {
-        atClasses = @"@class ";
-        for (i=0; (className = [enumerator nextObject]); ++i) {
-            if (i>0)
-                atClasses = [atClasses stringByAppendingString:@", "];
-            atClasses = [atClasses stringByAppendingString:className];
-        }
-        atClasses = [atClasses stringByAppendingString:@";\n\n"];
-    }
-    return atClasses;
+
+    if([refdClasses count] == 0) return @"";
+
+    return [NSString stringWithFormat:@"@class %@;\n\n", [[refdClasses allObjects] componentsJoinedByString:@", "]];
 }
 
 - (NSDictionary *)typeEncParseObjectRefInStruct:(BOOL)inStruct spaceAfter:(BOOL)spaceAfter {
