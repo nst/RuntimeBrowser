@@ -67,7 +67,7 @@
 	<key>CFBundleIconFile</key>
 	<string>RuntimeBrowser</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.googlecode.${EXECUTABLE_NAME}</string>
+	<string>ch.seriot.$(EXECUTABLE_NAME)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

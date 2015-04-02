@@ -1,6 +1,6 @@
-/* 
+/*
  
- AppController.m created by eepstein on Mon 15-Apr-2002 
+ AppController.m created by eepstein on Mon 15-Apr-2002
  
  Author: Ezra Epstein (eepstein@prajna.com)
  
@@ -56,72 +56,72 @@
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
 - (id)init {
-	self = [super init];
-	
-	NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];
-	
-	self.keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
-	
-	self.allClasses = [AllClasses sharedInstance];
-	
-	NSDictionary *defaultsPath = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"]];
-	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultsPath];
-	
-	return self;
+    self = [super init];
+    
+    NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];
+    
+    self.keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
+    
+    self.allClasses = [AllClasses sharedInstance];
+    
+    NSDictionary *defaultsPath = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"]];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsPath];
+    
+    return self;
 }
 
 - (void)dealloc {
-	//[openDir release];
-	[saveDirURL release];
-	[keywords release];
+    //[openDir release];
+    [saveDirURL release];
+    [keywords release];
     [searchResultsNode release];
-	[mainWindow release];
+    [mainWindow release];
     [searchResults release];
     [searchQueue release];
-	[super dealloc];
+    [super dealloc];
 }
 
 - (BOOL)saveAsHeaderIsEnabled {
-	id item = [classBrowser itemAtIndexPath:[classBrowser selectionIndexPath]];
-	return [item canBeSavedAsHeader];
+    id item = [classBrowser itemAtIndexPath:[classBrowser selectionIndexPath]];
+    return [item canBeSavedAsHeader];
 }
 
 - (void)loadBundlesURLs:(NSArray *)bundlesURLs {
-	BOOL loadedNew = NO;
-	
-	NSMutableArray *errors = [NSMutableArray array];
-	
-	for (NSURL *url in bundlesURLs) {        
-		NSBundle *bundle = [NSBundle bundleWithURL:url];
-		NSError *error = nil;
-		loadedNew |= [bundle loadAndReturnError:&error];
-		if(error) {
-			[errors addObject:error];
-		}
-	}
-	
-	// we show only one error
-	NSError *error = [errors lastObject];
-	if(error) {
-		NSAlert *alert = [NSAlert alertWithError:error];
-		[alert runModal];
-	}
+    BOOL loadedNew = NO;
     
-	if (loadedNew) {
-		//[classBrowser scrollColumnToVisible:0];
-		[allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
-		[classBrowser loadColumnZero];
+    NSMutableArray *errors = [NSMutableArray array];
+    
+    for (NSURL *url in bundlesURLs) {
+        NSBundle *bundle = [NSBundle bundleWithURL:url];
+        NSError *error = nil;
+        loadedNew |= [bundle loadAndReturnError:&error];
+        if(error) {
+            [errors addObject:error];
+        }
+    }
+    
+    // we show only one error
+    NSError *error = [errors lastObject];
+    if(error) {
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+    }
+    
+    if (loadedNew) {
+        //[classBrowser scrollColumnToVisible:0];
+        [allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
+        [classBrowser loadColumnZero];
         
-		//self.openDir = [[bundlesURLs lastObject] stringByDeletingLastPathComponent];
-		[label setStringValue:@"Select a Class"];
-		[headerTextView setString:@""];
-		
-		RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-		if(viewType == RBBrowserViewTypeImages) {
-			NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
-			[classBrowser setTitle:rootTitle ofColumn:0];
-		}
-	}
+        //self.openDir = [[bundlesURLs lastObject] stringByDeletingLastPathComponent];
+        [label setStringValue:@"Select a Class"];
+        [headerTextView setString:@""];
+        
+        RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+        if(viewType == RBBrowserViewTypeImages) {
+            NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
+            [classBrowser setTitle:rootTitle ofColumn:0];
+        }
+    }
 }
 
 - (void)application:(NSApplication *)sender openFiles:(NSArray *)filenames {
@@ -133,21 +133,21 @@
         [urls addObject:url];
     }
     
-	[self loadBundlesURLs:urls];
+    [self loadBundlesURLs:urls];
 }
 
 - (NSArray *)acceptableExtensions {
-	return [NSArray arrayWithObjects:@"dylib", @"framework", @"bundle", @"app", nil];//@"EOMbundle", @"EOMplugin", @"woa", @"dll", @"exe"
+    return [NSArray arrayWithObjects:@"dylib", @"framework", @"bundle", @"app", nil];//@"EOMbundle", @"EOMplugin", @"woa", @"dll", @"exe"
 }
 
 - (IBAction)openAction:(id)sender {
-	
+    
     NSOpenPanel *oPanel = [NSOpenPanel openPanel];
-	
+    
     [oPanel setAllowsMultipleSelection:YES];
     [oPanel setCanChooseDirectories:YES];
     [oPanel setCanChooseFiles:YES];
-	
+    
     [oPanel beginSheetModalForWindow:mainWindow completionHandler:^(NSInteger result) {
         if (result == NSModalResponseOK) {
             NSArray *urlsToOpen = [oPanel URLs];
@@ -163,53 +163,62 @@
         NSRunAlertPanel(nil, @"Select a class before saving.", @"OK", nil, nil);
         return;
     }
-	
+    
     NSSavePanel *sp = [NSSavePanel savePanel];
-	[sp setDirectoryURL:saveDirURL];
-	[sp setAllowedFileTypes:[NSArray arrayWithObject:@"h"]];
-	[sp setNameFieldStringValue:className];
-	
+    [sp setDirectoryURL:saveDirURL];
+    [sp setAllowedFileTypes:[NSArray arrayWithObject:@"h"]];
+    [sp setNameFieldStringValue:className];
+    
     [sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
-		
-		if ( result != NSModalResponseOK ) return;
-		
-		NSString *fileContents = [headerTextView string];
-		NSURL *fileURL = [sp URL];
-		
-		NSError *error = nil;
-		[[NSProcessInfo processInfo] disableSuddenTermination];
+        
+        if ( result != NSModalResponseOK ) return;
+        
+        NSString *fileContents = [headerTextView string];
+        NSURL *fileURL = [sp URL];
+        
+        NSError *error = nil;
+        [[NSProcessInfo processInfo] disableSuddenTermination];
         //        if(canUseLionAPIs) {
         //            [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
         //        }
         
-		BOOL success = [fileContents writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error];
-		[[NSProcessInfo processInfo] enableSuddenTermination];
+        BOOL success = [fileContents writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error];
+        [[NSProcessInfo processInfo] enableSuddenTermination];
         //        if(canUseLionAPIs) {
         //            [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
         //		}
         
-		if (success) {
-			self.saveDirURL = [fileURL URLByDeletingLastPathComponent];
-		} else {
-			NSString *message = [NSString stringWithFormat:@"Please try again, perhaps selecting a different file/directory. Error: %@", error];
-			NSRunAlertPanel(@"Save Failed :( !", message, @"OK", nil, nil);
-		}
-	}];
+        if (success) {
+            self.saveDirURL = [fileURL URLByDeletingLastPathComponent];
+        } else {
+            
+            NSAlert *alert = [NSAlert alertWithMessageText:@"Save Failed :( !"
+                                             defaultButton:@"OK"
+                                           alternateButton:nil
+                                               otherButton:nil
+                                 informativeTextWithFormat:@"Please try again, perhaps selecting a different file/directory. Error: %@", error];
+            
+            [alert beginSheetModalForWindow:self.mainWindow completionHandler:^(NSModalResponse returnCode) {
+                //
+            }];
+            
+        }
+    }];
 }
 
 - (IBAction)saveAllAction:(id)sender {
-	
+    
     NSOpenPanel *sp = [NSOpenPanel openPanel]; // we want to open a folder to save
-	
+    
     [sp setAllowsMultipleSelection:NO];
     [sp setCanChooseDirectories:YES];
     [sp setCanChooseFiles:NO];
     [sp setCanCreateDirectories:YES];
-	[sp setMessage:@"Choose a folder where to save all headers."];
+    [sp setMessage:@"Choose a folder where to save all headers."];
     [sp setTitle:@"Save All Classes"];
     [sp setPrompt:@"Save"];
-	
-	[sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
+    
+    [sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
         
         if ( result != NSModalResponseOK ) return;
         
@@ -252,51 +261,59 @@
             
             [classNames release];
             
-            NSString *message = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %d classes failed to save.", [dirURL path], (unsigned long)saved, failed];
             
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                NSRunInformationalAlertPanel(@"Save All Finished", message, @"OK", nil, nil);
+                
+                NSAlert *alert = [NSAlert alertWithMessageText:@"Save All Finished"
+                                                 defaultButton:@"OK"
+                                               alternateButton:nil
+                                                   otherButton:nil
+                                     informativeTextWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %@ classes failed to save.", [dirURL path], (unsigned long)saved, @(failed)];
+                
+                [alert beginSheetModalForWindow:self.mainWindow completionHandler:^(NSModalResponse returnCode) {
+                    //
+                }];
             }];
             
         }];
         [queue release];
         
     }
-	 ];
+     ];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)aMenuItem {
     if ( [[aMenuItem title] isEqualToString:@"Save As..."] )
-        return ( [[[classBrowser selectedCell] stringValue] length] != 0 ); 
+        return ( [[[classBrowser selectedCell] stringValue] length] != 0 );
     return YES;
 }
 
 - (BOOL)shouldShowDisclosureIndicatorOnClasses {
-	RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-	return viewType == RBBrowserViewTypeTree;
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    return viewType == RBBrowserViewTypeTree;
 }
 
 - (BOOL)isInSearchMode {
     return [[searchField stringValue] length] > 0;
 }
 
-- (void)changeViewTypeTo:(RBBrowserViewType)viewType {    
-	[[NSUserDefaults standardUserDefaults] setInteger:viewType forKey:@"ViewType"];
-	
+- (void)changeViewTypeTo:(RBBrowserViewType)viewType {
+    [[NSUserDefaults standardUserDefaults] setInteger:viewType forKey:@"ViewType"];
+    
     NSUInteger nbOfColumns = 1;
     if(viewType == RBBrowserViewTypeImages) nbOfColumns = 2;
     if(viewType == RBBrowserViewTypeTree) nbOfColumns = 3;
-	[classBrowser setMaxVisibleColumns:nbOfColumns];
+    [classBrowser setMaxVisibleColumns:nbOfColumns];
     
-	NSBrowserColumnResizingType resizingType = viewType == RBBrowserViewTypeTree ? NSBrowserUserColumnResizing : NSBrowserAutoColumnResizing;
-	[classBrowser setColumnResizingType:resizingType];
+    NSBrowserColumnResizingType resizingType = viewType == RBBrowserViewTypeTree ? NSBrowserUserColumnResizing : NSBrowserAutoColumnResizing;
+    [classBrowser setColumnResizingType:resizingType];
     
-	[classBrowser loadColumnZero];
-	
+    [classBrowser loadColumnZero];
+    
     id rootItem = [self rootItemForBrowser:classBrowser];
     
-	NSString *rootTitle = @"";
-	if(viewType == RBBrowserViewTypeList) {
+    NSString *rootTitle = @"";
+    if(viewType == RBBrowserViewTypeList) {
         rootTitle = [NSString stringWithFormat:@"%lu classes", (unsigned long)[[rootItem children] count]];
         
         if([self isInSearchMode]) {
@@ -305,35 +322,35 @@
     }
     
     if(viewType == RBBrowserViewTypeTree)   rootTitle = [NSString stringWithFormat:@"%lu Root Classes", (unsigned long)[[rootItem children] count]];
-	if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%lu Images", (unsigned long)[[rootItem children] count]];
-	
+    if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%lu Images", (unsigned long)[[rootItem children] count]];
+    
     [label setStringValue:@""];
     [headerTextView setString:@""];
     
-	[classBrowser setTitle:rootTitle ofColumn:0];
+    [classBrowser setTitle:rootTitle ofColumn:0];
 }
 
 - (IBAction)changeViewTypeFromSegmentedControl:(NSSegmentedControl *)sender {
     RBBrowserViewType viewType = sender.selectedSegment;
     if(viewType != RBBrowserViewTypeList) [searchField setStringValue:@""];
     
-	[self changeViewTypeTo:sender.selectedSegment];
+    [self changeViewTypeTo:sender.selectedSegment];
 }
 
 - (IBAction)changeViewTypeFromMenuItem:(NSMenuItem *)sender {
     RBBrowserViewType viewType = [sender tag];
-	
+    
     if([self isInSearchMode]) {
         if(viewType != RBBrowserViewTypeList) [searchField setStringValue:@""];
         [segmentedControl setEnabled:YES forSegment:0];
         [segmentedControl setEnabled:YES forSegment:2];
     }
-	
-	[self changeViewTypeTo:[sender tag]];
+    
+    [self changeViewTypeTo:[sender tag]];
 }
 
 - (IBAction)search:(id)sender {
-	
+    
     BOOL isInSearchMode = [self isInSearchMode];
     
     [searchQueue cancelAllOperations];
@@ -346,7 +363,7 @@
     self.searchResults = [NSMutableArray array];
     
     self.searchResultsNode = [[[BrowserNode alloc] init] autorelease];
-	
+    
     NSString *searchString = [[[searchField stringValue] copy] autorelease];
     
     NSArray *classStubs = [[AllClasses sharedInstance] sortedClassStubs];
@@ -362,12 +379,12 @@
     for (id classStub in classStubs) {
         
         [op addExecutionBlock:^{
-
+            
             if([op isCancelled]) {
                 //NSLog(@"-- op isCancelled");
                 return;
             }
-
+            
             BOOL found = [classStub containsSearchString:searchString];
             
             if(found) {
@@ -425,38 +442,38 @@
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
     
-	NSPasteboard *pboard = [sender draggingPasteboard];
-	
-	if ([[pboard types] containsObject:NSFilenamesPboardType]) {
+    NSPasteboard *pboard = [sender draggingPasteboard];
+    
+    if ([[pboard types] containsObject:NSFilenamesPboardType]) {
         NSArray *paths = [pboard propertyListForType:NSFilenamesPboardType];
-		
-		for(NSString *path in paths) {
-			NSString *ext = [[path lastPathComponent] pathExtension];
-			if([[self acceptableExtensions] containsObject:ext]) return NSDragOperationLink;
-		}
-	}
-	
-	return NSDragOperationNone;
+        
+        for(NSString *path in paths) {
+            NSString *ext = [[path lastPathComponent] pathExtension];
+            if([[self acceptableExtensions] containsObject:ext]) return NSDragOperationLink;
+        }
+    }
+    
+    return NSDragOperationNone;
 }
 
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
-	return YES;
+    return YES;
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
     
     NSPasteboard *pboard = [sender draggingPasteboard];
     
-	if ([[pboard types] containsObject:NSFilenamesPboardType]) {
+    if ([[pboard types] containsObject:NSFilenamesPboardType]) {
         NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-		//NSLog(@"-- files: %@", files);
+        //NSLog(@"-- files: %@", files);
         
-		NSPredicate *p = [NSPredicate predicateWithBlock: ^BOOL(id obj, NSDictionary *bind) {
-			NSString *ext = [[obj lastPathComponent] pathExtension];
+        NSPredicate *p = [NSPredicate predicateWithBlock: ^BOOL(id obj, NSDictionary *bind) {
+            NSString *ext = [[obj lastPathComponent] pathExtension];
             return [[self acceptableExtensions] containsObject:ext];
         }];
         
-		NSArray *bundlePaths = [files filteredArrayUsingPredicate:p];
+        NSArray *bundlePaths = [files filteredArrayUsingPredicate:p];
         
         NSMutableArray *bundleURLs = [NSMutableArray arrayWithCapacity:[bundlePaths count]];
         
@@ -465,8 +482,8 @@
             [bundleURLs addObject:url];
         }
         
-		//NSLog(@"-- bundlesToOpen: %@", bundlesToOpen);
-		[self loadBundlesURLs:bundleURLs];
+        //NSLog(@"-- bundlesToOpen: %@", bundlesToOpen);
+        [self loadBundlesURLs:bundleURLs];
         
     }
     return YES;
@@ -482,87 +499,87 @@
 #pragma mark -
 
 - (void)windowWillClose:(NSNotification *)notification {
-	[NSApp terminate:self];
+    [NSApp terminate:self];
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
-	[NSFont setUserFixedPitchFont:[NSFont fontWithName:@"Menlo Regular" size:11]];
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    [NSFont setUserFixedPitchFont:[NSFont fontWithName:@"Menlo Regular" size:11]];
 }
 
 - (void)awakeFromNib {
-	[super awakeFromNib];
+    [super awakeFromNib];
     
     //    SInt32 MacVersion;
-    //    
+    //
     //    if (Gestalt(gestaltSystemVersion, &MacVersion) == noErr) {
     //        canUseLionAPIs = MacVersion >= 0x1070;
     //    }
     //
     //    NSLog(@"-- canUseLionAPIs: %d", canUseLionAPIs);
-    //    
+    //
     //    if(canUseLionAPIs) {
     //        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
     //
     //    //    [mainWindow setRestorable:YES];
     //    //    [mainWindow setRestorationClass:[mainWindow class]];
-    //        
+    //
     //        [[NSProcessInfo processInfo] setAutomaticTerminationSupportEnabled: YES];
     //    }
     
-	[mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
-	
-	[classBrowser setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
-	[classBrowser setAllowsMultipleSelection:YES];
-	
-	[classBrowser setRowHeight:18];
-	[classBrowser setAutohidesScroller:YES];
-	[classBrowser setCellClass:[BrowserCell class]];
-	
+    [mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
+    
+    [classBrowser setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
+    [classBrowser setAllowsMultipleSelection:YES];
+    
+    [classBrowser setRowHeight:18];
+    [classBrowser setAutohidesScroller:YES];
+    [classBrowser setCellClass:[BrowserCell class]];
+    
     [headerTextView setFont:[NSFont userFixedPitchFontOfSize:11.0]]; // TODO -- make size and font a default
     
-	RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-	[self changeViewTypeTo:viewType];
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    [self changeViewTypeTo:viewType];
 }
 
 - (void)cellClickedAction:(id)sender {
-	
-	NSBrowserCell *cell = [sender selectedCell];
-	if(cell == nil) {
-		[label setStringValue:@""];
-		[headerTextView setString:@""];
-		return;
-	}
-	
+    
+    NSBrowserCell *cell = [sender selectedCell];
+    if(cell == nil) {
+        [label setStringValue:@""];
+        [headerTextView setString:@""];
+        return;
+    }
+    
     NSIndexPath *ip = [classBrowser selectionIndexPath];
-	id item = [classBrowser itemAtIndexPath:ip];
-	
-    [classBrowser setTitle:[item nodeInfo] ofColumn:[ip length]];    
+    id item = [classBrowser itemAtIndexPath:ip];
+    
+    [classBrowser setTitle:[item nodeInfo] ofColumn:[ip length]];
     
     if([item isKindOfClass:[BrowserNode class]]) {
-		[label setStringValue:[item nodeName]];
-		[headerTextView setString:@""];
+        [label setStringValue:[item nodeName]];
+        [headerTextView setString:@""];
         return;
-	}
+    }
     
     NSString *classname = [[sender selectedCell] stringValue];
     Class klass = nil;
-	
+    
     if ([classname length]) {
-		[label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
-		
-		klass = NSClassFromString(classname);
+        [label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
+        
+        klass = NSClassFromString(classname);
     }
-	
-	if(klass == nil) {
-		[label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
-		[headerTextView setString:[NSString stringWithFormat:@"can't load class with name: %@", classname]];
-		return;
-	}
-	
-	ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
-	classDisplay.displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
+    
+    if(klass == nil) {
+        [label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
+        [headerTextView setString:[NSString stringWithFormat:@"can't load class with name: %@", classname]];
+        return;
+    }
+    
+    ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
+    classDisplay.displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
     NSString *header = [classDisplay header];
-	
+    
     NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes];
     
     [[headerTextView textStorage] setAttributedString:attributedString];
@@ -576,61 +593,61 @@
         NSRange range = [header rangeOfString:searchString options:NSCaseInsensitiveSearch];
         if(range.location != NSNotFound) {
             [headerTextView scrollRangeToVisible:range];
-			[headerTextView showFindIndicatorForRange:range];
+            [headerTextView showFindIndicatorForRange:range];
         }
     }
     
-	/*
-	 NSMutableSet *protocols = [NSMutableSet set];
-	 NSMutableSet *classnames = [NSMutableSet set];
-	 
-	 for(ClassStub *cs in [allClasses sortedClassStubs]) {
-	 [protocols addObjectsFromArray:[cs protocolsTokens]];
-	 [classnames addObject:[[cs stubClassname] lowercaseString]];
-	 }
-	 
-	 [protocols intersectSet:classnames];
-	 
-	 NSLog(@"-- %@", protocols);
-	 */
+    /*
+     NSMutableSet *protocols = [NSMutableSet set];
+     NSMutableSet *classnames = [NSMutableSet set];
+     
+     for(ClassStub *cs in [allClasses sortedClassStubs]) {
+     [protocols addObjectsFromArray:[cs protocolsTokens]];
+     [classnames addObject:[[cs stubClassname] lowercaseString]];
+     }
+     
+     [protocols intersectSet:classnames];
+     
+     NSLog(@"-- %@", protocols);
+     */
 }
 
 #pragma mark NSBrowserDelegate
 
 - (BrowserNode *)rootItemForBrowser:(NSBrowser *)browser {
-	RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-	
-	NSString *searchString = [searchField stringValue];
-	if([searchString length] > 0) {
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    
+    NSString *searchString = [searchField stringValue];
+    if([searchString length] > 0) {
         return searchResultsNode;
-	}
-	
-	if(viewType == RBBrowserViewTypeList)   return [BrowserNode rootNodeList];
-	if(viewType == RBBrowserViewTypeTree)   return [BrowserNode rootNodeTree];
-	if(viewType == RBBrowserViewTypeImages) return [BrowserNode rootNodeImages];
-	return nil;
+    }
+    
+    if(viewType == RBBrowserViewTypeList)   return [BrowserNode rootNodeList];
+    if(viewType == RBBrowserViewTypeTree)   return [BrowserNode rootNodeTree];
+    if(viewType == RBBrowserViewTypeImages) return [BrowserNode rootNodeImages];
+    return nil;
 }
 
 - (NSInteger)browser:(NSBrowser *)browser numberOfChildrenOfItem:(id)item {
-	return [[item children] count];
+    return [[item children] count];
 }
 
 - (id)browser:(NSBrowser *)browser child:(NSInteger)index ofItem:(id)item {
-	return [[item children] objectAtIndex:index];
+    return [[item children] objectAtIndex:index];
 }
 
 - (BOOL)browser:(NSBrowser *)browser isLeafItem:(id)item {
-	RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-	
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    
     if(viewType == RBBrowserViewTypeList) return YES;
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
     if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[ClassStub class]];
     
-    return YES;    
+    return YES;
 }
 
 - (id)browser:(NSBrowser *)browser objectValueForItem:(id)item {
-	return [item nodeName];
+    return [item nodeName];
 }
 
 #pragma mark ** Dragging Source Methods **
@@ -640,12 +657,12 @@
  To refuse the drag, return NO.
  To start a drag, declared the pasteboard types that you support with [pasteboard declareTypes:owner:], place your data on the pasteboard, and return YES from the method.
  The drag image and other drag related information will be set up and provided by the view once this call returns with YES.
- You need to implement this method for your browser to be a drag source. 
+ You need to implement this method for your browser to be a drag source.
  */
 - (BOOL)browser:(NSBrowser *)browser writeRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column toPasteboard:(NSPasteboard *)pasteboard {
-	[pasteboard declareTypes:[NSArray arrayWithObject:NSFilesPromisePboardType] owner:self];
-	[pasteboard setPropertyList:[NSArray arrayWithObject:@"h"] forType:NSFilesPromisePboardType];
-	return YES;
+    [pasteboard declareTypes:[NSArray arrayWithObject:NSFilesPromisePboardType] owner:self];
+    [pasteboard setPropertyList:[NSArray arrayWithObject:@"h"] forType:NSFilesPromisePboardType];
+    return YES;
 }
 
 /*
@@ -659,61 +676,61 @@
 
 - (NSArray *)browser:(NSBrowser *)aBrowser namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column {
     
-	NSArray *selectedIndexPaths = [classBrowser selectionIndexPaths];
-	
-	NSMutableArray *selectedItems = [NSMutableArray array];
-	
-	for(NSIndexPath *ip in selectedIndexPaths) {
-		id item = [classBrowser itemAtIndexPath:ip];
-		[selectedItems addObject:item];
-	}
-	
-	NSLog(@"dragging items: %@", selectedItems);
-	
-	NSMutableArray *filenames = [NSMutableArray array];
-	
-	NSString *directoryPath = [dropDestination path];
+    NSArray *selectedIndexPaths = [classBrowser selectionIndexPaths];
     
-	for(id item in selectedItems) {
-		if([item isKindOfClass:[ClassStub class]]) {
-			ClassStub *cs = (ClassStub *)item;
-			
-			NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
-			NSString *path = [directoryPath stringByAppendingPathComponent:filename];
-			
-			[cs writeAtPath:path];
-			
-			[filenames addObject:filename];
-			
-		} else if ([item isKindOfClass:[BrowserNode class]]) {
-			
-			BrowserNode *bn = (BrowserNode *)item;
-			
-			directoryPath = [directoryPath stringByAppendingPathComponent:[[bn nodeName] lastPathComponent]];
-			
-			NSError *error = nil;
-			BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:&error];
+    NSMutableArray *selectedItems = [NSMutableArray array];
+    
+    for(NSIndexPath *ip in selectedIndexPaths) {
+        id item = [classBrowser itemAtIndexPath:ip];
+        [selectedItems addObject:item];
+    }
+    
+    NSLog(@"dragging items: %@", selectedItems);
+    
+    NSMutableArray *filenames = [NSMutableArray array];
+    
+    NSString *directoryPath = [dropDestination path];
+    
+    for(id item in selectedItems) {
+        if([item isKindOfClass:[ClassStub class]]) {
+            ClassStub *cs = (ClassStub *)item;
             
-			if(success == NO) {
-				[[NSAlert alertWithError:error] runModal];
-				break;
-			}
-			
-			for(ClassStub *cs in [bn children]) {
+            NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
+            NSString *path = [directoryPath stringByAppendingPathComponent:filename];
+            
+            [cs writeAtPath:path];
+            
+            [filenames addObject:filename];
+            
+        } else if ([item isKindOfClass:[BrowserNode class]]) {
+            
+            BrowserNode *bn = (BrowserNode *)item;
+            
+            directoryPath = [directoryPath stringByAppendingPathComponent:[[bn nodeName] lastPathComponent]];
+            
+            NSError *error = nil;
+            BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:&error];
+            
+            if(success == NO) {
+                [[NSAlert alertWithError:error] runModal];
+                break;
+            }
+            
+            for(ClassStub *cs in [bn children]) {
                 
-				NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
-				NSString *path = [directoryPath stringByAppendingPathComponent:filename];
+                NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
+                NSString *path = [directoryPath stringByAppendingPathComponent:filename];
                 
-				[cs writeAtPath:path];
-				[filenames addObject:filename];				
-			}
-			
-		} else {
-			NSLog(@"-- cannot handle item: %@", item);
-		}
-	}	
-	
-	return filenames;
+                [cs writeAtPath:path];
+                [filenames addObject:filename];
+            }
+            
+        } else {
+            NSLog(@"-- cannot handle item: %@", item);
+        }
+    }
+    
+    return filenames;
 }
 
 /*
@@ -730,18 +747,18 @@
 - (NSImage *)browser:(NSBrowser *)browser draggingImageForRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column withEvent:(NSEvent *)event offset:(NSPointPointer)dragImageOffset {
     
     NSIndexPath *ip = [classBrowser selectionIndexPath];
-	id item = [classBrowser itemAtIndexPath:ip];
+    id item = [classBrowser itemAtIndexPath:ip];
     
-	if([item isKindOfClass:[ClassStub class]]) {
-		return [[NSWorkspace sharedWorkspace] iconForFileType:@"public.c-header"];
-	} else if([item isKindOfClass:[BrowserNode class]]) {
-		BrowserNode *bn = (BrowserNode *)item;
-		return [bn icon];
-	} else {
-		NSLog(@"-- cannot handle item: %@", item);
-	}
-	
-	return nil;	
+    if([item isKindOfClass:[ClassStub class]]) {
+        return [[NSWorkspace sharedWorkspace] iconForFileType:@"public.c-header"];
+    } else if([item isKindOfClass:[BrowserNode class]]) {
+        BrowserNode *bn = (BrowserNode *)item;
+        return [bn icon];
+    } else {
+        NSLog(@"-- cannot handle item: %@", item);
+    }
+    
+    return nil;	
 }
 
 @end
