@@ -163,49 +163,60 @@
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeFrameworkOrDylibWithDirectory:(NSString *)dir name:(NSString *)name {
+- (NSObject<HTTPResponse> *)responseForTreeWithFrameworksName:(NSString *)name directory:(NSString *)dir {
     
-    if([[name pathExtension] isEqualToString:@"framework"] == NO &&
-       [[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
+    if([[name pathExtension] isEqualToString:@"framework"] == NO) return nil;
     
-    // 1. try to load the framework
-    if([[name pathExtension] isEqualToString:@"framework"]) {
-        NSString *basePath = [[self class] basePath];
-        NSString *fullPath = [[basePath stringByAppendingPathComponent:dir] stringByAppendingPathComponent:name];
-        NSBundle *b = [NSBundle bundleWithPath:fullPath];
-        
-        if([b isLoaded] == NO) {
-            NSLog(@"-- loading %@", fullPath);
-            NSError *error = nil;
-            BOOL success = [b loadAndReturnError:&error];
-            if(success) {
-                [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
-            } else {
-                NSLog(@"-- %@", [error localizedDescription]);
-            }
+    NSString *basePath = [[self class] basePath];
+    NSString *fullPath = [[basePath stringByAppendingPathComponent:dir] stringByAppendingPathComponent:name];
+    NSBundle *b = [NSBundle bundleWithPath:fullPath];
+    
+    if([b isLoaded] == NO) {
+        NSLog(@"-- loading %@", fullPath);
+        NSError *error = nil;
+        BOOL success = [b loadAndReturnError:&error];
+        if(success) {
+            [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
+        } else {
+            NSLog(@"-- %@", [error localizedDescription]);
         }
     }
+
+    NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
     
-    // 2. look for the classes
+    NSString *end = [[name lastPathComponent] stringByDeletingPathExtension];
+    NSString *imagePath = [[dir stringByAppendingPathComponent:name] stringByAppendingPathComponent:end];
+
+    if([allClassesByImagesPath objectForKey:imagePath] == NO) {
+        [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
+        allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+        NSLog(@"-- %@", [allClassesByImagesPath objectForKey:imagePath]);
+    }
+    
+    NSArray *classes = allClassesByImagesPath[imagePath];
+    
+    return [self responseForName:name classes:classes];
+  }
+
+- (NSObject<HTTPResponse> *)responseForTreeWithDylibWithName:(NSString *)name {
+    
+    if([[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
+    
     NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
     __block NSArray *classes = nil;
     
-    if([[name pathExtension] isEqualToString:@"framework"]) {
-        NSString *end = [[name lastPathComponent] stringByDeletingPathExtension];
-        NSString *imagePath = [[dir stringByAppendingPathComponent:name] stringByAppendingPathComponent:end];
-        classes = allClassesByImagesPath[imagePath];
-    } else /* dylib */ {
-        [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            BOOL isDylib = [[key pathExtension] isEqualToString:@"dylib"];
-            if([key containsString:name] || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
-                classes = obj;
-                *stop = YES;
-            }
-        }];
-    }
-    
-    /**/
-    
+    [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        BOOL isDylib = [[key pathExtension] isEqualToString:@"dylib"];
+        if([key containsString:name] || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
+            classes = obj;
+            *stop = YES;
+        }
+    }];
+
+    return [self responseForName:name classes:classes];
+}
+
+- (NSObject<HTTPResponse> *)responseForName:(NSString *)name classes:(NSArray *)classes {
     NSMutableString *ms = [NSMutableString string];
     [ms appendFormat:@"%@\n%@ classes\n\n", name, @([classes count])];
     
@@ -253,8 +264,11 @@
 - (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
     
     NSString *basePath = [[self class] basePath];
+
+    NSObject <HTTPResponse> *response = [self responseForTreeWithFrameworksName:path directory:@"/System/Library/"];
+    if(response) return response;
     
-    NSObject <HTTPResponse> *response = [self responseForTreeFrameworkOrDylibWithDirectory:@"/System/Library/" name:path];
+    response = [self responseForTreeWithDylibWithName:path];
     if(response) return response;
     
     if([path isEqualToString:@"/"]) {
@@ -384,8 +398,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    //    [self.window setFrame:[[UIScreen mainScreen] bounds]];
-    
     self.window.tintColor = [UIColor purpleColor];
     
     NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
@@ -399,9 +411,6 @@
     if(startWebServer) {
         [self startWebServer];
     }
-    
-    //    self.window.rootViewController = _tabBarController;
-    //    [self.window makeKeyAndVisible];
     
     return YES;
 }
