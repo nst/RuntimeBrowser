@@ -280,26 +280,21 @@
     }
     
     if([@[@"/lib/"] containsObject:path]) {
-        NSMutableArray *files = [NSMutableArray array];
-        {
-            NSError *error = nil;
-            NSString *fullPath = [NSString stringWithFormat:@"%@/usr/lib/", basePath];
-            NSArray *a = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
-            if(a == nil) {
-                NSLog(@"-- %@", error);
-            }
-            [files addObjectsFromArray:a];
-        }
-        {
-            NSError *error = nil;
-            NSString *fullPath = [NSString stringWithFormat:@"%@/usr/lib/system/introspection/", basePath];
-            NSArray *a = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
-            if(a == nil) {
-                NSLog(@"-- %@", error);
-            }
-            [files addObjectsFromArray:a];
-        }
         
+        NSArray *listDirectories = @[@"/usr/lib/", @"/usr/lib/system/", @"/usr/lib/system/introspection/"];
+        
+        NSMutableArray *files = [NSMutableArray array];
+        
+        for(NSString *listDir in listDirectories) {
+            NSError *error = nil;
+            NSString *fullPath = [basePath stringByAppendingPathComponent:listDir];
+            NSArray *a = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
+            if(a == nil) {
+                NSLog(@"-- %@", error);
+            }
+            [files addObjectsFromArray:a];
+        }
+                
         NSMutableArray *ma = [NSMutableArray array];
         [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if([self canListFileAtPath:obj] == NO) return;
