@@ -598,8 +598,13 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
 - (NSString *)atClasses {
 
     if([refdClasses count] == 0) return @"";
+    
+    NSMutableArray *ma = [[refdClasses allObjects] mutableCopy];
+    [ma sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2];
+    }];
 
-    return [NSString stringWithFormat:@"@class %@;\n\n", [[refdClasses allObjects] componentsJoinedByString:@", "]];
+    return [NSString stringWithFormat:@"@class %@;\n\n", [ma componentsJoinedByString:@", "]];
 }
 
 - (NSDictionary *)typeEncParseObjectRefInStruct:(BOOL)inStruct spaceAfter:(BOOL)spaceAfter {
