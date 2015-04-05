@@ -110,7 +110,7 @@
     
     
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - List View"];
-
+    
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
@@ -208,9 +208,9 @@
     for(NSString *s in sortedClasses) {
         [ms appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", name, s, s];
     }
-
+    
     NSString *html = [self htmlPageWithContents:ms title:[name lastPathComponent]];
-
+    
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
     return [[HTTPDataResponse alloc] initWithData:data];
@@ -228,7 +228,7 @@
 
 - (NSObject<HTTPResponse> *)responseForTreeWithFiles:(NSArray *)files dirPath:(NSString *)dirPath {
     NSMutableString *ms = [NSMutableString string];
-
+    
     [ms appendFormat:@"%@\n%@ frameworks or dylibs\n\n", dirPath, @([files count])];
     
     for(NSString *fileName in files) {
@@ -252,11 +252,11 @@
     if([path isEqualToString:@"/"]) {
         
         NSString *s = @"<a href=\"/tree/Frameworks/\">/Frameworks/</a>\n"
-                       "<a href=\"/tree/PrivateFrameworks/\">/PrivateFrameworks/</a>\n"
-                       "<a href=\"/tree/lib/\">/lib/</a>\n";
+        "<a href=\"/tree/PrivateFrameworks/\">/PrivateFrameworks/</a>\n"
+        "<a href=\"/tree/lib/\">/lib/</a>\n";
         
         NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser - Tree View"];
-
+        
         NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
         
         return [[HTTPDataResponse alloc] initWithData:data];
@@ -294,7 +294,7 @@
             }
             [files addObjectsFromArray:a];
         }
-                
+        
         NSMutableArray *ma = [NSMutableArray array];
         [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if([self canListFileAtPath:obj] == NO) return;
