@@ -168,33 +168,41 @@
     if([[name pathExtension] isEqualToString:@"framework"] == NO &&
        [[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
-    NSString *basePath = [[self class] basePath];
-    
-    NSString *fullPath = [[basePath stringByAppendingPathComponent:dir] stringByAppendingPathComponent:name];
-    
-    NSBundle *b = [NSBundle bundleWithPath:fullPath];
-    
-    if([b isLoaded] == NO) {
-        NSLog(@"-- loading %@", fullPath);
-        NSError *error = nil;
-        BOOL success = [b loadAndReturnError:&error];
-        if(success) {
-            [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
-        } else {
-            NSLog(@"-- %@", [error localizedDescription]);
+    // 1. try to load the framework
+    if([[name pathExtension] isEqualToString:@"framework"]) {
+        NSString *basePath = [[self class] basePath];
+        NSString *fullPath = [[basePath stringByAppendingPathComponent:dir] stringByAppendingPathComponent:name];
+        NSBundle *b = [NSBundle bundleWithPath:fullPath];
+        
+        if([b isLoaded] == NO) {
+            NSLog(@"-- loading %@", fullPath);
+            NSError *error = nil;
+            BOOL success = [b loadAndReturnError:&error];
+            if(success) {
+                [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
+            } else {
+                NSLog(@"-- %@", [error localizedDescription]);
+            }
         }
     }
     
+    // 2. look for the classes
     NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
-    
     __block NSArray *classes = nil;
-    [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        BOOL isDylib = [[key pathExtension] isEqualToString:@"dylib"];
-        if([key containsString:name] || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
-            classes = obj;
-            *stop = YES;
-        }
-    }];
+    
+    if([[name pathExtension] isEqualToString:@"framework"]) {
+        NSString *end = [[name lastPathComponent] stringByDeletingPathExtension];
+        NSString *imagePath = [[dir stringByAppendingPathComponent:name] stringByAppendingPathComponent:end];
+        classes = allClassesByImagesPath[imagePath];
+    } else /* dylib */ {
+        [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            BOOL isDylib = [[key pathExtension] isEqualToString:@"dylib"];
+            if([key containsString:name] || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
+                classes = obj;
+                *stop = YES;
+            }
+        }];
+    }
     
     /**/
     
@@ -279,27 +287,16 @@
         return [self responseForTreeWithFiles:ma dirPath:path];
     }
     
-    if([@[@"/lib/"] containsObject:path]) {
+    if([path isEqualToString:@"/lib/"]) {
         
-        NSArray *listDirectories = @[@"/usr/lib/", @"/usr/lib/system/", @"/usr/lib/system/introspection/"];
-        
-        NSMutableArray *files = [NSMutableArray array];
-        
-        for(NSString *listDir in listDirectories) {
-            NSError *error = nil;
-            NSString *fullPath = [basePath stringByAppendingPathComponent:listDir];
-            NSArray *a = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
-            if(a == nil) {
-                NSLog(@"-- %@", error);
-            }
-            [files addObjectsFromArray:a];
-        }
+        NSDictionary *classStubsByImagePath = [[AllClasses sharedInstance] allClassStubsByImagePath];
         
         NSMutableArray *ma = [NSMutableArray array];
-        [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if([self canListFileAtPath:obj] == NO) return;
-            [ma addObject:obj];
+        [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, ClassStub *classStub, BOOL *stop) {
+            if([[imagePath pathExtension] isEqualToString:@"dylib"] == NO) return;
+            [ma addObject:[imagePath lastPathComponent]];
         }];
+        [ma sortedArrayUsingSelector:@selector(compare:)];
         
         return [self responseForTreeWithFiles:ma dirPath:path];
     }
