@@ -124,7 +124,8 @@
              @"/System/Library/PrivateFrameworks/",
              @"/usr/",
              @"/usr/lib/",
-             @"/usr/lib/system/"];
+             @"/usr/lib/system/",
+             @"/usr/lib/system/introspection/"];
 }
 
 + (NSString *)basePath {
@@ -218,8 +219,10 @@
 - (BOOL)canListFileAtPath:(NSString *)filePath {
     NSArray *whiteListedTreePaths = [[self class] whiteListedTreePaths];
     
-    if([[[filePath lastPathComponent] pathExtension] isEqualToString:@"framework"] ||
-       [[[filePath lastPathComponent] pathExtension] isEqualToString:@"dylib"]) return YES;
+    if([@[@"framework", @"dylib"] containsObject:[[filePath lastPathComponent] pathExtension]]) {
+        return YES;
+    }
+    
     return [whiteListedTreePaths containsObject:filePath];
 }
 
