@@ -818,6 +818,7 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
     return ms;
 }
 
+#warning TODO: check why don't we use -[ClassStub protocolsTokens] here
 + (NSArray *)sortedProtocolsForClass:(Class)class {
     NSMutableArray *protocols = [NSMutableArray array];
     
