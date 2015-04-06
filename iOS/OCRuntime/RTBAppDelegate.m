@@ -155,21 +155,6 @@
     
     if([[name pathExtension] isEqualToString:@"framework"] == NO) return nil;
     
-    NSString *basePath = [[self class] basePath];
-    NSString *fullPath = [[basePath stringByAppendingPathComponent:dir] stringByAppendingPathComponent:name];
-    NSBundle *b = [NSBundle bundleWithPath:fullPath];
-    
-    if([b isLoaded] == NO) {
-        NSLog(@"-- loading %@", fullPath);
-        NSError *error = nil;
-        BOOL success = [b loadAndReturnError:&error];
-        if(success) {
-            [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
-        } else {
-            NSLog(@"-- %@", [error localizedDescription]);
-        }
-    }
-
     NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
     
     NSString *end = [[name lastPathComponent] stringByDeletingPathExtension];
@@ -178,7 +163,7 @@
     if([allClassesByImagesPath objectForKey:imagePath] == NO) {
         [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
         allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
-        NSLog(@"-- %@", [allClassesByImagesPath objectForKey:imagePath]);
+        //NSLog(@"-- %@", [allClassesByImagesPath objectForKey:imagePath]);
     }
     
     NSArray *classes = allClassesByImagesPath[imagePath];
@@ -186,7 +171,7 @@
     /**/
     
     NSMutableString *ms = [NSMutableString string];
-    [ms appendFormat:@"%@\n%@ frameworks\n\n", name, @([classes count])];
+    [ms appendFormat:@"%@\n%@ classes\n\n", name, @([classes count])];
     
     NSArray *sortedDylibs = [classes sortedArrayUsingComparator:^NSComparisonResult(NSString *s1, NSString *s2) {
         return [s1 compare:s2];
@@ -240,8 +225,6 @@
 
 - (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
     
-    NSString *basePath = [[self class] basePath];
-
     NSObject <HTTPResponse> *response = [self responseForTreeWithFrameworksName:path directory:@"/System/Library/"];
     if(response) return response;
     
@@ -265,31 +248,34 @@
     
     if([@[@"/Frameworks/", @"/PrivateFrameworks/"] containsObject:path]) {
 
-        NSError *error = nil;
-        NSString *fullPath = [NSString stringWithFormat:@"%@/System/Library%@", basePath, path];
-        NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
-        if(dirContents == nil) {
-            NSLog(@"-- %@", error);
-        }
+        NSDictionary *classStubsByImagePath = [[AllClasses sharedInstance] allClassStubsByImagePath];
         
         NSMutableArray *files = [NSMutableArray array];
-        [dirContents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if([[obj pathExtension] isEqualToString:@"framework"] == NO) return;
-            [files addObject:obj];
-        }];
-        [files sortedArrayUsingSelector:@selector(compare:)];
+        [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, ClassStub *classStub, BOOL *stop) {
+            
+            NSString *prefix = [NSString stringWithFormat:@"/System/Library%@", path];
+            if([imagePath hasPrefix:prefix] == NO) {
+                return;
+            }
 
-        [ms appendFormat:@"%@\n%@ frameworks (loaded ones marked with *)\n\n", path, @([files count])];
-        
-        NSString *basePath = [[self class] basePath];
+            if([[imagePath pathExtension] isEqualToString:@"dylib"]) {
+                // eg. /System/Library/Frameworks/AVFoundation.framework/libAVFAudio.dylib
+                return;
+            }
+            
+            NSArray *pathComponents = [imagePath pathComponents];
+            if([pathComponents count] < 2) return;
+            NSString *frameworkName = [pathComponents objectAtIndex:[pathComponents count]-2];
+            if([[frameworkName pathExtension] isEqualToString:@"framework"] == NO) return;
+
+            [files addObject:frameworkName];
+        }];
+        [files sortUsingSelector:@selector(compare:)];
+
+        [ms appendFormat:@"%@\n%@ frameworks loaded\n\n", path, @([files count])];
         
         for(NSString *fileName in files) {
-            NSString *bundlePath = [[basePath stringByAppendingPathComponent:@"/System/Library/"]
-                                    stringByAppendingPathComponent:[path stringByAppendingPathComponent:fileName]];
-            NSLog(@"-- bundlePath: %@", [NSBundle bundleWithPath:bundlePath]);
-            NSBundle *b = [NSBundle bundleWithPath:bundlePath];
-            char isLoadedChar = [b isLoaded] ? '*' : ' ';
-            [ms appendFormat:@"%c <a href=\"/tree%@%@\">%@/</a>\n", isLoadedChar, path, fileName, fileName];
+            [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", path, fileName, fileName];
         }
 
     } else if([path isEqualToString:@"/lib/"]) {
@@ -301,7 +287,7 @@
             if([[imagePath pathExtension] isEqualToString:@"dylib"] == NO) return;
             [files addObject:[imagePath lastPathComponent]];
         }];
-        [files sortedArrayUsingSelector:@selector(compare:)];
+        [files sortUsingSelector:@selector(compare:)];
 
         [ms appendFormat:@"%@\n%@ dylibs\n\n", path, @([files count])];
 
