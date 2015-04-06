@@ -183,8 +183,25 @@
     
     NSArray *classes = allClassesByImagesPath[imagePath];
     
-    return [self responseForName:name classes:classes];
-  }
+    /**/
+    
+    NSMutableString *ms = [NSMutableString string];
+    [ms appendFormat:@"%@\n%@ frameworks\n\n", name, @([classes count])];
+    
+    NSArray *sortedDylibs = [classes sortedArrayUsingComparator:^NSComparisonResult(NSString *s1, NSString *s2) {
+        return [s1 compare:s2];
+    }];
+    
+    for(NSString *s in sortedDylibs) {
+        [ms appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", name, s, s];
+    }
+    
+    NSString *html = [self htmlPageWithContents:ms title:[name lastPathComponent]];
+    
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return [[HTTPDataResponse alloc] initWithData:data];
+}
 
 - (NSObject<HTTPResponse> *)responseForTreeWithDylibWithName:(NSString *)name {
     
@@ -201,38 +218,20 @@
         }
     }];
 
-    return [self responseForName:name classes:classes];
-}
+    /**/
 
-- (NSObject<HTTPResponse> *)responseForName:(NSString *)name classes:(NSArray *)classes {
     NSMutableString *ms = [NSMutableString string];
-    [ms appendFormat:@"%@\n%@ classes\n\n", name, @([classes count])];
+    [ms appendFormat:@"%@\n%@ dylibs\n\n", name, @([classes count])];
     
-    NSArray *sortedClasses = [classes sortedArrayUsingComparator:^NSComparisonResult(NSString *s1, NSString *s2) {
+    NSArray *sortedDylibs = [classes sortedArrayUsingComparator:^NSComparisonResult(NSString *s1, NSString *s2) {
         return [s1 compare:s2];
     }];
     
-    for(NSString *s in sortedClasses) {
+    for(NSString *s in sortedDylibs) {
         [ms appendFormat:@"<A HREF=\"/tree%@/%@.h\">%@.h</A>\n", name, s, s];
     }
     
     NSString *html = [self htmlPageWithContents:ms title:[name lastPathComponent]];
-    
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
-}
-
-- (NSObject<HTTPResponse> *)responseForTreeWithFiles:(NSArray *)files dirPath:(NSString *)dirPath {
-    NSMutableString *ms = [NSMutableString string];
-    
-    [ms appendFormat:@"%@\n%@ frameworks or dylibs\n\n", dirPath, @([files count])];
-    
-    for(NSString *fileName in files) {
-        [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", dirPath, fileName, fileName];
-    }
-    
-    NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Tree View"];
     
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -262,38 +261,60 @@
         return [[HTTPDataResponse alloc] initWithData:data];
     }
     
+    NSMutableString *ms = [NSMutableString string];
+    
     if([@[@"/Frameworks/", @"/PrivateFrameworks/"] containsObject:path]) {
+
         NSError *error = nil;
         NSString *fullPath = [NSString stringWithFormat:@"%@/System/Library%@", basePath, path];
-        NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
-        if(files == nil) {
+        NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:&error];
+        if(dirContents == nil) {
             NSLog(@"-- %@", error);
         }
         
-        NSMutableArray *ma = [NSMutableArray array];
-        [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSMutableArray *files = [NSMutableArray array];
+        [dirContents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if([[obj pathExtension] isEqualToString:@"framework"] == NO) return;
-            [ma addObject:obj];
+            [files addObject:obj];
         }];
+        [files sortedArrayUsingSelector:@selector(compare:)];
+
+        [ms appendFormat:@"%@\n%@ frameworks (loaded ones marked with *)\n\n", path, @([files count])];
         
-        return [self responseForTreeWithFiles:ma dirPath:path];
-    }
-    
-    if([path isEqualToString:@"/lib/"]) {
+        NSString *basePath = [[self class] basePath];
+        
+        for(NSString *fileName in files) {
+            NSString *bundlePath = [[basePath stringByAppendingPathComponent:@"/System/Library/"]
+                                    stringByAppendingPathComponent:[path stringByAppendingPathComponent:fileName]];
+            NSLog(@"-- bundlePath: %@", [NSBundle bundleWithPath:bundlePath]);
+            NSBundle *b = [NSBundle bundleWithPath:bundlePath];
+            char isLoadedChar = [b isLoaded] ? '*' : ' ';
+            [ms appendFormat:@"%c <a href=\"/tree%@%@\">%@/</a>\n", isLoadedChar, path, fileName, fileName];
+        }
+
+    } else if([path isEqualToString:@"/lib/"]) {
         
         NSDictionary *classStubsByImagePath = [[AllClasses sharedInstance] allClassStubsByImagePath];
         
-        NSMutableArray *ma = [NSMutableArray array];
+        NSMutableArray *files = [NSMutableArray array];
         [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, ClassStub *classStub, BOOL *stop) {
             if([[imagePath pathExtension] isEqualToString:@"dylib"] == NO) return;
-            [ma addObject:[imagePath lastPathComponent]];
+            [files addObject:[imagePath lastPathComponent]];
         }];
-        [ma sortedArrayUsingSelector:@selector(compare:)];
-        
-        return [self responseForTreeWithFiles:ma dirPath:path];
+        [files sortedArrayUsingSelector:@selector(compare:)];
+
+        [ms appendFormat:@"%@\n%@ dylibs\n\n", path, @([files count])];
+
+        for(NSString *fileName in files) {
+            [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", path, fileName, fileName];
+        }
     }
     
-    return nil;
+    NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Tree View"];
+    
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return [[HTTPDataResponse alloc] initWithData:data];
 }
 
 - (NSString *)htmlHeader {
