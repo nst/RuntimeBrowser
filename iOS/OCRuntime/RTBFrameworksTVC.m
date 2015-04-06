@@ -144,7 +144,7 @@ static const NSUInteger kPrivateFrameworks = 1;
             }];
             
             @try {
-                NSLog(@"-- %@", b);
+                //NSLog(@"-- %@", b);
                 NSError *loadError = nil;
                 BOOL success = [b loadAndReturnError:&loadError];
                 if(success == NO) {
