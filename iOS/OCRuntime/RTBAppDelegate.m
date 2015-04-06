@@ -116,18 +116,6 @@
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
-+ (NSArray *)whiteListedTreePaths {
-    return @[@"/",
-             @"/System/",
-             @"/System/Library/",
-             @"/System/Library/Frameworks/",
-             @"/System/Library/PrivateFrameworks/",
-             @"/usr/",
-             @"/usr/lib/",
-             @"/usr/lib/system/",
-             @"/usr/lib/system/introspection/"];
-}
-
 + (NSString *)basePath {
     
     static NSString *basePath = nil;
@@ -235,16 +223,6 @@
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
-- (BOOL)canListFileAtPath:(NSString *)filePath {
-    NSArray *whiteListedTreePaths = [[self class] whiteListedTreePaths];
-    
-    if([@[@"framework", @"dylib"] containsObject:[[filePath lastPathComponent] pathExtension]]) {
-        return YES;
-    }
-    
-    return [whiteListedTreePaths containsObject:filePath];
-}
-
 - (NSObject<HTTPResponse> *)responseForTreeWithFiles:(NSArray *)files dirPath:(NSString *)dirPath {
     NSMutableString *ms = [NSMutableString string];
     
@@ -294,7 +272,7 @@
         
         NSMutableArray *ma = [NSMutableArray array];
         [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if([self canListFileAtPath:obj] == NO) return;
+            if([[obj pathExtension] isEqualToString:@"framework"] == NO) return;
             [ma addObject:obj];
         }];
         
