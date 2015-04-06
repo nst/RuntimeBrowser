@@ -333,7 +333,8 @@
         NSString *s = [NSString stringWithFormat:
                        @" You can browse the loaded classes either by <a href=\"/list/\">list</a> or by <a href=\"/tree/\">tree</a>.\n\n"
                        " To retrieve the headers as on <a href=\"https://github.com/nst/iOS-Runtime-Headers\">https://github.com/nst/iOS-Runtime-Headers</a>:\n\n"
-                       "     $ wget -r http://%@:10000/tree/\n", [self myIPAddress]];
+                       "     1. iOS OCRuntime > Frameworks tab > Load All\n"
+                       "     2. $ wget -r http://%@:10000/tree/\n", [self myIPAddress]];
         
         NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser"];
         
