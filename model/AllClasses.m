@@ -150,6 +150,22 @@ static AllClasses *sharedInstance;
 
 	free(classes);
 	
+    /**/
+    
+#warning TODO: move protocols loading elsewhere
+    
+//    unsigned int protocolListCount = 0;
+//    __unsafe_unretained Protocol **protocolList = objc_copyProtocolList(&protocolListCount);
+//    NSLog(@"-- reading %d protocols", protocolListCount);
+//    for(NSUInteger i = 0; i < protocolListCount; i++) {
+//        __unsafe_unretained Protocol *p = protocolList[i];
+//        NSString *protocolName = NSStringFromProtocol(p);
+//        NSLog(@"-- %@", protocolName);
+//    }
+//    free(protocolList);
+    
+    /**/
+    
 	[rootClasses sortUsingSelector:@selector(compare:)];
 }
 
