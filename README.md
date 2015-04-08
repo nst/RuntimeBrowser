@@ -22,6 +22,8 @@ You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as 
     
 ### OS X Version
 
+Latest build: [http://seriot.ch/temp/runtimebrowser.zip](http://seriot.ch/temp/runtimebrowser.zip) 162.2 KB
+
   * browse by class tree, image or indexed list
   * search in classes contents
   * syntax colorization
