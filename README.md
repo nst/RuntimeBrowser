@@ -30,5 +30,3 @@ Latest build: [http://seriot.ch/temp/runtimebrowser.zip](http://seriot.ch/temp/r
   * drag and drop frameworks and headers
 
 ![Screenshot](art/screenshot.png "RuntimeBrowser Mac OS X")
-
-Latest build of the original Runtime Browser: [http://seriot.ch/temp/runtimebrowser.zip](http://seriot.ch/temp/runtimebrowser.zip)
