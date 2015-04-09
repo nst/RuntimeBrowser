@@ -24,6 +24,8 @@
 	<string>int64_t</string>
 	<string>default</string>
 	<string>assign</string>
+	<string>strong</string>
+	<string>retain</string>
 	<string>signed</string>
 	<string>sizeof</string>
 	<string>static</string>
@@ -50,6 +52,7 @@
 	<string>inout</string>
 	<string>byref</string>
 	<string>float</string>
+	<string>weak</string>
 	<string>void</string>
 	<string>BOOL</string>
 	<string>bool</string>
