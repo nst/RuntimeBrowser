@@ -606,9 +606,6 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
                 ++ivT;
             }
             if (typeSpec == nil) { // most common case: types are NOT modified by a specifier
-                
-                NSLog(@"-----> %s", ivT);
-                
                 type = [self typeForFilerCode:*ivT spaceAfter:spaceAfter];
                 modifier = @"";
                 ++ivT;
