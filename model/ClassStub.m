@@ -35,6 +35,7 @@ Boston, MA  02111-1307  USA
 
 #import "ClassStub.h"
 #import "ClassDisplay.h"
+#import "RTBRuntimeHeader.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -68,10 +69,14 @@ Boston, MA  02111-1307  USA
 	NSURL *pathURL = [NSURL fileURLWithPath:path];
 	
 	Class klass = NSClassFromString(stubClassname);
-	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:klass];
+#if LEGACY_MODE
+    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:klass];
 	NSString *header = [cd header];
-	
-	NSError *error = nil;	
+#else
+    NSString *header = [RTBRuntimeHeader headerForClass:klass];
+#endif
+    
+	NSError *error = nil;
 	BOOL success = [header writeToURL:pathURL atomically:NO encoding:NSUTF8StringEncoding error:&error];
 	if(success == NO) {
 		NSLog(@"-- %@", error);
@@ -254,14 +259,22 @@ Boston, MA  02111-1307  USA
             return YES;
         }
     }
-    
+        
+#if LEGACY_MODE
     ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(stubClassname)];
-
+    
     for(NSString *token in [cd ivarsTypeTokens]) {
         if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
             return YES;
         }        
     }
+#else
+    for(NSString *token in [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)]) {
+        if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
+            return YES;
+        }
+    }
+#endif
     
     return NO;
 }

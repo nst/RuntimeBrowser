@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0331C1FF1AE66368002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
+		0331C2001AE6636B002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
 		037EDD6B130C66EB00298C79 /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 037EDD67130C66EB00298C79 /* ClassDisplay.m */; };
 		03CE2D231ACD2FAF00C1519C /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE2D221ACD2FAF00C1519C /* UnitTests.m */; };
-		03CE2D2A1ACD302E00C1519C /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 037EDD67130C66EB00298C79 /* ClassDisplay.m */; };
 		8DD76F9A0486AA7600D96B5E /* runtime_cli.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* runtime_cli.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
 		8DD76F9F0486AA7600D96B5E /* runtime_cli.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859EA3029092ED04C91782 /* runtime_cli.1 */; };
@@ -29,6 +30,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0331C1FD1AE66368002A641E /* RTBTypeDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBTypeDecoder.h; sourceTree = "<group>"; };
+		0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBTypeDecoder.m; sourceTree = "<group>"; };
 		037EDD66130C66EB00298C79 /* ClassDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassDisplay.h; sourceTree = "<group>"; };
 		037EDD67130C66EB00298C79 /* ClassDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassDisplay.m; sourceTree = "<group>"; };
 		037EDDB9130C68C800298C79 /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
@@ -68,6 +71,8 @@
 		037EDD65130C66EB00298C79 /* model */ = {
 			isa = PBXGroup;
 			children = (
+				0331C1FD1AE66368002A641E /* RTBTypeDecoder.h */,
+				0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */,
 				037EDD66130C66EB00298C79 /* ClassDisplay.h */,
 				037EDD67130C66EB00298C79 /* ClassDisplay.m */,
 			);
@@ -246,7 +251,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03CE2D231ACD2FAF00C1519C /* UnitTests.m in Sources */,
-				03CE2D2A1ACD302E00C1519C /* ClassDisplay.m in Sources */,
+				0331C2001AE6636B002A641E /* RTBTypeDecoder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DD76F9A0486AA7600D96B5E /* runtime_cli.m in Sources */,
+				0331C1FF1AE66368002A641E /* RTBTypeDecoder.m in Sources */,
 				037EDD6B130C66EB00298C79 /* ClassDisplay.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,6 +418,7 @@
 				03CE2D261ACD2FAF00C1519C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1DEB927408733DD40010E9CD /* Build configuration list for PBXNativeTarget "runtime_cli" */ = {
 			isa = XCConfigurationList;

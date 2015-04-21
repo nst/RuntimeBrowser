@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
-#import "ClassDisplay.h"
+#import "RTBTypeDecoder.h"
 
 #define UNIT_TESTS 1
 
@@ -47,26 +47,26 @@
 }
 
 - (NSString *)decodeFlatCType:(char *)c {
-    ClassDisplay *cd = [[ClassDisplay alloc] init];
-    NSDictionary *d = [cd flatCTypeDeclForEncType:c];
-    return [d valueForKey:@"type"];
+    return [RTBTypeDecoder decodeType:[NSString stringWithCString:c encoding:NSUTF8StringEncoding]
+                                            flat:YES];
 }
 
 - (NSString *)decodeIvarType:(char *)c {
-    ClassDisplay *cd = [[ClassDisplay alloc] init];
-    NSDictionary *d = [cd ivarCTypeDeclForEncType:c];
-    return [d valueForKey:@"type"];
+    return [RTBTypeDecoder decodeType:[NSString stringWithCString:c encoding:NSUTF8StringEncoding]
+                                            flat:NO];
 }
 
 - (NSString *)decodeIvarModifier:(char *)c {
-    ClassDisplay *cd = [[ClassDisplay alloc] init];
-    NSDictionary *d = [cd ivarCTypeDeclForEncType:c];
+    RTBTypeDecoder *td = [[RTBTypeDecoder alloc] init];
+    NSDictionary *d = [td ivarCTypeDeclForEncType:c];
     return [d valueForKey:@"modifier"];
 }
 
 - (NSString *)decodeIvarWithName:(NSString *)name type:(char *)c {
-    ClassDisplay *cd = [[ClassDisplay alloc] init];
-    NSDictionary *d = [cd ivarCTypeDeclForEncType:c];
+
+    RTBTypeDecoder *td = [[RTBTypeDecoder alloc] init];
+    NSDictionary *d = [td ivarCTypeDeclForEncType:c];
+    
     NSString *t = [d valueForKey:@"type"];
     NSString *m = [d valueForKey:@"modifier"];
     
@@ -109,6 +109,8 @@
     XCTAssertEqualObjects([self decodeIvarType:"[10i]"], @"int ", @"");
     XCTAssertEqualObjects([self decodeIvarModifier:"[10i]"], @"[10]", @"");
     
+    NSLog(@"------ %@", [self decodeIvarWithName:@"x" type:"[10i]"]);
+    
     XCTAssertEqualObjects([self decodeIvarWithName:@"x" type:"[10i]"], @"int x[10];", @"");
     //	STAssertEqualObjects([self decodeIvarWithName:@"x" type:"{?=i[3f]b128i3b131i2c}"], @"struct { int x1; float x2[3]; unsigned int x3 : 128; int x4; /* Warning: Unrecognized filer type: '3' using 'void*' */ void*x5; unsigned int x6 : 131; int x7; void*x8; BOOL x9; } x;' should be equal to 'int x[10];", @"");
     XCTAssertEqualObjects([self decodeIvarWithName:@"x" type:"{example=@*i}"], @"struct example { id x1; char *x2; int x3; } x;", @"");
@@ -117,25 +119,25 @@
 }
 
 - (void)_testHeadersLinesNSString {
-    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
-    NSString *generatedHeader = [cd header];
-    
-    [generatedHeader writeToFile:@"/tmp/NSString.h" atomically:YES encoding:NSUTF8StringEncoding error:nil];
-    
-    NSString *referenceHeader = [self contentsForResource:@"NSString" ofType:@"h"];
-    
-    [self assetLinesAreEqual:generatedHeader withString:referenceHeader];
+//    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
+//    NSString *generatedHeader = [cd header];
+//    
+//    [generatedHeader writeToFile:@"/tmp/NSString.h" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+//    
+//    NSString *referenceHeader = [self contentsForResource:@"NSString" ofType:@"h"];
+//    
+//    [self assetLinesAreEqual:generatedHeader withString:referenceHeader];
 }
 
 - (void)_testHeadersLinesCALayer {
-    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[CALayer class]];
-    NSString *generatedHeader = [cd header];
-    
-    [generatedHeader writeToFile:@"/tmp/CALayer.h" atomically:YES encoding:NSUTF8StringEncoding error:nil];
-    
-    NSString *referenceHeader = [self contentsForResource:@"CALayer" ofType:@"h"];;
-    
-    [self assetLinesAreEqual:generatedHeader withString:referenceHeader];
+//    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[CALayer class]];
+//    NSString *generatedHeader = [cd header];
+//    
+//    [generatedHeader writeToFile:@"/tmp/CALayer.h" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+//    
+//    NSString *referenceHeader = [self contentsForResource:@"CALayer" ofType:@"h"];;
+//    
+//    [self assetLinesAreEqual:generatedHeader withString:referenceHeader];
 }
 
 

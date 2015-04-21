@@ -33,12 +33,15 @@
  
  */
 
+#define LEGACY_MODE 1
+
 #import "AppController.h"
 #import "AllClasses.h"
 #import "NSString+SyntaxColoring.h"
 #import "BrowserNode.h"
 #import "BrowserCell.h"
 #import "ClassStub.h"
+#import "RTBRuntimeHeader.h"
 
 @implementation AppController
 
@@ -240,8 +243,12 @@
                 NSString *filename = [NSString stringWithFormat:@"%@.h", className];
                 NSURL *url = [dirURL URLByAppendingPathComponent:filename];
                 
+#if LEGACY_MODE
                 ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
                 NSString *header = [cd header];
+#else
+                NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className)];
+#endif
                 
                 NSError *error = nil;
                 BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
@@ -576,9 +583,14 @@
         return;
     }
     
+#if LEGACY_MODE
     ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
     classDisplay.displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
     NSString *header = [classDisplay header];
+#else
+#warning TODO: use classDisplay.displayPropertiesDefaultValues
+    NSString *header = [RTBRuntimeHeader headerForClass:klass];
+#endif
     
     NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes];
     
