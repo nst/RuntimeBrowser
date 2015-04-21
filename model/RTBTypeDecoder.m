@@ -550,10 +550,6 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     char closingChar = '\0';        // for array, struct and union (null ('\0') for all else)
     NSString *parsedTypeName = nil; // one of: @"array", @"struct", @"union" or nil
     
-    //[self printState];
-    
-    NSLog(@"                          %s", ivT);
-
     switch (*ivT) {  // what sort of thing are we parsing
         case '!' :   // "weak" pointer specifier (for new Garbage collection...).
             ++ivT; // '!' indicates a runtime (non-declarative) feature, skip it and continue

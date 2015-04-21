@@ -583,13 +583,14 @@
         return;
     }
     
+    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
+    
 #if LEGACY_MODE
     ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
-    classDisplay.displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
+    classDisplay.displayPropertiesDefaultValues = displayPropertiesDefaultValues;
     NSString *header = [classDisplay header];
 #else
-#warning TODO: use classDisplay.displayPropertiesDefaultValues
-    NSString *header = [RTBRuntimeHeader headerForClass:klass];
+    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
 #endif
     
     NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes];

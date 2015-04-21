@@ -73,7 +73,7 @@ Boston, MA  02111-1307  USA
     ClassDisplay *cd = [ClassDisplay classDisplayWithClass:klass];
 	NSString *header = [cd header];
 #else
-    NSString *header = [RTBRuntimeHeader headerForClass:klass];
+    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
 #endif
     
 	NSError *error = nil;

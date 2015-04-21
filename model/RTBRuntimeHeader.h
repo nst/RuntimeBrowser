@@ -22,13 +22,17 @@
 
 + (NSString *)decodedTypeForEncodedString:(NSString *)s;
 
-+ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass;
++ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass
+                   displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
 + (NSArray *)sortedIvarDictionariesForClass:(Class)aClass;
 
-+ (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes;
++ (NSString *)descriptionForPropertyWithName:(NSString *)name
+                                  attributes:(NSString *)attributes
+              displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
-+ (NSString *)headerForClass:(Class)aClass;
++ (NSString *)headerForClass:(Class)aClass
+displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
 + (NSSet *)ivarSetForClass:(Class)aClass; // for search
 

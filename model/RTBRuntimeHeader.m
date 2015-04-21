@@ -53,7 +53,7 @@
     return ma;
 }
 
-+ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass {
++ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
     NSMutableArray *ma = [NSMutableArray array];
     
@@ -66,7 +66,7 @@
         NSString *name = [NSString stringWithCString:property_getName(property) encoding:NSASCIIStringEncoding];
         NSString *attributes = [NSString stringWithCString:property_getAttributes(property) encoding:NSASCIIStringEncoding];
         
-        NSString *description = [[self class] descriptionForPropertyWithName:name attributes:attributes];
+        NSString *description = [[self class] descriptionForPropertyWithName:name attributes:attributes displayPropertiesDefaultValues:displayPropertiesDefaultValues];
         
         NSDictionary *d = @{@"name":name, @"description":description};
         
@@ -98,7 +98,7 @@
     return argumentsTypes;
 }
 
-+ (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes {
++ (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
     //NSLog(@"---- %@ | %@", name, attributes);
     
@@ -128,10 +128,10 @@
         else comment = [NSString stringWithFormat:@"/* unknown property attribute: %@ */", attribute];
     }
     
-    //    if(displayPropertiesDefaultValues) {
-    //        if(!memory) memory = @"assign";
-    //        if(!rw) rw = @"readwrite";
-    //    }
+        if(displayPropertiesDefaultValues) {
+            if(!memory) memory = @"assign";
+            if(!rw) rw = @"readwrite";
+        }
     
     NSMutableString *ms = [NSMutableString stringWithString:@"@property"];
     
@@ -248,7 +248,7 @@
     return [NSMutableSet setWithArray:descriptions];
 }
 
-+ (NSString *)headerForClass:(Class)aClass {
++ (NSString *)headerForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     if(aClass == nil) return nil;
     
     NSMutableString *header = [NSMutableString string];
@@ -285,7 +285,7 @@
     [header appendString:@"\n\n"];
     
     // properties
-    NSArray *propertiesDictionaries = [self sortedPropertiesDictionariesForClass:aClass];
+    NSArray *propertiesDictionaries = [self sortedPropertiesDictionariesForClass:aClass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     for(NSDictionary *d in propertiesDictionaries) {
         [header appendFormat:@"%@\n", d[@"description"]];
     }

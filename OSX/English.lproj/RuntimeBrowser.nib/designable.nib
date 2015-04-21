@@ -2,13 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1040</int>
-		<string key="IBDocument.SystemVersion">14C1514</string>
-		<string key="IBDocument.InterfaceBuilderVersion">7519.1</string>
-		<string key="IBDocument.AppKitVersion">1344.72</string>
-		<string key="IBDocument.HIToolboxVersion">757.30</string>
+		<string key="IBDocument.SystemVersion">14D131</string>
+		<string key="IBDocument.InterfaceBuilderVersion">7525</string>
+		<string key="IBDocument.AppKitVersion">1347.57</string>
+		<string key="IBDocument.HIToolboxVersion">758.70</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">7519.1</string>
+			<string key="NS.object.0">7525</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>NSBox</string>
@@ -373,6 +373,7 @@
 													<int key="NSvFlags">274</int>
 													<string key="NSFrame">{{5, 5}, {609, 204}}</string>
 													<reference key="NSSuperview" ref="43785144"/>
+													<reference key="NSNextKeyView" ref="707991518"/>
 													<bool key="NSEnabled">YES</bool>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 													<bool key="NSControlAllowsExpansionToolTips">YES</bool>
@@ -380,10 +381,10 @@
 														<int key="NSCellFlags">67108928</int>
 														<int key="NSCellFlags2">1024</int>
 														<string key="NSContents">BrowserItem</string>
-														<object class="NSFont" key="NSSupport" id="28">
+														<object class="NSFont" key="NSSupport" id="401301305">
 															<bool key="IBIsSystemFont">YES</bool>
 															<double key="NSSize">12</double>
-															<int key="NSfFlags">4883</int>
+															<int key="NSfFlags">787</int>
 														</object>
 													</object>
 													<string key="NSPathSeparator">/</string>
@@ -400,17 +401,19 @@
 											</array>
 											<string key="NSFrameSize">{619, 207}</string>
 											<reference key="NSSuperview" ref="103074005"/>
+											<reference key="NSNextKeyView" ref="511738090"/>
 										</object>
 									</array>
 									<string key="NSFrame">{{-3, -2}, {619, 207}}</string>
 									<reference key="NSSuperview" ref="99693858"/>
+									<reference key="NSNextKeyView" ref="43785144"/>
 									<bool key="NSDoNotTranslateAutoresizingMask">YES</bool>
 									<string key="NSOffsets">{0, 0}</string>
 									<object class="NSTextFieldCell" key="NSTitleCell">
 										<int key="NSCellFlags">67108864</int>
 										<int key="NSCellFlags2">0</int>
 										<string key="NSContents">Title</string>
-										<reference key="NSSupport" ref="28"/>
+										<reference key="NSSupport" ref="401301305"/>
 										<reference key="NSBackgroundColor" ref="445973157"/>
 										<object class="NSColor" key="NSTextColor" id="585561934">
 											<int key="NSColorSpace">6</int>
@@ -438,6 +441,7 @@
 													<int key="NSvFlags">264</int>
 													<string key="NSFrame">{{5, 488}, {603, 13}}</string>
 													<reference key="NSSuperview" ref="1070929105"/>
+													<reference key="NSNextKeyView" ref="11601273"/>
 													<bool key="NSEnabled">YES</bool>
 													<object class="NSTextFieldCell" key="NSCell" id="960492961">
 														<int key="NSCellFlags">69206017</int>
@@ -476,6 +480,7 @@
 																	<int key="NSvFlags">2322</int>
 																	<string key="NSFrameSize">{592, 468}</string>
 																	<reference key="NSSuperview" ref="528953072"/>
+																	<reference key="NSNextKeyView" ref="844206328"/>
 																	<object class="NSTextContainer" key="NSTextContainer" id="934315335">
 																		<object class="NSLayoutManager" key="NSLayoutManager">
 																			<object class="NSTextStorage" key="NSTextStorage">
@@ -531,7 +536,7 @@
 																		<nil key="NSTextFinder"/>
 																		<int key="NSPreferredTextFinderStyle">1</int>
 																	</object>
-																	<int key="NSTVFlags">6</int>
+																	<int key="NSTVFlags">70</int>
 																	<string key="NSMaxSize">{597, 10000000}</string>
 																	<nil key="NSDelegate"/>
 																</object>
@@ -585,6 +590,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 															<int key="NSvFlags">-2147483392</int>
 															<string key="NSFrame">{{-100, -100}, {87, 18}}</string>
 															<reference key="NSSuperview" ref="11601273"/>
+															<reference key="NSNextKeyView" ref="528953072"/>
 															<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 															<string key="NSControlAction">_doScroller:</string>
 															<reference key="NSControlTarget" ref="11601273"/>
@@ -597,7 +603,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 													</array>
 													<string key="NSFrame">{{5, 10}, {609, 470}}</string>
 													<reference key="NSSuperview" ref="1070929105"/>
-													<reference key="NSNextKeyView" ref="528953072"/>
+													<reference key="NSNextKeyView" ref="992555169"/>
 													<int key="NSsFlags">133138</int>
 													<reference key="NSVScroller" ref="844206328"/>
 													<reference key="NSHScroller" ref="992555169"/>
@@ -609,17 +615,19 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 											</array>
 											<string key="NSFrameSize">{619, 504}</string>
 											<reference key="NSSuperview" ref="707991518"/>
+											<reference key="NSNextKeyView" ref="560360437"/>
 										</object>
 									</array>
 									<string key="NSFrame">{{-3, 209}, {619, 504}}</string>
 									<reference key="NSSuperview" ref="99693858"/>
+									<reference key="NSNextKeyView" ref="1070929105"/>
 									<bool key="NSDoNotTranslateAutoresizingMask">YES</bool>
 									<string key="NSOffsets">{0, 0}</string>
 									<object class="NSTextFieldCell" key="NSTitleCell">
 										<int key="NSCellFlags">67108864</int>
 										<int key="NSCellFlags2">0</int>
 										<string key="NSContents">Title</string>
-										<reference key="NSSupport" ref="28"/>
+										<reference key="NSSupport" ref="401301305"/>
 										<reference key="NSBackgroundColor" ref="445973157"/>
 										<reference key="NSTextColor" ref="585561934"/>
 									</object>
@@ -632,10 +640,12 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							</array>
 							<string key="NSFrame">{{-4, -10}, {613, 709}}</string>
 							<reference key="NSSuperview" ref="777170139"/>
+							<reference key="NSNextKeyView" ref="103074005"/>
 							<int key="NSDividerStyle">3</int>
 						</object>
 					</array>
 					<string key="NSFrameSize">{603, 700}</string>
+					<reference key="NSNextKeyView" ref="99693858"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
