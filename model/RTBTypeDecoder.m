@@ -210,18 +210,18 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
         case 'd' :
             rs = @"double";
             break;
+        case 'D':
+            rs = @"long double";
+            break;
         case 'B' :
             rs = @"bool";
             break;
         case 'v' :
             rs = @"void";
             break;
-        case '*' :
+        case '*' : // STR
         case '%' : // _C_ATOM
             rs = @"char *";
-            break;
-        case 'D': // no idea what 'D' means, found on PFUbiquityBaselineHeuristics _logToStoreSizeRatio
-            rs = @"void *";
             break;
         default :
             if (!currentWarning) {
