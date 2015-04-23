@@ -220,6 +220,9 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
         case '%' : // _C_ATOM
             rs = @"char *";
             break;
+        case 'D': // no idea what 'D' means, found on PFUbiquityBaselineHeuristics _logToStoreSizeRatio
+            rs = @"void *";
+            break;
         default :
             if (!currentWarning) {
                 currentWarning = YES;
@@ -538,6 +541,8 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     char closingChar = '\0';        // for array, struct and union (null ('\0') for all else)
     NSString *parsedTypeName = nil; // one of: @"array", @"struct", @"union" or nil
     
+    //NSLog(@"-- %s", ivT);
+    
     switch (*ivT) {  // what sort of thing are we parsing
         case '!' :   // "weak" pointer specifier (for new Garbage collection...).
             ++ivT; // '!' indicates a runtime (non-declarative) feature, skip it and continue
@@ -581,12 +586,16 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
                 // typeSpec = [typeSpec stringByAppendingString:(inParam ? argTypeSpecifierForEnoding(*ivT) : nil)];
                 ++ivT;
             }
+            
+            while (*ivT == 'A') { // no idea what 'A' means, happens on BRNotificationReceiver _suspendCount
+                ++ivT;
+            }
+            
             if (typeSpec == nil) { // most common case: types are NOT modified by a specifier
                 type = [self typeForFilerCode:*ivT spaceAfter:spaceAfter];
                 modifier = @"";
                 ++ivT;
             } else {
-                //                result = cTypeDeclForEncType(depth, sPart, inStruct, inLine, inParam, spaceAfter);
                 result = [self cTypeDeclForEncTypeDepth:depth sPart:sPart inStruct:inStruct inLine:inLine inParam:inParam spaceAfter:spaceAfter];
                 type = [typeSpec stringByAppendingString:[result objectForKey:TYPE_LABEL]];
                 modifier =[result objectForKey:MODIFIER_LABEL];
