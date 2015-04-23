@@ -45,7 +45,11 @@
 #endif
 
 @interface ClassStub()
+@property (nonatomic, retain) NSString *stubClassname;
+@property (nonatomic, retain) NSMutableArray *subclassesStubs;
 @property (nonatomic, retain) NSString *imagePath;
+@property (nonatomic) BOOL shouldSortSubclasses;
+@property (nonatomic) BOOL subclassesAreSorted;
 - (ClassStub *)initWithClass:(Class)klass;
 @end
 
@@ -185,10 +189,6 @@
     return [self protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
 }
 
-- (NSString *)imagePath {
-    return imagePath;
-}
-
 - (ClassStub *)initWithClass:(Class)klass {
     self = [super init];
     
@@ -209,22 +209,22 @@
     self.imagePath = image;
     
     self.subclassesStubs = [NSMutableArray array];
-    subclassesAreSorted = NO;
-    shouldSortSubclasses = YES;
+    _subclassesAreSorted = NO;
+    _shouldSortSubclasses = YES;
     return self;
 }
 
 - (NSArray *)subclassesStubs {
-    if (!subclassesAreSorted && shouldSortSubclasses) {
+    if (_subclassesAreSorted == NO && _shouldSortSubclasses) {
         [subclassesStubs sortUsingSelector:@selector(compare:)];
-        subclassesAreSorted = YES;
+        _subclassesAreSorted = YES;
     }
     return (NSArray *)subclassesStubs;
 }
 
 - (void)addSubclassStub:(ClassStub *)classStub {
     [subclassesStubs addObject:classStub];
-    subclassesAreSorted = NO;
+    _subclassesAreSorted = NO;
 }
 
 - (NSString *)description {
@@ -262,19 +262,18 @@
         }
     }
     
+    NSSet *tokens = nil;
+    
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
         ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(stubClassname)];
-        
-        for(NSString *token in [cd ivarsTypeTokens]) {
-            if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
-                return YES;
-            }
-        }
+        tokens = [cd ivarsTypeTokens];
     } else {
-        for(NSString *token in [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)]) {
-            if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
-                return YES;
-            }
+        tokens = [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)];
+    }
+    
+    for(NSString *token in tokens) {
+        if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
+            return YES;
         }
     }
     
