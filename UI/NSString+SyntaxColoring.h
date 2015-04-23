@@ -14,6 +14,6 @@
 
 @interface NSString (SyntaxColoring)
 
-- (NSAttributedString *)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes;
+- (NSAttributedString *)colorizeWithKeywords:(NSArray *)keywords classes:(NSArray *)classes colorize:(BOOL)colorize;
 
 @end

@@ -33,8 +33,6 @@
  
  */
 
-#define LEGACY_MODE 1
-
 #import "AppController.h"
 #import "AllClasses.h"
 #import "NSString+SyntaxColoring.h"
@@ -243,12 +241,15 @@
                 NSString *filename = [NSString stringWithFormat:@"%@.h", className];
                 NSURL *url = [dirURL URLByAppendingPathComponent:filename];
                 
-#if LEGACY_MODE
-                ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
-                NSString *header = [cd header];
-#else
-                NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className)];
-#endif
+                NSString *header = nil;
+                
+                if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
+                    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
+                    header = [cd header];
+                } else {
+                    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
+                    header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
+                }
                 
                 NSError *error = nil;
                 BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
@@ -583,17 +584,21 @@
         return;
     }
     
-    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"displayPropertiesDefaultValues"];
+    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
     
-#if LEGACY_MODE
-    ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
-    classDisplay.displayPropertiesDefaultValues = displayPropertiesDefaultValues;
-    NSString *header = [classDisplay header];
-#else
-    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-#endif
+    NSString *header = nil;
     
-    NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes];
+    if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
+        ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
+        classDisplay.displayPropertiesDefaultValues = displayPropertiesDefaultValues;
+        header = [classDisplay header];
+    } else {
+        header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
+    }
+    
+    BOOL colorize = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBColorizeHeaderFile"];
+    
+    NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
     
     [[headerTextView textStorage] setAttributedString:attributedString];
     
@@ -771,7 +776,7 @@
         NSLog(@"-- cannot handle item: %@", item);
     }
     
-    return nil;	
+    return nil;
 }
 
 @end

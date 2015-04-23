@@ -98,23 +98,11 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
 
 @synthesize namedStructs;
 
-- (void)printState {
-    NSLog(@"-***");
-    NSLog(@"-* namedStructs: %@", namedStructs);
-    NSLog(@"-* ivT: %s", ivT);
-    NSLog(@"-* structDepth: %d", structDepth);
-    NSLog(@"-* structPart: %d", structPart);
-    NSLog(@"-* methodWarning: %d", methodWarning);
-    NSLog(@"-* methodWarning: %d", methodWarning);
-    NSLog(@"-* showUnhandledWarning: %d", showUnhandledWarning);
-    NSLog(@"-* showFunctionSignatureNote: %d", showFunctionSignatureNote);
-    NSLog(@"-***");
-}
-
 + (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat {
-    
-    RTBTypeDecoder *typeDecoder = [[self alloc] init];
 
+    RTBTypeDecoder *typeDecoder = [[self alloc] init];
+    typeDecoder.showCommentForBlocks = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"];
+    
     if(flat) {
         NSDictionary *d = [typeDecoder flatCTypeDeclForEncType:[encodedType cStringUsingEncoding:NSUTF8StringEncoding]];
         return d[TYPE_LABEL];
@@ -564,17 +552,9 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
             ++ivT;
             result = [self typeEncParseBitField:spaceAfter];
             break;
-        case '@' :   // id or named object reference
+        case '@' :   // id or id? (block) or named object reference
             ++ivT;
-            
-//            if(*ivT == '?') {
-//                ++ivT;
-//                // block
-//#warning TODO: handle blocks properly
-//                result = [NSDictionary dictionaryWithObjectsAndKeys:@"void*(^)(void*)", TYPE_LABEL, @"", MODIFIER_LABEL, nil];
-//            } else {
             result = [self typeEncParseObjectRefInStruct:inStruct spaceAfter:spaceAfter];
-//            }
             break;
         case '[' :   // array
             ++ivT;
@@ -642,13 +622,21 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
             isUnnamedType = NO;    // NO --> this is a named class (type)
             NSString *s = [NSString stringWithCString:ivT encoding:NSUTF8StringEncoding];
             typeS = [s substringToIndex:tmp-ivT]; // get the name
-//            [refdClasses addObject:typeS];  // make sure it gets added to the @class ... declaration.
+            //            [refdClasses addObject:typeS];  // make sure it gets added to the @class ... declaration.
             typeS = [typeS stringByAppendingString:@" *"];  // And, of course, id is a pointer to a class reference.
             ivT = tmp + 1;       // moved to the end of the name and the closing quote
         }
     }
-    if (isUnnamedType)
-        typeS = (spaceAfter ? @"id " : @"id");
+    if (isUnnamedType) {
+        
+        BOOL isBlock = *ivT == '?';
+        if(isBlock && [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"]) {
+            ++ivT;
+            typeS = (spaceAfter ? @"id /* block */ " : @"id /* block */");
+        } else {
+            typeS = (spaceAfter ? @"id " : @"id");
+        }
+    }
     
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }

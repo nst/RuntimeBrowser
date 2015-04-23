@@ -48,6 +48,7 @@ Boston, MA  02111-1307  USA
 
 @property (nonatomic, retain) NSMutableSet *refdClasses;
 @property (nonatomic, retain) NSMutableDictionary *namedStructs;
+@property (nonatomic) BOOL showCommentForBlocks;
 
 + (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat;
 

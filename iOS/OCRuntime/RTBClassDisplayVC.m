@@ -70,7 +70,7 @@
 	
 	NSArray *keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
     
-    NSAttributedString *as = [[cd header] colorizeWithKeywords:keywords classes:nil];
+    NSAttributedString *as = [[cd header] colorizeWithKeywords:keywords classes:nil colorize:YES];
     
     self.textView.attributedText = as;
 }

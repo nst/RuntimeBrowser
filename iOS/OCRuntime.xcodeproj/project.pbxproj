@@ -72,6 +72,8 @@
 		03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
 		03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03959DFC176AFC4E002A1FCC /* InfoPlist.strings */; };
 		03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */; };
+		039CD1CD1AE8F94C001922CB /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 039CD1CA1AE8F94C001922CB /* RTBTypeDecoder.m */; };
+		039CD1CE1AE8F94C001922CB /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */; };
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -202,6 +204,10 @@
 		03959DFB176AFC4E002A1FCC /* OCRuntimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCRuntimeTests-Info.plist"; sourceTree = "<group>"; };
 		03959DFD176AFC4E002A1FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCRuntimeTests.m; sourceTree = "<group>"; };
+		039CD1C91AE8F94C001922CB /* RTBTypeDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBTypeDecoder.h; path = ../model/RTBTypeDecoder.h; sourceTree = "<group>"; };
+		039CD1CA1AE8F94C001922CB /* RTBTypeDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBTypeDecoder.m; path = ../model/RTBTypeDecoder.m; sourceTree = "<group>"; };
+		039CD1CB1AE8F94C001922CB /* RTBRuntimeHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBRuntimeHeader.h; path = ../model/RTBRuntimeHeader.h; sourceTree = "<group>"; };
+		039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBRuntimeHeader.m; path = ../model/RTBRuntimeHeader.m; sourceTree = "<group>"; };
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 		4CE3701F17E375DD00CD4BF2 /* UIAlertView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Blocks.h"; sourceTree = "<group>"; };
 		4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Blocks.m"; sourceTree = "<group>"; };
@@ -360,6 +366,10 @@
 		037402FC1796906A005D1AFB /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				039CD1C91AE8F94C001922CB /* RTBTypeDecoder.h */,
+				039CD1CA1AE8F94C001922CB /* RTBTypeDecoder.m */,
+				039CD1CB1AE8F94C001922CB /* RTBRuntimeHeader.h */,
+				039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */,
 				0379BB2017980CF600F4B8BF /* AllClasses.h */,
 				0379BB2117980CF600F4B8BF /* AllClasses.m */,
 				0379BB2217980CF600F4B8BF /* ClassDisplay.h */,
@@ -627,12 +637,14 @@
 				0309594B17B5434000221D0E /* DDRange.m in Sources */,
 				0309594917B5434000221D0E /* DDData.m in Sources */,
 				030959BC17B5434000221D0E /* DDTTYLogger.m in Sources */,
+				039CD1CD1AE8F94C001922CB /* RTBTypeDecoder.m in Sources */,
 				0309594E17B5434000221D0E /* HTTPMessage.m in Sources */,
 				0309595517B5434000221D0E /* HTTPDynamicFileResponse.m in Sources */,
 				030959BB17B5434000221D0E /* DDLog.m in Sources */,
 				0379BB2617980CF600F4B8BF /* AllClasses.m in Sources */,
 				0309595817B5434000221D0E /* HTTPRedirectResponse.m in Sources */,
 				037402EC1796855F005D1AFB /* RTBClassDisplayVC.m in Sources */,
+				039CD1CE1AE8F94C001922CB /* RTBRuntimeHeader.m in Sources */,
 				0374034E17969813005D1AFB /* RTBFrameworksTVC.m in Sources */,
 				03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */,
 				0379BB83179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m in Sources */,
@@ -778,7 +790,7 @@
 				INFOPLIST_FILE = "OCRuntime/OCRuntime-Info.plist";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "5cbd726f-a416-4726-817f-2913d2d66b5a";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -797,7 +809,7 @@
 				INFOPLIST_FILE = "OCRuntime/OCRuntime-Info.plist";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "5cbd726f-a416-4726-817f-2913d2d66b5a";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

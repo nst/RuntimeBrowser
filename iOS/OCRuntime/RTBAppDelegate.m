@@ -384,6 +384,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"RTBLegacyMode"]; // be explicit..
+    
+    /**/
+    
     self.window.tintColor = [UIColor purpleColor];
     
     NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
