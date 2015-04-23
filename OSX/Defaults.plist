@@ -2,9 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>displayPropertiesDefaultValues</key>
+	<key>RTBDisplayPropertiesDefaultValues</key>
 	<false/>
-	<key>colorizeHeaderFile</key>
+	<key>RTBColorizeHeaderFile</key>
 	<true/>
 	<key>ViewType</key>
 	<integer>0</integer>
