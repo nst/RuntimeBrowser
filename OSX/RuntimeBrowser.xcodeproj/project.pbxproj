@@ -47,8 +47,6 @@
 		0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBRuntimeHeader.m; sourceTree = "<group>"; };
 		03338589131D9738002654D3 /* RuntimeBrowser.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = RuntimeBrowser.icns; sourceTree = "<group>"; };
 		033878E613070ABF003AF5CE /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/RuntimeBrowser.nib; sourceTree = "<group>"; };
-		033AF3051ADF12C500459C62 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAA.h; path = ../../dropbox/RTB2/AAA.h; sourceTree = "<group>"; };
-		033AF3061ADF12C500459C62 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AAA.m; path = ../../dropbox/RTB2/AAA.m; sourceTree = "<group>"; };
 		03561DB30E4BA18A002FEBCD /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		0379BB7E179D0B4000F4B8BF /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
 		0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyntaxColoring.m"; sourceTree = "<group>"; };
@@ -56,6 +54,8 @@
 		0379BB85179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableAttributedString+RTB.m"; sourceTree = "<group>"; };
 		037EDADA1307102300298C79 /* ClassStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassStub.h; sourceTree = "<group>"; };
 		037EDADB1307102300298C79 /* ClassStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassStub.m; sourceTree = "<group>"; };
+		03FA8B721AE8FE0400D55C16 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
+		03FA8B731AE8FE0400D55C16 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -155,8 +155,8 @@
 		29B97314FDCFA39411CA2CEA /* RuntimeBrowser */ = {
 			isa = PBXGroup;
 			children = (
-				033AF3051ADF12C500459C62 /* AAA.h */,
-				033AF3061ADF12C500459C62 /* AAA.m */,
+				03FA8B721AE8FE0400D55C16 /* AAA.h */,
+				03FA8B731AE8FE0400D55C16 /* AAA.m */,
 				030F150A12DEE5D8000180B1 /* Model */,
 				0379BB7D179D0B4000F4B8BF /* UI */,
 				080E96DDFE201D6D7F000001 /* Classes */,
