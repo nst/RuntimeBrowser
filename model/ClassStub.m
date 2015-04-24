@@ -150,7 +150,7 @@
     return ms;
 }
 
-- (NSMutableSet *)protocolsTokensForClass:(Class)c {
++ (NSMutableSet *)protocolsTokensForClass:(Class)c {
     NSMutableSet *ms = [NSMutableSet set];
     
     unsigned int protocolListCount;
@@ -168,7 +168,7 @@
     return ms;
 }
 
-- (NSMutableSet *)protocolsTokensForClass:(Class)klass includeSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
++ (NSMutableSet *)protocolsTokensForClass:(Class)klass includeSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
     
     NSMutableSet *ms = [self protocolsTokensForClass:klass];
     
@@ -186,7 +186,7 @@
 - (NSMutableSet *)protocolsTokens {
     Class klass = NSClassFromString(stubClassname);
     
-    return [self protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
+    return [[self class] protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
 }
 
 - (ClassStub *)initWithClass:(Class)klass {
