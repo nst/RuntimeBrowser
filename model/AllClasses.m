@@ -59,6 +59,7 @@ static AllClasses *sharedInstance;
 		sharedInstance.rootClasses = [NSMutableArray array];
 		sharedInstance.allClassStubsByName = [NSMutableDictionary dictionary];
 		sharedInstance.allClassStubsByImagePath = [NSMutableDictionary dictionary];
+        sharedInstance.allProtocols = [NSArray array];
 	}
 	
 	return sharedInstance;
@@ -72,6 +73,8 @@ static AllClasses *sharedInstance;
 
 - (ClassStub *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
 	
+    self.allProtocols = [NSArray array];
+    
 	//Lookup the ClassStub for klass or create one if none exists and add it to +allClassStuds.
     NSString *klassName = NSStringFromClass(klass);
 	
@@ -134,6 +137,33 @@ static AllClasses *sharedInstance;
 	return stubs;
 }
 
++ (NSArray *)readAndSortAllRuntimeProtocols {
+
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int protocolListCount = 0;
+    __unsafe_unretained Protocol **protocolList = objc_copyProtocolList(&protocolListCount);
+    NSLog(@"-- reading %d protocols", protocolListCount);
+    for(NSUInteger i = 0; i < protocolListCount; i++) {
+        __unsafe_unretained Protocol *p = protocolList[i];
+        NSString *protocolName = NSStringFromProtocol(p);
+        NSLog(@"-- %@", protocolName);
+        [ma addObject:protocolName];
+    }
+    free(protocolList);
+    
+    [ma sortUsingSelector:@selector(compare:)];
+    
+    return ma;
+}
+
+- (NSArray *)allProtocols {
+    if([_allProtocols count] == 0) {
+        self.allProtocols = [[self class] readAndSortAllRuntimeProtocols];
+    }
+    return _allProtocols;
+}
+
 - (void)readAllRuntimeClasses {
 	int i, numClasses = 0;
 	int newNumClasses = objc_getClassList(NULL, 0);
@@ -149,22 +179,6 @@ static AllClasses *sharedInstance;
 		[self getOrCreateClassStubsRecursivelyForClass:classes[i]];
 
 	free(classes);
-	
-    /**/
-    
-#warning TODO: move protocols loading elsewhere
-    
-//    unsigned int protocolListCount = 0;
-//    __unsafe_unretained Protocol **protocolList = objc_copyProtocolList(&protocolListCount);
-//    NSLog(@"-- reading %d protocols", protocolListCount);
-//    for(NSUInteger i = 0; i < protocolListCount; i++) {
-//        __unsafe_unretained Protocol *p = protocolList[i];
-//        NSString *protocolName = NSStringFromProtocol(p);
-//        NSLog(@"-- %@", protocolName);
-//    }
-//    free(protocolList);
-    
-    /**/
     
 	[rootClasses sortUsingSelector:@selector(compare:)];
 }
@@ -196,6 +210,7 @@ We autorelease and reset the nil the global, static containers that
 	self.rootClasses = [NSMutableArray array];
 	self.allClassStubsByName = [NSMutableDictionary dictionary];
 	self.allClassStubsByImagePath = [NSMutableDictionary dictionary];
+    self.allProtocols = [NSArray array];
 	
 	[self readAllRuntimeClasses];
 }

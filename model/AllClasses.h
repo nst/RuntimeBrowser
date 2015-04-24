@@ -37,15 +37,12 @@
 
 @class ClassStub;
 
-@interface AllClasses : NSObject {
-	NSMutableArray *rootClasses;
-	NSMutableDictionary *allClassStubsByName;
-	NSMutableDictionary *allClassStubsByImagePath;
-}
+@interface AllClasses : NSObject
 
 @property (nonatomic, retain) NSMutableArray *rootClasses;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByName;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByImagePath;
+@property (nonatomic, retain) NSArray *allProtocols;
 
 + (AllClasses *)sharedInstance;
 
