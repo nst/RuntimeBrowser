@@ -19,6 +19,7 @@
 + (BrowserNode *)rootNodeImages;
 + (BrowserNode *)rootNodeList;
 + (BrowserNode *)rootNodeTree;
++ (BrowserNode *)rootNodeProtocols;
 
 - (NSImage *)icon;
 

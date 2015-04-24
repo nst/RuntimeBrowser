@@ -14,13 +14,14 @@
 		03314FCD131251A500695BB1 /* BrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03314FCC131251A500695BB1 /* BrowserCell.m */; };
 		0331C1FA1AE59C0B002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F71AE59C0B002A641E /* RTBTypeDecoder.m */; };
 		0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */; };
-		0331C1FC1AE5A12F002A641E /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 030F16C912DFA4CB000180B1 /* ClassDisplay.m */; };
+		0331C1FC1AE5A12F002A641E /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */; };
 		0333858A131D9738002654D3 /* RuntimeBrowser.icns in Resources */ = {isa = PBXBuildFile; fileRef = 03338589131D9738002654D3 /* RuntimeBrowser.icns */; };
 		033878E713070ABF003AF5CE /* RuntimeBrowser.nib in Resources */ = {isa = PBXBuildFile; fileRef = 033878E513070ABF003AF5CE /* RuntimeBrowser.nib */; };
 		03561DB40E4BA18A002FEBCD /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 03561DB30E4BA18A002FEBCD /* Credits.html */; };
 		0379BB80179D0B4000F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */; };
 		0379BB86179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB85179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m */; };
 		037EDADC1307102300298C79 /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 037EDADB1307102300298C79 /* ClassStub.m */; };
+		03CAF3461AEAD7D100282C77 /* ProtocolStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CAF3451AEAD7D100282C77 /* ProtocolStub.m */; };
 		5F3E071B13127B04001D2A1C /* class.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071713127B04001D2A1C /* class.tiff */; };
 		5F3E071C13127B04001D2A1C /* class2.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071813127B04001D2A1C /* class2.tiff */; };
 		5F3E071D13127B04001D2A1C /* framework.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071913127B04001D2A1C /* framework.tiff */; };
@@ -33,8 +34,8 @@
 /* Begin PBXFileReference section */
 		030706D0130FCAD2009E6B08 /* AllClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AllClasses.h; sourceTree = "<group>"; };
 		030706D1130FCAD2009E6B08 /* AllClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AllClasses.m; sourceTree = "<group>"; };
-		030F16C812DFA4CB000180B1 /* ClassDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassDisplay.h; sourceTree = "<group>"; };
-		030F16C912DFA4CB000180B1 /* ClassDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassDisplay.m; sourceTree = "<group>"; };
+		030F16C812DFA4CB000180B1 /* ClassDisplayDeprecated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassDisplayDeprecated.h; sourceTree = "<group>"; };
+		030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassDisplayDeprecated.m; sourceTree = "<group>"; };
 		0315C0310E47AB9F00DFB2F3 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 		0315C2770E47D3A200DFB2F3 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		033148A1131157A200695BB1 /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrowserNode.h; sourceTree = "<group>"; };
@@ -54,6 +55,8 @@
 		0379BB85179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableAttributedString+RTB.m"; sourceTree = "<group>"; };
 		037EDADA1307102300298C79 /* ClassStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassStub.h; sourceTree = "<group>"; };
 		037EDADB1307102300298C79 /* ClassStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassStub.m; sourceTree = "<group>"; };
+		03CAF3441AEAD7D100282C77 /* ProtocolStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtocolStub.h; sourceTree = "<group>"; };
+		03CAF3451AEAD7D100282C77 /* ProtocolStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtocolStub.m; sourceTree = "<group>"; };
 		03FA8B721AE8FE0400D55C16 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
 		03FA8B731AE8FE0400D55C16 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -95,8 +98,10 @@
 				030706D1130FCAD2009E6B08 /* AllClasses.m */,
 				037EDADA1307102300298C79 /* ClassStub.h */,
 				037EDADB1307102300298C79 /* ClassStub.m */,
-				030F16C812DFA4CB000180B1 /* ClassDisplay.h */,
-				030F16C912DFA4CB000180B1 /* ClassDisplay.m */,
+				03CAF3441AEAD7D100282C77 /* ProtocolStub.h */,
+				03CAF3451AEAD7D100282C77 /* ProtocolStub.m */,
+				030F16C812DFA4CB000180B1 /* ClassDisplayDeprecated.h */,
+				030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */,
 			);
 			name = Model;
 			path = ../model;
@@ -283,7 +288,8 @@
 				037EDADC1307102300298C79 /* ClassStub.m in Sources */,
 				030706D2130FCAD3009E6B08 /* AllClasses.m in Sources */,
 				033148A3131157A200695BB1 /* BrowserNode.m in Sources */,
-				0331C1FC1AE5A12F002A641E /* ClassDisplay.m in Sources */,
+				0331C1FC1AE5A12F002A641E /* ClassDisplayDeprecated.m in Sources */,
+				03CAF3461AEAD7D100282C77 /* ProtocolStub.m in Sources */,
 				0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */,
 				03314FCD131251A500695BB1 /* BrowserCell.m in Sources */,
 			);
@@ -337,7 +343,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
+				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -372,7 +378,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
+				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -403,7 +409,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
+				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;

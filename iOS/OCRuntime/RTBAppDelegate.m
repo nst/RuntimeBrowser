@@ -12,7 +12,7 @@
 #include <sys/sysctl.h>
 
 #import "RTBClassDisplayVC.h"
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 #import "ClassStub.h"
 #import "HTTPServer.h"
 #import "HTTPDataResponse.h"
@@ -142,7 +142,7 @@
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
     
-    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
+    ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(className)];
     
     NSString *header = [cd header];
     

@@ -34,7 +34,7 @@
  */
 
 #import "ClassStub.h"
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 #import "RTBRuntimeHeader.h"
 
 #if (! TARGET_OS_IPHONE)
@@ -76,7 +76,7 @@
     
     Class klass = NSClassFromString(stubClassname);
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplay *cd = [ClassDisplay classDisplayWithClass:klass];
+        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:klass];
         header = [cd header];
     } else {
         header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
@@ -265,7 +265,7 @@
     NSSet *tokens = nil;
     
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(stubClassname)];
+        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(stubClassname)];
         tokens = [cd ivarsTypeTokens];
     } else {
         tokens = [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)];

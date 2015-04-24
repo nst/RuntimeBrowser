@@ -8,6 +8,7 @@
 
 #import "BrowserNode.h"
 #import "AllClasses.h"
+#import "ProtocolStub.h"
 
 @implementation BrowserNode
 
@@ -48,6 +49,24 @@
 	bn.nodeName = @"Images";
 	bn.children = images;
 	return [bn autorelease];
+}
+
++ (BrowserNode *)rootNodeProtocols {
+    BrowserNode *bn = [[BrowserNode alloc] init];
+    
+    NSArray *protocolNames = [[AllClasses sharedInstance] allProtocols];
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    for(NSString *protocolName in protocolNames) {
+        ProtocolStub *ps = [ProtocolStub protocolStubWithProtocolName:protocolName];
+        [ma addObject:ps];
+    }
+    
+    bn.nodeName = @"Protocols";
+    bn.children = ma;
+    
+    return bn;
 }
 
 - (NSImage *)icon {

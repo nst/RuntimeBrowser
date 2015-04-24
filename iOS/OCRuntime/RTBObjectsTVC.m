@@ -7,7 +7,7 @@
 //
 
 #import "RTBObjectsTVC.h"
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 #import "RTBMethodCell.h"
 
 // Shmoopi's Addition
@@ -37,7 +37,7 @@
 	@try {
 		NSArray *m = nil;
 	
-		ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[_object class]];
+		ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[_object class]];
 
 		if(_object == [_object class]) {
 			m = [cd sortedMethodLinesWithSign:'+'];

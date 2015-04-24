@@ -35,7 +35,7 @@ Boston, MA  02111-1307  USA
 
 #import <Foundation/Foundation.h>
 
-@interface ClassDisplay : NSObject {
+@interface ClassDisplayDeprecated : NSObject {
 	Class representedClass;
     NSMutableSet *refdClasses;
     NSMutableDictionary *namedStructs;
@@ -54,7 +54,7 @@ Boston, MA  02111-1307  USA
 @property (nonatomic, retain) NSMutableDictionary *namedStructs;
 @property BOOL displayPropertiesDefaultValues;
 
-+ (ClassDisplay *)classDisplayWithClass:(Class)klass;
++ (ClassDisplayDeprecated *)classDisplayWithClass:(Class)klass;
 
 - (NSString *)header;
 - (NSArray *)sortedMethodLinesWithSign:(char)mType;

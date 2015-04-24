@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 
 int main (int argc, const char * argv[]) {
 
     @autoreleasepool {
-        ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
+        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[NSString class]];
         
         NSString *header = [cd header];
         

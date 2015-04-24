@@ -41,7 +41,7 @@ Boston, MA  02111-1307  USA
 //TODO: keep selection on view change
 
 #import <AppKit/AppKit.h>
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 
 @class AllClasses;
 @class BrowserNode;
@@ -49,7 +49,8 @@ Boston, MA  02111-1307  USA
 typedef enum {
 	RBBrowserViewTypeImages = 0,
 	RBBrowserViewTypeList = 1,
-	RBBrowserViewTypeTree = 2
+	RBBrowserViewTypeTree = 2,
+    RBBrowserViewTypeProtocols = 3
 } RBBrowserViewType;
 
 @interface AppController : NSObject <NSOpenSavePanelDelegate, NSBrowserDelegate> {
@@ -64,7 +65,7 @@ typedef enum {
     
 #ifdef DEBUG
     double searchStart;
-#endif    
+#endif
     
     BrowserNode *searchResultsNode;
 	

@@ -31,11 +31,6 @@
     for (NSUInteger i = 0; i < methodListCount; i++) {
         Method method = methodList[i];
         
-        
-//        id signature = [aClass methodSignatureForSelector:method_getName(method)];
-//        NSLog(@"--> %@", [signature debugDescription]);
-
-        
         NSString *name = NSStringFromSelector(method_getName(method));
         NSString *description = [[self class] descriptionForMethod:method isClassMethod:isClassMethod];
         
@@ -193,6 +188,66 @@
     return ms;
 }
 
++ (NSString *)descriptionForMethodDescription:(struct objc_method_description)method_description isClassMethod:(BOOL)isClassMethod {
+    
+    NSString *argsTypes = [NSString stringWithCString:method_description.types encoding:NSUTF8StringEncoding];
+
+    NSArray *splitedArgsTypes = [argsTypes componentsSeparatedByString:@":"];
+    NSAssert([splitedArgsTypes count] > 1, @"return type and arg types separator not found");
+    
+    NSString *returnType = splitedArgsTypes[0];
+    
+    NSString *methodName = NSStringFromSelector(method_description.name);
+    
+    NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
+    NSAssert([methodNameParts count] > 0, @"");
+    
+    NSMutableString *ms = [NSMutableString string];
+    [ms appendString: isClassMethod ? @"+" : @"-"];
+    [ms appendFormat:@" (%@)", [RTBTypeDecoder decodeType:returnType flat:YES]];
+    
+    NSString *argumentsTypesString = [argsTypes substringFromIndex:[returnType length]+1];
+    NSMutableArray *argumentsTypes = [NSMutableArray array];
+    
+    // split argument types using the digits
+    NSMutableString *fullType = [NSMutableString string];
+    while([argumentsTypesString length] > 0) {
+        unichar c = [argumentsTypesString characterAtIndex:0];
+        BOOL isDigit = (c >= 0x30) && (c <= 0x39);
+        if(isDigit) {
+            if([fullType length] > 0) {
+                [argumentsTypes addObject:fullType];
+            }
+            fullType = [NSMutableString string];
+        } else {
+            [fullType appendFormat:@"%C", c];
+        }
+        argumentsTypesString = [argumentsTypesString substringFromIndex:1];
+    }
+        
+    BOOL hasArgs = [argumentsTypes count] > 0;
+    
+    [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
+        
+        if(i == [methodNameParts count] - 1 && [part isEqualToString:@""]) {
+            [ms deleteCharactersInRange:NSMakeRange([ms length]-1, 1)]; // remove extraneous space
+            *stop = YES;
+            return;
+        }
+        
+        [ms appendString:part];
+        
+        if(hasArgs) {
+            NSString *decodedType = [RTBTypeDecoder decodeType:argumentsTypes[i] flat:YES];
+            [ms appendFormat:@":(%@)arg%@ ", decodedType, @(i+1)];
+        }
+    }];
+    
+    [ms appendString:@";"];
+    
+    return ms;
+}
+
 + (NSArray *)sortedProtocolsForClass:(Class)class {
     NSMutableArray *protocols = [NSMutableArray array];
     
@@ -312,6 +367,117 @@
         [header appendString:@"\n"];
     }
     
+    [header appendString:@"@end\n"];
+    
+    return header;
+}
+
++ (NSArray *)sortedProtocolsAdoptedByProtocol:(NSString *)protocol {
+    Protocol *p = NSProtocolFromString(protocol);
+    if(p == nil) return nil;
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int outCount = 0;
+    __unsafe_unretained Protocol **protocolList = protocol_copyProtocolList(p, &outCount);
+    for(int i = 0; i < outCount; i++) {
+        Protocol *adoptedProtocol = protocolList[i];
+        NSString *adoptedProtocolName = [NSString stringWithCString:protocol_getName(adoptedProtocol) encoding:NSUTF8StringEncoding];
+        [ma addObject:adoptedProtocolName];
+    }
+    free(protocolList);
+    
+    [ma sortedArrayUsingSelector:@selector(compare:)];
+    
+    return ma;
+}
+
++ (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods {
+    Protocol *p = NSProtocolFromString(protocol);
+    if(p == nil) return nil;
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int outCount = 0;
+    struct objc_method_description *methods = protocol_copyMethodDescriptionList(p, required, instanceMethods, &outCount);
+    for(int i = 0; i < outCount; i++) {
+        struct objc_method_description method = methods[i];
+        
+        NSString *name = NSStringFromSelector(method.name);
+        NSString *description = [[self class] descriptionForMethodDescription:method isClassMethod:(instanceMethods == NO)];
+        
+        NSDictionary *d = @{@"name":name, @"description":description};
+        
+        [ma addObject:d];
+    }
+    
+    free(methods);
+    
+    [ma sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
+        return [d1[@"name"] compare:d2[@"name"]];
+    }];
+    
+    return ma;
+}
+
++ (NSString *)headerForProtocolName:(NSString *)protocolName {
+    NSMutableString *header = [NSMutableString string];
+    
+    [header appendFormat:@"@protocol %@", protocolName];
+    
+    // adopted protocols
+    NSArray *adoptedProtocols = [self sortedProtocolsAdoptedByProtocol:protocolName];
+    if([adoptedProtocols count]) {
+        NSString *adoptedProtocolsString = [adoptedProtocols componentsJoinedByString:@", "];
+        [header appendFormat:@" <%@>", adoptedProtocolsString];
+    }
+    [header appendString:@"\n\n"];
+    
+    NSArray *requiredClassMethods = [self sortedMethodsInProtocol:protocolName required:YES instanceMethods:NO];
+    NSArray *requiredInstanceMethods = [self sortedMethodsInProtocol:protocolName required:YES instanceMethods:YES];
+    NSArray *optionalClassMethods = [self sortedMethodsInProtocol:protocolName required:NO instanceMethods:NO];
+    NSArray *optionalInstanceMethods = [self sortedMethodsInProtocol:protocolName required:NO instanceMethods:YES];
+
+    if([requiredClassMethods count] + [requiredInstanceMethods count] > 0) {
+        [header appendString:@"@required\n\n"];
+    }
+
+    // required class methods
+    for(NSDictionary *d in requiredClassMethods) {
+        [header appendFormat:@"%@\n", d[@"description"]];
+    }
+    if([requiredClassMethods count] > 0) {
+        [header appendString:@"\n"];
+    }
+
+    // required instance methods
+    for(NSDictionary *d in requiredInstanceMethods) {
+        [header appendFormat:@"%@\n", d[@"description"]];
+    }
+    if([requiredInstanceMethods count] > 0) {
+        [header appendString:@"\n"];
+    }
+
+    if([optionalClassMethods count] + [optionalInstanceMethods count] > 0) {
+        [header appendString:@"@optional\n\n"];
+    }
+
+    // optional class methods
+    for(NSDictionary *d in optionalClassMethods) {
+        [header appendFormat:@"%@\n", d[@"description"]];
+    }
+    if([optionalClassMethods count] > 0) {
+        [header appendString:@"\n"];
+    }
+
+    // optional instance methods
+    for(NSDictionary *d in optionalInstanceMethods) {
+        [header appendFormat:@"%@\n", d[@"description"]];
+    }
+    if([optionalInstanceMethods count] > 0) {
+        [header appendString:@"\n"];
+    }
+
     [header appendString:@"@end\n"];
     
     return header;

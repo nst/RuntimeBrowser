@@ -55,7 +55,6 @@
 		0374034E17969813005D1AFB /* RTBFrameworksTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0374034C17969813005D1AFB /* RTBFrameworksTVC.m */; };
 		03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03740350179698CC005D1AFB /* RTBFrameworkCell.m */; };
 		0379BB2617980CF600F4B8BF /* AllClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2117980CF600F4B8BF /* AllClasses.m */; };
-		0379BB2717980CF600F4B8BF /* ClassDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2317980CF600F4B8BF /* ClassDisplay.m */; };
 		0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB2517980CF600F4B8BF /* ClassStub.m */; };
 		0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */; };
 		0379BB83179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB82179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m */; };
@@ -76,6 +75,7 @@
 		039CD1CE1AE8F94C001922CB /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */; };
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
+		03F830D21AEAF59A00425494 /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */; };
 		4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
@@ -179,8 +179,6 @@
 		03740350179698CC005D1AFB /* RTBFrameworkCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBFrameworkCell.m; sourceTree = "<group>"; };
 		0379BB2017980CF600F4B8BF /* AllClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AllClasses.h; path = ../model/AllClasses.h; sourceTree = "<group>"; };
 		0379BB2117980CF600F4B8BF /* AllClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllClasses.m; path = ../model/AllClasses.m; sourceTree = "<group>"; };
-		0379BB2217980CF600F4B8BF /* ClassDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassDisplay.h; path = ../model/ClassDisplay.h; sourceTree = "<group>"; };
-		0379BB2317980CF600F4B8BF /* ClassDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassDisplay.m; path = ../model/ClassDisplay.m; sourceTree = "<group>"; };
 		0379BB2417980CF600F4B8BF /* ClassStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassStub.h; path = ../model/ClassStub.h; sourceTree = "<group>"; };
 		0379BB2517980CF600F4B8BF /* ClassStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassStub.m; path = ../model/ClassStub.m; sourceTree = "<group>"; };
 		0379BB7A179D0B2D00F4B8BF /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
@@ -209,6 +207,8 @@
 		039CD1CB1AE8F94C001922CB /* RTBRuntimeHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBRuntimeHeader.h; path = ../model/RTBRuntimeHeader.h; sourceTree = "<group>"; };
 		039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBRuntimeHeader.m; path = ../model/RTBRuntimeHeader.m; sourceTree = "<group>"; };
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
+		03F830D01AEAF59A00425494 /* ClassDisplayDeprecated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassDisplayDeprecated.h; path = ../model/ClassDisplayDeprecated.h; sourceTree = "<group>"; };
+		03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassDisplayDeprecated.m; path = ../model/ClassDisplayDeprecated.m; sourceTree = "<group>"; };
 		4CE3701F17E375DD00CD4BF2 /* UIAlertView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Blocks.h"; sourceTree = "<group>"; };
 		4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Blocks.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -372,10 +372,10 @@
 				039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */,
 				0379BB2017980CF600F4B8BF /* AllClasses.h */,
 				0379BB2117980CF600F4B8BF /* AllClasses.m */,
-				0379BB2217980CF600F4B8BF /* ClassDisplay.h */,
-				0379BB2317980CF600F4B8BF /* ClassDisplay.m */,
 				0379BB2417980CF600F4B8BF /* ClassStub.h */,
 				0379BB2517980CF600F4B8BF /* ClassStub.m */,
+				03F830D01AEAF59A00425494 /* ClassDisplayDeprecated.h */,
+				03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -622,9 +622,9 @@
 				0309595117B5434000221D0E /* MultipartMessageHeader.m in Sources */,
 				0309595717B5434000221D0E /* HTTPFileResponse.m in Sources */,
 				0309595617B5434000221D0E /* HTTPErrorResponse.m in Sources */,
-				0379BB2717980CF600F4B8BF /* ClassDisplay.m in Sources */,
 				0309595417B5434000221D0E /* HTTPDataResponse.m in Sources */,
 				030959B917B5434000221D0E /* DDASLLogger.m in Sources */,
+				03F830D21AEAF59A00425494 /* ClassDisplayDeprecated.m in Sources */,
 				0309595217B5434000221D0E /* MultipartMessageHeaderField.m in Sources */,
 				0374034D17969813005D1AFB /* RTBListTVC.m in Sources */,
 				030959BD17B5434000221D0E /* ContextFilterLogFormatter.m in Sources */,

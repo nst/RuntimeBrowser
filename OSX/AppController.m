@@ -40,6 +40,7 @@
 #import "BrowserCell.h"
 #import "ClassStub.h"
 #import "RTBRuntimeHeader.h"
+#import "ProtocolStub.h"
 
 @implementation AppController
 
@@ -244,7 +245,7 @@
                 NSString *header = nil;
                 
                 if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-                    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(className)];
+                    ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(className)];
                     header = [cd header];
                 } else {
                     BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
@@ -331,6 +332,7 @@
     
     if(viewType == RBBrowserViewTypeTree)   rootTitle = [NSString stringWithFormat:@"%lu Root Classes", (unsigned long)[[rootItem children] count]];
     if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%lu Images", (unsigned long)[[rootItem children] count]];
+    if(viewType == RBBrowserViewTypeProtocols) rootTitle = [NSString stringWithFormat:@"%lu Protocols", (unsigned long)[[rootItem children] count]];
     
     [label setStringValue:@""];
     [headerTextView setString:@""];
@@ -558,6 +560,8 @@
         return;
     }
     
+    BOOL colorize = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBColorizeHeaderFile"];
+
     NSIndexPath *ip = [classBrowser selectionIndexPath];
     id item = [classBrowser itemAtIndexPath:ip];
     
@@ -566,6 +570,17 @@
     if([item isKindOfClass:[BrowserNode class]]) {
         [label setStringValue:[item nodeName]];
         [headerTextView setString:@""];
+        return;
+    } else if ([item isKindOfClass:[ProtocolStub class]]) {
+        [label setStringValue:[item nodeName]];
+        [headerTextView setString:@""];
+        
+        ProtocolStub *protocolStub = (ProtocolStub *)item;
+        NSString *header = [RTBRuntimeHeader headerForProtocolName:protocolStub.protocolName];
+        
+        NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
+        [[headerTextView textStorage] setAttributedString:attributedString];
+
         return;
     }
     
@@ -589,14 +604,12 @@
     NSString *header = nil;
     
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplay *classDisplay = [ClassDisplay classDisplayWithClass:klass];
+        ClassDisplayDeprecated *classDisplay = [ClassDisplayDeprecated classDisplayWithClass:klass];
         classDisplay.displayPropertiesDefaultValues = displayPropertiesDefaultValues;
         header = [classDisplay header];
     } else {
         header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     }
-    
-    BOOL colorize = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBColorizeHeaderFile"];
     
     NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
     
@@ -643,6 +656,7 @@
     if(viewType == RBBrowserViewTypeList)   return [BrowserNode rootNodeList];
     if(viewType == RBBrowserViewTypeTree)   return [BrowserNode rootNodeTree];
     if(viewType == RBBrowserViewTypeImages) return [BrowserNode rootNodeImages];
+    if(viewType == RBBrowserViewTypeProtocols) return [BrowserNode rootNodeProtocols];
     return nil;
 }
 
@@ -660,6 +674,7 @@
     if(viewType == RBBrowserViewTypeList) return YES;
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
     if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[ClassStub class]];
+    if(viewType == RBBrowserViewTypeProtocols) return YES;
     
     return YES;
 }

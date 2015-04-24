@@ -34,6 +34,11 @@
 + (NSString *)headerForClass:(Class)aClass
 displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
++ (NSString *)headerForProtocolName:(NSString *)protocolName;
+
 + (NSSet *)ivarSetForClass:(Class)aClass; // for search
+
++ (NSArray *)sortedProtocolsAdoptedByProtocol:(NSString *)protocol;
++ (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods;
 
 @end

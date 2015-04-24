@@ -7,7 +7,7 @@
 //
 
 #import "RTBClassDisplayVC.h"
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 #import "RTBAppDelegate.h"
 #import "RTBObjectsTVC.h"
 #import "NSString+SyntaxColoring.h"
@@ -63,7 +63,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-	ClassDisplay *cd = [ClassDisplay classDisplayWithClass:NSClassFromString(self.className)];
+	ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(self.className)];
     self.textView.text = [cd header];
     
     NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];

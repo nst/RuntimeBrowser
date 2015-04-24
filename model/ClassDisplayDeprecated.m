@@ -52,7 +52,7 @@
  ----------------
  */
 
-#import "ClassDisplay.h"
+#import "ClassDisplayDeprecated.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -91,21 +91,21 @@ NSString *functionSignatureNote(BOOL showFunctionSignatureNote) {
             @"");
 }
 
-@interface ClassDisplay ()
+@interface ClassDisplayDeprecated ()
 - (NSString *)parseStructOrUnionEndCh:(char)endCh depth:(int *)depth sPart:(int)sPart inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter;
 - (NSDictionary *)typeEncParseObjectRefInStruct:(BOOL)inStruct spaceAfter:(BOOL)spaceAfter;
 - (NSDictionary *)cTypeDeclForEncTypeDepth:(int *)depth sPart:(int)sPart inStruct:(BOOL)inStruct inLine:(BOOL)inLine inParam:(BOOL)inParam spaceAfter:(BOOL)spaceAfter;
 - (void)setRepresentedClass:(Class)klass;
 @end
 
-@implementation ClassDisplay
+@implementation ClassDisplayDeprecated
 
 @synthesize refdClasses;
 @synthesize namedStructs;
 @synthesize displayPropertiesDefaultValues;
 
-+ (ClassDisplay *)classDisplayWithClass:(Class)klass {
-    ClassDisplay *cd = [[self alloc] init];
++ (ClassDisplayDeprecated *)classDisplayWithClass:(Class)klass {
+    ClassDisplayDeprecated *cd = [[self alloc] init];
     [cd setRepresentedClass:klass];
     return cd;
 }
