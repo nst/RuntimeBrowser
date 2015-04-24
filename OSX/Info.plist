@@ -64,8 +64,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleIconFile</key>
-	<string>RuntimeBrowser</string>
 	<key>CFBundleIdentifier</key>
 	<string>ch.seriot.$(EXECUTABLE_NAME)</string>
 	<key>CFBundleInfoDictionaryVersion</key>

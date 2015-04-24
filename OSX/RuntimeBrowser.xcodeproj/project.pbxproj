@@ -16,12 +16,13 @@
 		0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */; };
 		0331C1FC1AE5A12F002A641E /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */; };
 		0333858A131D9738002654D3 /* RuntimeBrowser.icns in Resources */ = {isa = PBXBuildFile; fileRef = 03338589131D9738002654D3 /* RuntimeBrowser.icns */; };
-		033878E713070ABF003AF5CE /* RuntimeBrowser.nib in Resources */ = {isa = PBXBuildFile; fileRef = 033878E513070ABF003AF5CE /* RuntimeBrowser.nib */; };
 		03561DB40E4BA18A002FEBCD /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 03561DB30E4BA18A002FEBCD /* Credits.html */; };
 		0379BB80179D0B4000F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */; };
 		0379BB86179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB85179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m */; };
 		037EDADC1307102300298C79 /* ClassStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 037EDADB1307102300298C79 /* ClassStub.m */; };
 		03CAF3461AEAD7D100282C77 /* ProtocolStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CAF3451AEAD7D100282C77 /* ProtocolStub.m */; };
+		03F830D81AEAF9C900425494 /* RuntimeBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 03F830D61AEAF9C900425494 /* RuntimeBrowser.xib */; };
+		03F830DA1AEAFA3500425494 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03F830D91AEAFA3500425494 /* Images.xcassets */; };
 		5F3E071B13127B04001D2A1C /* class.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071713127B04001D2A1C /* class.tiff */; };
 		5F3E071C13127B04001D2A1C /* class2.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071813127B04001D2A1C /* class2.tiff */; };
 		5F3E071D13127B04001D2A1C /* framework.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071913127B04001D2A1C /* framework.tiff */; };
@@ -47,7 +48,6 @@
 		0331C1F81AE59C0B002A641E /* RTBRuntimeHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBRuntimeHeader.h; sourceTree = "<group>"; };
 		0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBRuntimeHeader.m; sourceTree = "<group>"; };
 		03338589131D9738002654D3 /* RuntimeBrowser.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = RuntimeBrowser.icns; sourceTree = "<group>"; };
-		033878E613070ABF003AF5CE /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/RuntimeBrowser.nib; sourceTree = "<group>"; };
 		03561DB30E4BA18A002FEBCD /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		0379BB7E179D0B4000F4B8BF /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
 		0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyntaxColoring.m"; sourceTree = "<group>"; };
@@ -57,6 +57,8 @@
 		037EDADB1307102300298C79 /* ClassStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassStub.m; sourceTree = "<group>"; };
 		03CAF3441AEAD7D100282C77 /* ProtocolStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtocolStub.h; sourceTree = "<group>"; };
 		03CAF3451AEAD7D100282C77 /* ProtocolStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtocolStub.m; sourceTree = "<group>"; };
+		03F830D71AEAF9C900425494 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/RuntimeBrowser.xib; sourceTree = "<group>"; };
+		03F830D91AEAFA3500425494 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RuntimeBrowser/Images.xcassets; sourceTree = "<group>"; };
 		03FA8B721AE8FE0400D55C16 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
 		03FA8B731AE8FE0400D55C16 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -185,11 +187,12 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				03F830D91AEAFA3500425494 /* Images.xcassets */,
 				5F3E071713127B04001D2A1C /* class.tiff */,
 				5F3E071813127B04001D2A1C /* class2.tiff */,
 				5F3E071913127B04001D2A1C /* framework.tiff */,
 				5F3E071A13127B04001D2A1C /* h.tiff */,
-				033878E513070ABF003AF5CE /* RuntimeBrowser.nib */,
+				03F830D61AEAF9C900425494 /* RuntimeBrowser.xib */,
 				03561DB30E4BA18A002FEBCD /* Credits.html */,
 				03338589131D9738002654D3 /* RuntimeBrowser.icns */,
 				8D1107310486CEB800E47090 /* Info.plist */,
@@ -262,14 +265,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				0315C0320E47AB9F00DFB2F3 /* Keywords.plist in Resources */,
+				03F830DA1AEAFA3500425494 /* Images.xcassets in Resources */,
 				0315C2780E47D3A200DFB2F3 /* Defaults.plist in Resources */,
 				03561DB40E4BA18A002FEBCD /* Credits.html in Resources */,
-				033878E713070ABF003AF5CE /* RuntimeBrowser.nib in Resources */,
 				5F3E071B13127B04001D2A1C /* class.tiff in Resources */,
 				5F3E071C13127B04001D2A1C /* class2.tiff in Resources */,
 				5F3E071D13127B04001D2A1C /* framework.tiff in Resources */,
 				5F3E071E13127B04001D2A1C /* h.tiff in Resources */,
 				0333858A131D9738002654D3 /* RuntimeBrowser.icns in Resources */,
+				03F830D81AEAF9C900425494 /* RuntimeBrowser.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -298,12 +302,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		033878E513070ABF003AF5CE /* RuntimeBrowser.nib */ = {
+		03F830D61AEAF9C900425494 /* RuntimeBrowser.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				033878E613070ABF003AF5CE /* English */,
+				03F830D71AEAF9C900425494 /* English */,
 			);
-			name = RuntimeBrowser.nib;
+			name = RuntimeBrowser.xib;
 			sourceTree = "<group>";
 		};
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
@@ -341,6 +345,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -358,7 +363,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = (
 					"-lgcov",
 					"-licucore",
@@ -376,6 +381,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -392,7 +398,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "-licucore";
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
@@ -407,6 +413,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -419,7 +426,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PREBINDING = NO;
 				PRODUCT_NAME = RuntimeBrowser;
 				PROVISIONING_PROFILE = "";
