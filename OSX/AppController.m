@@ -368,6 +368,10 @@
     
     [searchQueue cancelAllOperations];
     
+    [segmentedControl setEnabled:!isInSearchMode forSegment:0];
+    [segmentedControl setEnabled:!isInSearchMode forSegment:2];
+    [segmentedControl setEnabled:!isInSearchMode forSegment:3];
+    
     if(isInSearchMode == NO) {
         [self changeViewTypeTo:RBBrowserViewTypeList];
         return;
@@ -444,9 +448,6 @@
     
     [searchQueue addOperation:op];
     [op release];
-    
-    [segmentedControl setEnabled:!isInSearchMode forSegment:0];
-    [segmentedControl setEnabled:!isInSearchMode forSegment:2];
     
     [self changeViewTypeTo:RBBrowserViewTypeList];
 }
