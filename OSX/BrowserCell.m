@@ -22,6 +22,11 @@
 
 - (NSImage *)iconForPath:(NSString *)s {
     
+    NSInteger viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    if(viewType == 3) { // protocols
+        return [NSImage imageNamed:@"protocol.tiff"];
+    }
+    
     NSString *appExtension = @".app";
     NSRange range = [s rangeOfString:appExtension];
     if(range.location != NSNotFound) {

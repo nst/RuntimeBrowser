@@ -23,6 +23,7 @@
 		03CAF3461AEAD7D100282C77 /* ProtocolStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CAF3451AEAD7D100282C77 /* ProtocolStub.m */; };
 		03F830D81AEAF9C900425494 /* RuntimeBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 03F830D61AEAF9C900425494 /* RuntimeBrowser.xib */; };
 		03F830DA1AEAFA3500425494 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03F830D91AEAFA3500425494 /* Images.xcassets */; };
+		03F830DC1AEBD0AF00425494 /* protocol.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 03F830DB1AEBD0AF00425494 /* protocol.tiff */; };
 		5F3E071B13127B04001D2A1C /* class.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071713127B04001D2A1C /* class.tiff */; };
 		5F3E071C13127B04001D2A1C /* class2.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071813127B04001D2A1C /* class2.tiff */; };
 		5F3E071D13127B04001D2A1C /* framework.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 5F3E071913127B04001D2A1C /* framework.tiff */; };
@@ -59,6 +60,7 @@
 		03CAF3451AEAD7D100282C77 /* ProtocolStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtocolStub.m; sourceTree = "<group>"; };
 		03F830D71AEAF9C900425494 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/RuntimeBrowser.xib; sourceTree = "<group>"; };
 		03F830D91AEAFA3500425494 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RuntimeBrowser/Images.xcassets; sourceTree = "<group>"; };
+		03F830DB1AEBD0AF00425494 /* protocol.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = protocol.tiff; sourceTree = "<group>"; };
 		03FA8B721AE8FE0400D55C16 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
 		03FA8B731AE8FE0400D55C16 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				03F830D91AEAFA3500425494 /* Images.xcassets */,
 				5F3E071713127B04001D2A1C /* class.tiff */,
 				5F3E071813127B04001D2A1C /* class2.tiff */,
+				03F830DB1AEBD0AF00425494 /* protocol.tiff */,
 				5F3E071913127B04001D2A1C /* framework.tiff */,
 				5F3E071A13127B04001D2A1C /* h.tiff */,
 				03F830D61AEAF9C900425494 /* RuntimeBrowser.xib */,
@@ -264,6 +267,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03F830DC1AEBD0AF00425494 /* protocol.tiff in Resources */,
 				0315C0320E47AB9F00DFB2F3 /* Keywords.plist in Resources */,
 				03F830DA1AEAFA3500425494 /* Images.xcassets in Resources */,
 				0315C2780E47D3A200DFB2F3 /* Defaults.plist in Resources */,
@@ -348,7 +352,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -384,7 +388,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -416,7 +420,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Nicolas Seriot";
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
