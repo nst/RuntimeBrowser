@@ -22,7 +22,7 @@ You can browse the [iOS headers](https://github.com/nst/iOS-Runtime-Headers) as 
     
 ### OS X Version
 
-Latest build: 2015-04-08 [http://seriot.ch/temp/runtimebrowser.zip](http://seriot.ch/temp/runtimebrowser.zip) 162.2 KB
+Latest build: 2015-04-25 [http://seriot.ch/temp/runtimebrowser_0.97.zip](http://seriot.ch/temp/runtimebrowser_0.97.zip) 246.8 KB
 
   * browse by class tree, image or indexed list
   * search in classes contents
