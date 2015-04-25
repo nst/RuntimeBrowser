@@ -664,6 +664,9 @@
 }
 
 - (NSInteger)browser:(NSBrowser *)browser numberOfChildrenOfItem:(id)item {
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[ClassStub class]]) return 0;
+    
     return [[item children] count];
 }
 
@@ -677,8 +680,8 @@
     if(viewType == RBBrowserViewTypeList) return YES;
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
     if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[ClassStub class]];
-    if(viewType == RBBrowserViewTypeProtocols) return [[item children] count] == 0;
-    
+    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[ProtocolStub class]]) return [[item children] count] == 0;
+
     return YES;
 }
 
