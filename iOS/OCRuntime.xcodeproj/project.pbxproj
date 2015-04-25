@@ -41,6 +41,8 @@
 		0315BBE017E0865A00F226E6 /* tree@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBDF17E0865A00F226E6 /* tree@2x.png */; };
 		0315BBE217E0868900F226E6 /* search@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0315BBE117E0868900F226E6 /* search@2x.png */; };
 		0319E3B6179A86BA001F3471 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0319E3B5179A86BA001F3471 /* Defaults.plist */; };
+		035CEC191AEBDA1D00C5AF78 /* ProtocolStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 035CEC181AEBDA1D00C5AF78 /* ProtocolStub.m */; };
+		035CEC1A1AEBDA1D00C5AF78 /* ProtocolStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 035CEC181AEBDA1D00C5AF78 /* ProtocolStub.m */; };
 		0360F4FE17969BBE00F58672 /* RTBSearchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0360F4FD17969BBE00F58672 /* RTBSearchVC.m */; };
 		0360F50817969FDA00F58672 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F50717969FDA00F58672 /* header.png */; };
 		0360F50A1796A1F100F58672 /* framework.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F5091796A1F100F58672 /* framework.png */; };
@@ -153,6 +155,8 @@
 		0315BBDF17E0865A00F226E6 /* tree@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tree@2x.png"; sourceTree = "<group>"; };
 		0315BBE117E0868900F226E6 /* search@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "search@2x.png"; sourceTree = "<group>"; };
 		0319E3B5179A86BA001F3471 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
+		035CEC171AEBDA1D00C5AF78 /* ProtocolStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProtocolStub.h; path = ../model/ProtocolStub.h; sourceTree = "<group>"; };
+		035CEC181AEBDA1D00C5AF78 /* ProtocolStub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProtocolStub.m; path = ../model/ProtocolStub.m; sourceTree = "<group>"; };
 		0360F4FC17969BBE00F58672 /* RTBSearchVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBSearchVC.h; sourceTree = "<group>"; };
 		0360F4FD17969BBE00F58672 /* RTBSearchVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBSearchVC.m; sourceTree = "<group>"; };
 		0360F50717969FDA00F58672 /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
@@ -374,6 +378,8 @@
 				0379BB2117980CF600F4B8BF /* AllClasses.m */,
 				0379BB2417980CF600F4B8BF /* ClassStub.h */,
 				0379BB2517980CF600F4B8BF /* ClassStub.m */,
+				035CEC171AEBDA1D00C5AF78 /* ProtocolStub.h */,
+				035CEC181AEBDA1D00C5AF78 /* ProtocolStub.m */,
 				03F830D01AEAF59A00425494 /* ClassDisplayDeprecated.h */,
 				03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */,
 			);
@@ -654,6 +660,7 @@
 				030959BE17B5434000221D0E /* DispatchQueueLogFormatter.m in Sources */,
 				0379BB2817980CF600F4B8BF /* ClassStub.m in Sources */,
 				0309595317B5434000221D0E /* HTTPAsyncFileResponse.m in Sources */,
+				035CEC191AEBDA1D00C5AF78 /* ProtocolStub.m in Sources */,
 				0309595917B5434000221D0E /* WebSocket.m in Sources */,
 				0309594A17B5434000221D0E /* DDNumber.m in Sources */,
 				0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */,
@@ -666,6 +673,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */,
+				035CEC1A1AEBDA1D00C5AF78 /* ProtocolStub.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
