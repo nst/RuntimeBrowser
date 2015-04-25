@@ -11,6 +11,7 @@
 @interface ProtocolStub : NSObject
 
 @property (nonatomic, strong) NSString *protocolName;
+@property (nonatomic, strong) NSMutableSet *conformingClassesStubsSet;
 
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName;
 

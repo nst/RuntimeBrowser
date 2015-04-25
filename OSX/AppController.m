@@ -312,6 +312,7 @@
     NSUInteger nbOfColumns = 1;
     if(viewType == RBBrowserViewTypeImages) nbOfColumns = 2;
     if(viewType == RBBrowserViewTypeTree) nbOfColumns = 3;
+    if(viewType == RBBrowserViewTypeProtocols) nbOfColumns = 2;
     [classBrowser setMaxVisibleColumns:nbOfColumns];
     
     NSBrowserColumnResizingType resizingType = viewType == RBBrowserViewTypeTree ? NSBrowserUserColumnResizing : NSBrowserAutoColumnResizing;
@@ -360,6 +361,8 @@
 }
 
 - (IBAction)search:(id)sender {
+    
+    // TODO: add support for protocols
     
     BOOL isInSearchMode = [self isInSearchMode];
     
@@ -674,7 +677,7 @@
     if(viewType == RBBrowserViewTypeList) return YES;
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
     if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[ClassStub class]];
-    if(viewType == RBBrowserViewTypeProtocols) return YES;
+    if(viewType == RBBrowserViewTypeProtocols) return [[item children] count] == 0;
     
     return YES;
 }

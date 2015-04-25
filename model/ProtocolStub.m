@@ -7,6 +7,7 @@
 //
 
 #import "ProtocolStub.h"
+#import "ClassStub.h"
 
 @implementation ProtocolStub
 
@@ -15,13 +16,22 @@
 }
 
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName {
+    NSAssert([protocolName isKindOfClass:[NSString class]], @"");
+    
     ProtocolStub *ps = [[ProtocolStub alloc] init];
     ps.protocolName = protocolName;
+    ps.conformingClassesStubsSet = [NSMutableSet set];
     return ps;
 }
 
+#pragma mark BrowserNode protocol
+
 - (NSArray *)children {
-    return nil;
+    NSMutableArray *ma = [[_conformingClassesStubsSet allObjects] mutableCopy];
+    
+    [ma sortedArrayUsingSelector:@selector(compare:)];
+    
+    return ma;
 }
 
 - (NSString *)nodeName {
@@ -30,6 +40,10 @@
 
 - (NSString *)nodeInfo {
     return [NSString stringWithFormat:@"%@", _protocolName];
+}
+
+- (BOOL)canBeSavedAsHeader {
+    return YES;
 }
 
 @end

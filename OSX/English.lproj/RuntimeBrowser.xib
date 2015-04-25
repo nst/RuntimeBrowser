@@ -70,14 +70,14 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" findStyle="panel" allowsDocumentBackgroundColorChange="YES" usesFontPanel="YES" verticallyResizable="YES" textReplacement="YES" smartInsertDelete="YES" id="155">
-                                                        <rect key="frame" x="0.0" y="0.0" width="586" height="459"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="586" height="468"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="592" height="468"/>
-                                                        <size key="maxSize" width="603" height="10000000"/>
+                                                        <size key="maxSize" width="609" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <size key="minSize" width="592" height="468"/>
-                                                        <size key="maxSize" width="603" height="10000000"/>
+                                                        <size key="maxSize" width="609" height="10000000"/>
                                                         <connections>
                                                             <outlet property="delegate" destination="137" id="435"/>
                                                         </connections>

@@ -36,6 +36,7 @@
 #import "AllClasses.h"
 #import "ClassStub.h"
 #import "ProtocolStub.h"
+#import "RTBRuntimeHeader.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -49,10 +50,6 @@
 static AllClasses *sharedInstance;
 
 @implementation AllClasses
-
-@synthesize rootClasses;
-@synthesize allClassStubsByName;
-@synthesize allClassStubsByImagePath;
 
 + (AllClasses *)sharedInstance {
 	if(sharedInstance == nil) {
@@ -69,12 +66,12 @@ static AllClasses *sharedInstance;
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
 - (ClassStub *)classStubForClassName:(NSString *)classname {
-    return [allClassStubsByName valueForKey:classname];
+    return [_allClassStubsByName valueForKey:classname];
 }
 
 - (ClassStub *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
 	
-    self.allProtocols = [NSMutableDictionary dictionary];
+    //self.allProtocols = [NSMutableDictionary dictionary];
     
 	//Lookup the ClassStub for klass or create one if none exists and add it to +allClassStuds.
     NSString *klassName = NSStringFromClass(klass);
@@ -91,7 +88,7 @@ static AllClasses *sharedInstance;
 		return nil;
 	}
 	
-	allClassStubsByName[klassName] = cs; // Add it to our uniquing dictionary.
+	_allClassStubsByName[klassName] = cs; // Add it to our uniquing dictionary.
 	
 	/* fill stubsForImage */
 	NSString *path = [cs imagePath];
@@ -112,10 +109,10 @@ static AllClasses *sharedInstance;
 #endif
     
 	if(path) {
-		NSMutableArray *stubsForImage = [allClassStubsByImagePath valueForKey:path];
+		NSMutableArray *stubsForImage = [_allClassStubsByImagePath valueForKey:path];
 		if(stubsForImage == nil) {
-			[allClassStubsByImagePath setValue:[NSMutableArray array] forKey:path];
-			stubsForImage = [allClassStubsByImagePath valueForKey:path];
+            _allClassStubsByImagePath[path] = [NSMutableArray array];
+			stubsForImage = [_allClassStubsByImagePath valueForKey:path];
 		}
 		if([stubsForImage containsObject:cs] == NO) [stubsForImage addObject:cs]; // TODO: use a set?
 	}
@@ -127,15 +124,24 @@ static AllClasses *sharedInstance;
 	} else  // If there is no superclass, then klass is a root class.
 		[[self rootClasses] addObject:cs];
 	
-    // TODO: for each conformed protocol, set allProtocols[protocolName] = [...] + cs
+    /**/
+    
+    NSArray *protocolNames = [RTBRuntimeHeader sortedProtocolsForClass:klass];
+    for(NSString *protocolName in protocolNames) {
+        ProtocolStub *ps = _allProtocols[protocolName];
+        if(ps == nil) {
+            _allProtocols[protocolName] = [ProtocolStub protocolStubWithProtocolName:protocolName];
+        }
+        [ps.conformingClassesStubsSet addObject:cs];
+    }
     
     return cs;
 }
 
 - (NSArray *)sortedClassStubs {
-	if([allClassStubsByName count] == 0) [self readAllRuntimeClasses];
+	if([_allClassStubsByName count] == 0) [self readAllRuntimeClasses];
 	
-	NSMutableArray *stubs = [NSMutableArray arrayWithArray:[allClassStubsByName allValues]];
+	NSMutableArray *stubs = [NSMutableArray arrayWithArray:[_allClassStubsByName allValues]];
 	[stubs sortUsingSelector:@selector(compare:)];
 	return stubs;
 }
@@ -159,13 +165,12 @@ static AllClasses *sharedInstance;
 }
 
 - (NSArray *)sortedProtocolStubs {
+    
     if([_allProtocols count] == 0) {
-        self.allProtocols = [NSMutableDictionary dictionary];
-        for(NSString *s in [[self class] readAndSortAllRuntimeProtocolNames]) {
-            _allProtocols[s] = [ProtocolStub protocolStubWithProtocolName:s];
-        }
+        [self readAllRuntimeClasses];
     }
-    return [[_allProtocols allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    
+    return [[_allProtocols allValues] sortedArrayUsingSelector:@selector(compare:)];
 }
 
 - (void)readAllRuntimeClasses {
@@ -184,22 +189,22 @@ static AllClasses *sharedInstance;
 
 	free(classes);
     
-	[rootClasses sortUsingSelector:@selector(compare:)];
+	[_rootClasses sortUsingSelector:@selector(compare:)];
 }
 
 - (NSMutableDictionary *)allClassStubsByImagePath {
-	if([allClassStubsByImagePath count] == 0) {
+	if([_allClassStubsByImagePath count] == 0) {
 		[self readAllRuntimeClasses];
 	}
-	return allClassStubsByImagePath;
+	return _allClassStubsByImagePath;
 }
 
 - (NSMutableArray *)rootClasses {
     /*" Classes are wrapped by ClassStub.  This array contains wrappers for root classes (classes that have no superclass). "*/
-	if ([rootClasses count] == 0) {
+	if ([_rootClasses count] == 0) {
 		[self readAllRuntimeClasses];
 	}
-	return rootClasses;
+	return _rootClasses;
 }
 
 - (void)emptyCachesAndReadAllRuntimeClasses {

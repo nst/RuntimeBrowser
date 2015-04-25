@@ -248,11 +248,11 @@
     return ms;
 }
 
-+ (NSArray *)sortedProtocolsForClass:(Class)class {
++ (NSArray *)sortedProtocolsForClass:(Class)aClass {
     NSMutableArray *protocols = [NSMutableArray array];
     
     unsigned int protocolListCount = 0;
-    __unsafe_unretained Protocol **protocolList = class_copyProtocolList(class, &protocolListCount);
+    __unsafe_unretained Protocol **protocolList = class_copyProtocolList(aClass, &protocolListCount);
     for(unsigned int i = 0; i < protocolListCount; i++) {
         NSString *name = [NSString stringWithCString:protocol_getName(protocolList[i]) encoding:NSUTF8StringEncoding];
         [protocols addObject:name];
