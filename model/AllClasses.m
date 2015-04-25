@@ -35,6 +35,7 @@
 
 #import "AllClasses.h"
 #import "ClassStub.h"
+#import "ProtocolStub.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -59,7 +60,7 @@ static AllClasses *sharedInstance;
 		sharedInstance.rootClasses = [NSMutableArray array];
 		sharedInstance.allClassStubsByName = [NSMutableDictionary dictionary];
 		sharedInstance.allClassStubsByImagePath = [NSMutableDictionary dictionary];
-        sharedInstance.allProtocols = [NSArray array];
+        sharedInstance.allProtocols = [NSMutableDictionary dictionary];
 	}
 	
 	return sharedInstance;
@@ -73,7 +74,7 @@ static AllClasses *sharedInstance;
 
 - (ClassStub *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
 	
-    self.allProtocols = [NSArray array];
+    self.allProtocols = [NSMutableDictionary dictionary];
     
 	//Lookup the ClassStub for klass or create one if none exists and add it to +allClassStuds.
     NSString *klassName = NSStringFromClass(klass);
@@ -90,7 +91,7 @@ static AllClasses *sharedInstance;
 		return nil;
 	}
 	
-	[allClassStubsByName setObject:cs forKey:klassName]; // Add it to our uniquing dictionary.
+	allClassStubsByName[klassName] = cs; // Add it to our uniquing dictionary.
 	
 	/* fill stubsForImage */
 	NSString *path = [cs imagePath];
@@ -116,7 +117,7 @@ static AllClasses *sharedInstance;
 			[allClassStubsByImagePath setValue:[NSMutableArray array] forKey:path];
 			stubsForImage = [allClassStubsByImagePath valueForKey:path];
 		}
-		if([stubsForImage containsObject:cs] == NO) [stubsForImage addObject:cs];
+		if([stubsForImage containsObject:cs] == NO) [stubsForImage addObject:cs]; // TODO: use a set?
 	}
 	
 	Class parent = class_getSuperclass(klass);   // Get klass's superclass 
@@ -126,6 +127,8 @@ static AllClasses *sharedInstance;
 	} else  // If there is no superclass, then klass is a root class.
 		[[self rootClasses] addObject:cs];
 	
+    // TODO: for each conformed protocol, set allProtocols[protocolName] = [...] + cs
+    
     return cs;
 }
 
@@ -137,7 +140,7 @@ static AllClasses *sharedInstance;
 	return stubs;
 }
 
-+ (NSArray *)readAndSortAllRuntimeProtocols {
++ (NSArray *)readAndSortAllRuntimeProtocolNames {
 
     NSMutableArray *ma = [NSMutableArray array];
     
@@ -155,11 +158,14 @@ static AllClasses *sharedInstance;
     return ma;
 }
 
-- (NSArray *)allProtocols {
+- (NSArray *)allProtocolsArray {
     if([_allProtocols count] == 0) {
-        self.allProtocols = [[self class] readAndSortAllRuntimeProtocols];
+        self.allProtocols = [NSMutableDictionary dictionary];
+        for(NSString *s in [[self class] readAndSortAllRuntimeProtocolNames]) {
+            _allProtocols[s] = [ProtocolStub protocolStubWithProtocolName:s];
+        }
     }
-    return _allProtocols;
+    return [_allProtocols allKeys];
 }
 
 - (void)readAllRuntimeClasses {
@@ -208,7 +214,7 @@ We autorelease and reset the nil the global, static containers that
 	self.rootClasses = [NSMutableArray array];
 	self.allClassStubsByName = [NSMutableDictionary dictionary];
 	self.allClassStubsByImagePath = [NSMutableDictionary dictionary];
-    self.allProtocols = [NSArray array];
+    self.allProtocols = [NSMutableDictionary dictionary];
 	
 	[self readAllRuntimeClasses];
 }

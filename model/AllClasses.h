@@ -42,12 +42,13 @@
 @property (nonatomic, retain) NSMutableArray *rootClasses;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByName;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByImagePath;
-@property (nonatomic, retain) NSArray *allProtocols;
+@property (nonatomic, retain) NSMutableDictionary *allProtocols;
 
 + (AllClasses *)sharedInstance;
 
 - (ClassStub *)classStubForClassName:(NSString *)classname;
 - (NSArray *)sortedClassStubs;
-- (void)emptyCachesAndReadAllRuntimeClasses; 
+- (void)emptyCachesAndReadAllRuntimeClasses;
+- (NSArray *)allProtocolsArray;
 
 @end
