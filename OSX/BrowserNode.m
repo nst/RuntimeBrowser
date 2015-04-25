@@ -54,7 +54,7 @@
 + (BrowserNode *)rootNodeProtocols {
     BrowserNode *bn = [[BrowserNode alloc] init];
     
-    NSArray *protocolNames = [[AllClasses sharedInstance] allProtocolsArray];
+    NSArray *protocolNames = [[AllClasses sharedInstance] sortedProtocolStubs];
     
     NSMutableArray *ma = [NSMutableArray array];
     

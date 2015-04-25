@@ -10,6 +10,10 @@
 
 @implementation ProtocolStub
 
+- (NSComparisonResult)compare:(ProtocolStub *)other {
+    return [self.protocolName compare:other.protocolName];
+}
+
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName {
     ProtocolStub *ps = [[ProtocolStub alloc] init];
     ps.protocolName = protocolName;

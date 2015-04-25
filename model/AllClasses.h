@@ -49,6 +49,6 @@
 - (ClassStub *)classStubForClassName:(NSString *)classname;
 - (NSArray *)sortedClassStubs;
 - (void)emptyCachesAndReadAllRuntimeClasses;
-- (NSArray *)allProtocolsArray;
+- (NSArray *)sortedProtocolStubs;
 
 @end

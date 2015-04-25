@@ -133,7 +133,7 @@ static AllClasses *sharedInstance;
 }
 
 - (NSArray *)sortedClassStubs {
-	if([allClassStubsByName count] == 0) [self rootClasses];
+	if([allClassStubsByName count] == 0) [self readAllRuntimeClasses];
 	
 	NSMutableArray *stubs = [NSMutableArray arrayWithArray:[allClassStubsByName allValues]];
 	[stubs sortUsingSelector:@selector(compare:)];
@@ -158,14 +158,14 @@ static AllClasses *sharedInstance;
     return ma;
 }
 
-- (NSArray *)allProtocolsArray {
+- (NSArray *)sortedProtocolStubs {
     if([_allProtocols count] == 0) {
         self.allProtocols = [NSMutableDictionary dictionary];
         for(NSString *s in [[self class] readAndSortAllRuntimeProtocolNames]) {
             _allProtocols[s] = [ProtocolStub protocolStubWithProtocolName:s];
         }
     }
-    return [_allProtocols allKeys];
+    return [[_allProtocols allKeys] sortedArrayUsingSelector:@selector(compare:)];
 }
 
 - (void)readAllRuntimeClasses {
