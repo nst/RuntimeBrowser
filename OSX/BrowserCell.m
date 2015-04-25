@@ -7,25 +7,23 @@
 //
 
 #import "BrowserCell.h"
+#import "ProtocolStub.h"
+#import "ClassStub.h"
+#import "BrowserNode.h"
 
 @implementation BrowserCell
 
 + (NSImage *)branchImage {
-	return nil;
+    return nil;
 }
 
 + (NSImage *)highlightedBranchImage {
-	return nil;
+    return nil;
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
 - (NSImage *)iconForPath:(NSString *)s {
-    
-    NSInteger viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-    if(viewType == 3) { // protocols
-        return [NSImage imageNamed:@"protocol.tiff"];
-    }
     
     NSString *appExtension = @".app";
     NSRange range = [s rangeOfString:appExtension];
@@ -42,14 +40,27 @@
     return [NSImage imageNamed:@"class.tiff"];
 }
 
-- (void)setObjectValue:(id <NSCopying>)obj {
-	
-    NSImage *icon = [self iconForPath:(NSString *)obj];
+- (void)setObjectValue:(id)obj {
+    
+    NSImage *icon = nil;
+    NSString *objectValue = nil;
+    
+    if([obj isKindOfClass:[ProtocolStub class]]) {
+        icon = [NSImage imageNamed:@"protocol.tiff"];
+        objectValue = [obj nodeName];
+    } else if([obj isKindOfClass:[ClassStub class]]) {
+        icon = [NSImage imageNamed:@"class.tiff"];
+        objectValue = [obj nodeName];
+    } else if([obj isKindOfClass:[BrowserNode class]]) {
+        icon = [self iconForPath:[obj nodeName]];
+        objectValue = [[obj nodeName] lastPathComponent];
+    }
+    
     [icon setSize:NSMakeSize(16,16)];
-	
-	[self setImage:icon];
-	
-	[super setObjectValue:[(NSString *)obj lastPathComponent]];
+    
+    [self setImage:icon];
+    
+    [super setObjectValue:objectValue];
 }
 
 @end

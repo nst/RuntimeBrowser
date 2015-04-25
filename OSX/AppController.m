@@ -686,7 +686,7 @@
 }
 
 - (id)browser:(NSBrowser *)browser objectValueForItem:(id)item {
-    return [item nodeName];
+    return item;
 }
 
 #pragma mark ** Dragging Source Methods **
