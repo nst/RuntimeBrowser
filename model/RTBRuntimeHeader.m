@@ -9,6 +9,8 @@
 #import "RTBRuntimeHeader.h"
 #import "RTBTypeDecoder.h"
 
+const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL isRequiredMethod, BOOL isInstanceMethod);
+
 @implementation RTBRuntimeHeader
 
 + (NSString *)decodedTypeForEncodedString:(NSString *)s {
@@ -188,22 +190,24 @@
     return ms;
 }
 
-+ (NSString *)descriptionForMethodDescription:(struct objc_method_description)method_description isClassMethod:(BOOL)isClassMethod {
++ (NSString *)descriptionForProtocol:(Protocol *)protocol selector:(SEL)selector isRequiredMethod:(BOOL)isRequiredMethod isInstanceMethod:(BOOL)isInstanceMethod {
     
-    NSString *argsTypes = [NSString stringWithCString:method_description.types encoding:NSUTF8StringEncoding];
-
+    const char *descriptionString = _protocol_getMethodTypeEncoding(protocol, selector, isRequiredMethod, isInstanceMethod);
+    
+    NSString *argsTypes = [NSString stringWithCString:descriptionString encoding:NSUTF8StringEncoding];
+    
     NSArray *splitedArgsTypes = [argsTypes componentsSeparatedByString:@":"];
     NSAssert([splitedArgsTypes count] > 1, @"return type and arg types separator not found");
     
     NSString *returnType = splitedArgsTypes[0];
     
-    NSString *methodName = NSStringFromSelector(method_description.name);
+    NSString *methodName = NSStringFromSelector(selector);
     
     NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
     NSAssert([methodNameParts count] > 0, @"");
     
     NSMutableString *ms = [NSMutableString string];
-    [ms appendString: isClassMethod ? @"+" : @"-"];
+    [ms appendString: isInstanceMethod ? @"-" : @"+"];
     [ms appendFormat:@" (%@)", [RTBTypeDecoder decodeType:returnType flat:YES]];
     
     NSString *argumentsTypesString = [argsTypes substringFromIndex:[returnType length]+1];
@@ -224,7 +228,7 @@
         }
         argumentsTypesString = [argumentsTypesString substringFromIndex:1];
     }
-        
+    
     BOOL hasArgs = [argumentsTypes count] > 0;
     
     [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
@@ -404,7 +408,7 @@
         struct objc_method_description method = methods[i];
         
         NSString *name = NSStringFromSelector(method.name);
-        NSString *description = [[self class] descriptionForMethodDescription:method isClassMethod:(instanceMethods == NO)];
+        NSString *description = [[self class] descriptionForProtocol:p selector:method.name isRequiredMethod:required isInstanceMethod:instanceMethods];
         
         NSDictionary *d = @{@"name":name, @"description":description};
         
