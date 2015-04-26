@@ -18,13 +18,13 @@
 + (BrowserNode *)rootNodeList {
 	BrowserNode *rn = [[BrowserNode alloc] init];
 	rn.children = [[RTBRuntime sharedInstance] sortedClassStubs];
-	return [rn autorelease];
+	return rn;
 }
 
 + (BrowserNode *)rootNodeTree {
 	BrowserNode *rn = [[BrowserNode alloc] init];
 	rn.children = [[RTBRuntime sharedInstance] rootClasses];
-	return [rn autorelease];
+	return rn;
 }
 
 + (BrowserNode *)rootNodeImages {
@@ -41,14 +41,13 @@
 		[stubs sortUsingSelector:@selector(compare:)];
 		node.children = stubs;
 		[images addObject:node];
-		[node release];
 	}
 	
 	[images sortUsingSelector:@selector(compare:)]; // TODO: sort by lastPathComponent?
 	
 	bn.nodeName = @"Images";
 	bn.children = images;
-	return [bn autorelease];
+	return bn;
 }
 
 + (BrowserNode *)rootNodeProtocols {
@@ -83,12 +82,6 @@
 - (NSString *)nodeInfo {
     NSArray *pathComponents = [nodeName componentsSeparatedByString:@"/"];
     return [NSString stringWithFormat:@"%@ (%lu)", [pathComponents lastObject], (unsigned long)[children count]];
-}
-
-- (void)dealloc {
-	[children release];
-	[nodeName release];
-	return [super dealloc];
 }
 
 - (BOOL)canBeSavedAsHeader {

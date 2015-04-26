@@ -72,17 +72,6 @@
     return self;
 }
 
-- (void)dealloc {
-    //[openDir release];
-    [saveDirURL release];
-    [keywords release];
-    [searchResultsNode release];
-    [mainWindow release];
-    [searchResults release];
-    [searchQueue release];
-    [super dealloc];
-}
-
 - (BOOL)saveAsHeaderIsEnabled {
     id item = [classBrowser itemAtIndexPath:[classBrowser selectionIndexPath]];
     return [item canBeSavedAsHeader];
@@ -268,9 +257,6 @@
             //                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
             //               }
             
-            [classNames release];
-            
-            
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 
                 NSAlert *alert = [NSAlert alertWithMessageText:@"Save All Finished"
@@ -285,8 +271,6 @@
             }];
             
         }];
-        [queue release];
-        
     }
      ];
 }
@@ -379,13 +363,13 @@
     
     self.searchResults = [NSMutableArray array];
     
-    self.searchResultsNode = [[[BrowserNode alloc] init] autorelease];
+    self.searchResultsNode = [[BrowserNode alloc] init];
     
-    NSString *searchString = [[[searchField stringValue] copy] autorelease];
+    NSString *searchString = [[searchField stringValue] copy];
     
     NSArray *classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
     
-    self.searchQueue = [[[NSOperationQueue alloc] init] autorelease];
+    self.searchQueue = [[NSOperationQueue alloc] init];
     
     //    NSUInteger maxConcurrentOperationCount = [[NSProcessInfo processInfo] processorCount] + 1;
     
@@ -447,7 +431,6 @@
     }];
     
     [searchQueue addOperation:op];
-    [op release];
     
     [self changeViewTypeTo:RBBrowserViewTypeList];
 }
@@ -565,7 +548,7 @@
     }
     
     BOOL colorize = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBColorizeHeaderFile"];
-
+    
     NSIndexPath *ip = [classBrowser selectionIndexPath];
     id item = [classBrowser itemAtIndexPath:ip];
     
@@ -584,7 +567,7 @@
         
         NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
         [[headerTextView textStorage] setAttributedString:attributedString];
-
+        
         return;
     }
     
@@ -682,7 +665,7 @@
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
     if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[RTBClass class]];
     if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBProtocol class]]) return [[item children] count] == 0;
-
+    
     return YES;
 }
 
