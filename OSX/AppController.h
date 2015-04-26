@@ -43,7 +43,7 @@ Boston, MA  02111-1307  USA
 #import <AppKit/AppKit.h>
 #import "ClassDisplayDeprecated.h"
 
-@class AllClasses;
+@class RTBRuntime;
 @class BrowserNode;
 
 typedef enum {
@@ -69,7 +69,7 @@ typedef enum {
     
     BrowserNode *searchResultsNode;
 	
-	AllClasses *allClasses;
+	RTBRuntime *allClasses;
     
 	NSString *openDir;
 	NSURL *saveDirURL;
@@ -86,7 +86,7 @@ typedef enum {
 //@property (nonatomic, retain) NSString *openDir;
 @property (nonatomic, retain) NSURL *saveDirURL;
 @property (nonatomic, retain) NSArray *keywords;
-@property (nonatomic, retain) AllClasses *allClasses;
+@property (nonatomic, retain) RTBRuntime *allClasses;
 @property (nonatomic, retain) NSArray *classes;
 @property (nonatomic, retain) NSSegmentedControl *segmentedControl;
 @property (nonatomic, retain) BrowserNode *searchResultsNode;

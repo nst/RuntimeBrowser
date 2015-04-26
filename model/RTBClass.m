@@ -33,7 +33,7 @@
  
  */
 
-#import "ClassStub.h"
+#import "RTBClass.h"
 #import "ClassDisplayDeprecated.h"
 #import "RTBRuntimeHeader.h"
 
@@ -44,23 +44,23 @@
 #import <objc/message.h>
 #endif
 
-@interface ClassStub()
+@interface RTBClass()
 @property (nonatomic, retain) NSString *stubClassname;
 @property (nonatomic, retain) NSMutableArray *subclassesStubs;
 @property (nonatomic, retain) NSString *imagePath;
 @property (nonatomic) BOOL shouldSortSubclasses;
 @property (nonatomic) BOOL subclassesAreSorted;
-- (ClassStub *)initWithClass:(Class)klass;
+- (RTBClass *)initWithClass:(Class)klass;
 @end
 
-@implementation ClassStub
+@implementation RTBClass
 
 @synthesize stubClassname;
 @synthesize imagePath;
 @synthesize subclassesStubs;
 
-+ (ClassStub *)classStubWithClass:(Class)klass {
-    return [[ClassStub alloc] initWithClass:klass];
++ (RTBClass *)classStubWithClass:(Class)klass {
+    return [[RTBClass alloc] initWithClass:klass];
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {
@@ -189,7 +189,7 @@
     return [[self class] protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
 }
 
-- (ClassStub *)initWithClass:(Class)klass {
+- (RTBClass *)initWithClass:(Class)klass {
     self = [super init];
     
     NSString *className = NSStringFromClass(klass);
@@ -222,7 +222,7 @@
     return (NSArray *)subclassesStubs;
 }
 
-- (void)addSubclassStub:(ClassStub *)classStub {
+- (void)addSubclassStub:(RTBClass *)classStub {
     [subclassesStubs addObject:classStub];
     _subclassesAreSorted = NO;
 }
@@ -231,7 +231,7 @@
     return stubClassname;
 }
 
-- (NSComparisonResult)compare:(ClassStub *)otherCS {
+- (NSComparisonResult)compare:(RTBClass *)otherCS {
     return [stubClassname compare:[otherCS stubClassname]];
 }
 

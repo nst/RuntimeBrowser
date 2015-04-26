@@ -8,12 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@class AllClasses;
+@class RTBRuntime;
 
 @interface RTBSearchVC : UIViewController <UITableViewDataSource, UISearchBarDelegate>
 
 @property (nonatomic, retain) NSMutableArray *foundClasses;
-@property (nonatomic, retain) AllClasses *allClasses;
+@property (nonatomic, retain) RTBRuntime *allClasses;
 
 @property (nonatomic, retain) IBOutlet UISearchBar *theSearchBar;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;

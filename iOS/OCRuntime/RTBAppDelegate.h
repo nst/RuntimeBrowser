@@ -11,13 +11,13 @@
 
 @class RTBObjectsTVC;
 @class HTTPServer;
-@class AllClasses;
+@class RTBRuntime;
 
 @interface RTBAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
-@property (strong, nonatomic) AllClasses *allClasses;
+@property (strong, nonatomic) RTBRuntime *allClasses;
 @property (strong, nonatomic) RTBObjectsTVC *objectsTVC;
 @property (strong, nonatomic) HTTPServer *httpServer;
 

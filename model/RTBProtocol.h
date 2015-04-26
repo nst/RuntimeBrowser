@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ProtocolStub : NSObject
+@interface RTBProtocol : NSObject
 
 @property (nonatomic, strong) NSString *protocolName;
 @property (nonatomic, strong) NSMutableSet *conformingClassesStubsSet;

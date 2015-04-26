@@ -7,9 +7,9 @@
 //
 
 #import "RTBTreeTVC.h"
-#import "AllClasses.h"
+#import "RTBRuntime.h"
 #import "RTBClassCell.h"
-#import "ClassStub.h"
+#import "RTBClass.h"
 #import "RTBClassDisplayVC.h"
 #import "RTBInfoVC.h"
 
@@ -37,7 +37,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	self.allClasses = [AllClasses sharedInstance];
+	self.allClasses = [RTBRuntime sharedInstance];
 	if(!_isSubLevel) {
 		self.classStubs = [_allClasses rootClasses];
 //		self.title = @"Tree";
@@ -81,7 +81,7 @@
     RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
     
 	// Set up the cell
-	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
+	RTBClass *cs = [_classStubs objectAtIndex:indexPath.row];
 //    cell.imageView.image = [UIImage imageNamed:@"header.png"];
 //    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
     cell.className = cs.stubClassname;
@@ -91,7 +91,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	ClassStub *cs = [_classStubs objectAtIndex:indexPath.row];
+	RTBClass *cs = [_classStubs objectAtIndex:indexPath.row];
 	
 	if([[cs subclassesStubs] count] == 0) return;
 	

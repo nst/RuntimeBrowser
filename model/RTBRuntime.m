@@ -33,9 +33,9 @@
 
 */
 
-#import "AllClasses.h"
-#import "ClassStub.h"
-#import "ProtocolStub.h"
+#import "RTBRuntime.h"
+#import "RTBClass.h"
+#import "RTBProtocol.h"
 #import "RTBRuntimeHeader.h"
 
 #if (! TARGET_OS_IPHONE)
@@ -47,13 +47,13 @@
 
 #import <stdio.h>
 
-static AllClasses *sharedInstance;
+static RTBRuntime *sharedInstance;
 
-@implementation AllClasses
+@implementation RTBRuntime
 
-+ (AllClasses *)sharedInstance {
++ (RTBRuntime *)sharedInstance {
 	if(sharedInstance == nil) {
-		sharedInstance = [[AllClasses alloc] init];
+		sharedInstance = [[RTBRuntime alloc] init];
 		sharedInstance.rootClasses = [NSMutableArray array];
 		sharedInstance.allClassStubsByName = [NSMutableDictionary dictionary];
 		sharedInstance.allClassStubsByImagePath = [NSMutableDictionary dictionary];
@@ -65,11 +65,11 @@ static AllClasses *sharedInstance;
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
-- (ClassStub *)classStubForClassName:(NSString *)classname {
+- (RTBClass *)classStubForClassName:(NSString *)classname {
     return [_allClassStubsByName valueForKey:classname];
 }
 
-- (ClassStub *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
+- (RTBClass *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
 	
     //self.allProtocols = [NSMutableDictionary dictionary];
     
@@ -77,11 +77,11 @@ static AllClasses *sharedInstance;
     NSString *klassName = NSStringFromClass(klass);
 	
     // First check if we've already got a ClassStub for klass. If yes, we'll return it.
-    ClassStub *cs = [self classStubForClassName:klassName];
+    RTBClass *cs = [self classStubForClassName:klassName];
 	if(cs) return cs;
 	
     // klass doesn't yet have a ClassStub...
-	cs = [ClassStub classStubWithClass:klass]; // Create a ClassStub for klass
+	cs = [RTBClass classStubWithClass:klass]; // Create a ClassStub for klass
 	
 	if(cs == nil) {
 		NSLog(@"-- cannot create classStub for %@, ignore it", klassName);
@@ -119,7 +119,7 @@ static AllClasses *sharedInstance;
 	
 	Class parent = class_getSuperclass(klass);   // Get klass's superclass 
 	if (parent != nil) {               // and recursively create (or get) its stub.
-		ClassStub *parentCs = [self getOrCreateClassStubsRecursivelyForClass:parent];
+		RTBClass *parentCs = [self getOrCreateClassStubsRecursivelyForClass:parent];
 		[parentCs addSubclassStub:cs];  // we are a subclass of our parent.
 	} else  // If there is no superclass, then klass is a root class.
 		[[self rootClasses] addObject:cs];
@@ -128,9 +128,9 @@ static AllClasses *sharedInstance;
     
     NSArray *protocolNames = [RTBRuntimeHeader sortedProtocolsForClass:klass];
     for(NSString *protocolName in protocolNames) {
-        ProtocolStub *ps = _allProtocols[protocolName];
+        RTBProtocol *ps = _allProtocols[protocolName];
         if(ps == nil) {
-            _allProtocols[protocolName] = [ProtocolStub protocolStubWithProtocolName:protocolName];
+            _allProtocols[protocolName] = [RTBProtocol protocolStubWithProtocolName:protocolName];
         }
         [ps.conformingClassesStubsSet addObject:cs];
     }

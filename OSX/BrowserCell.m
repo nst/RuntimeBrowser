@@ -7,8 +7,8 @@
 //
 
 #import "BrowserCell.h"
-#import "ProtocolStub.h"
-#import "ClassStub.h"
+#import "RTBProtocol.h"
+#import "RTBClass.h"
 #import "BrowserNode.h"
 
 @implementation BrowserCell
@@ -45,10 +45,10 @@
     NSImage *icon = nil;
     NSString *objectValue = nil;
     
-    if([obj isKindOfClass:[ProtocolStub class]]) {
+    if([obj isKindOfClass:[RTBProtocol class]]) {
         icon = [NSImage imageNamed:@"protocol.tiff"];
         objectValue = [obj nodeName];
-    } else if([obj isKindOfClass:[ClassStub class]]) {
+    } else if([obj isKindOfClass:[RTBClass class]]) {
         icon = [NSImage imageNamed:@"class.tiff"];
         objectValue = [obj nodeName];
     } else if([obj isKindOfClass:[BrowserNode class]]) {

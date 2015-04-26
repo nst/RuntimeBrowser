@@ -7,10 +7,10 @@
 //
 
 #import "RTBListTVC.h"
-#import "AllClasses.h"
+#import "RTBRuntime.h""
 #import "RTBClassCell.h"
 #import "RTBClassDisplayVC.h"
-#import "ClassStub.h"
+#import "RTBClass.h"
 
 @implementation RTBListTVC
 
@@ -44,7 +44,7 @@
 		unichar currentLetter = 0;
 		NSMutableArray *currentLetterClassStubs = [[NSMutableArray alloc] init];
 		
-		for(ClassStub *cs in strongSelf.classStubs) {
+		for(RTBClass *cs in strongSelf.classStubs) {
 			if([cs.stubClassname length] < 1) continue;
 				
 			firstLetter = [cs.stubClassname characterAtIndex:0];
@@ -115,7 +115,7 @@
 		
 	// show all if not showing a framework
 	if(_frameworkName == nil) {
-		self.classStubs = [[AllClasses sharedInstance] sortedClassStubs];
+		self.classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
 	}
 }
 
@@ -165,7 +165,7 @@
 	NSDictionary *d = [_classStubsDictionaries objectAtIndex:indexPath.section];
 	NSArray *theClassStubs = [[d allValues] lastObject];
 	
-	ClassStub *cs = [theClassStubs objectAtIndex:indexPath.row];
+	RTBClass *cs = [theClassStubs objectAtIndex:indexPath.row];
     cell.className = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	

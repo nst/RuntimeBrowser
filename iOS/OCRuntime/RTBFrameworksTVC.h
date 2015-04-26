@@ -8,14 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-@class AllClasses;
+@class RTBRuntime;
 
 @interface RTBFrameworksTVC : UITableViewController <UITableViewDataSource, UITableViewDelegate>
 
 @property (strong, nonatomic) NSArray *publicFrameworks;
 @property (strong, nonatomic) NSArray *privateFrameworks;
 @property (strong, nonatomic) NSArray *bundleFrameworks;
-@property (strong, nonatomic) AllClasses *allClasses;
+@property (strong, nonatomic) RTBRuntime *allClasses;
 
 @property (strong, nonatomic) UIAlertView *alertView;
 @property (strong, nonatomic) UIProgressView *progressView;

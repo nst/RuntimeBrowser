@@ -8,7 +8,7 @@
 
 #import "RTBFrameworksTVC.h"
 #import "RTBFrameworkCell.h"
-#import "AllClasses.h"
+#import "RTBRuntime.h"
 #import "RTBListTVC.h"
 
 static const NSUInteger kPublicFrameworks = 0;
@@ -210,7 +210,7 @@ static const NSUInteger kPrivateFrameworks = 1;
 - (void)viewDidLoad {
     self.title = @"Frameworks";
     
-    self.allClasses = [AllClasses sharedInstance];
+    self.allClasses = [RTBRuntime sharedInstance];
     
     self.bundleFrameworks = [self loadedBundleFrameworks];
     

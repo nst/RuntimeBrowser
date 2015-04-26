@@ -35,18 +35,18 @@
 
 #import <Foundation/Foundation.h>
 
-@class ClassStub;
+@class RTBClass;
 
-@interface AllClasses : NSObject
+@interface RTBRuntime : NSObject
 
 @property (nonatomic, retain) NSMutableArray *rootClasses;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByName;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByImagePath;
 @property (nonatomic, retain) NSMutableDictionary *allProtocols;
 
-+ (AllClasses *)sharedInstance;
++ (RTBRuntime *)sharedInstance;
 
-- (ClassStub *)classStubForClassName:(NSString *)classname;
+- (RTBClass *)classStubForClassName:(NSString *)classname;
 - (NSArray *)sortedClassStubs;
 - (void)emptyCachesAndReadAllRuntimeClasses;
 - (NSArray *)sortedProtocolStubs;

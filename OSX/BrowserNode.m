@@ -7,8 +7,8 @@
 //
 
 #import "BrowserNode.h"
-#import "AllClasses.h"
-#import "ProtocolStub.h"
+#import "RTBRuntime.h"
+#import "RTBProtocol.h"
 
 @implementation BrowserNode
 
@@ -17,20 +17,20 @@
 
 + (BrowserNode *)rootNodeList {
 	BrowserNode *rn = [[BrowserNode alloc] init];
-	rn.children = [[AllClasses sharedInstance] sortedClassStubs];
+	rn.children = [[RTBRuntime sharedInstance] sortedClassStubs];
 	return [rn autorelease];
 }
 
 + (BrowserNode *)rootNodeTree {
 	BrowserNode *rn = [[BrowserNode alloc] init];
-	rn.children = [[AllClasses sharedInstance] rootClasses];
+	rn.children = [[RTBRuntime sharedInstance] rootClasses];
 	return [rn autorelease];
 }
 
 + (BrowserNode *)rootNodeImages {
 	BrowserNode *bn = [[BrowserNode alloc] init];
 	
-	NSDictionary *allStubsByImage = [AllClasses sharedInstance].allClassStubsByImagePath;
+	NSDictionary *allStubsByImage = [RTBRuntime sharedInstance].allClassStubsByImagePath;
 	
 	NSMutableArray *images = [NSMutableArray array];
 	
@@ -55,7 +55,7 @@
     BrowserNode *bn = [[BrowserNode alloc] init];
     
     bn.nodeName = @"Protocols";
-    bn.children = [[AllClasses sharedInstance] sortedProtocolStubs];
+    bn.children = [[RTBRuntime sharedInstance] sortedProtocolStubs];
     
     return bn;
 }

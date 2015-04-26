@@ -13,11 +13,11 @@
 
 #import "RTBClassDisplayVC.h"
 #import "ClassDisplayDeprecated.h"
-#import "ClassStub.h"
+#import "RTBClass.h"
 #import "HTTPServer.h"
 #import "HTTPDataResponse.h"
 #import "RTBMyIP.h"
-#import "AllClasses.h"
+#import "RTBRuntime.h"
 #import "RTBObjectsTVC.h"
 
 #if (! TARGET_OS_IPHONE)
@@ -103,7 +103,7 @@
     
     NSArray *classes = [_allClasses sortedClassStubs];
     [ms appendFormat:@"%@ classes loaded\n\n", @([classes count])];
-    for(ClassStub *cs in classes) {
+    for(RTBClass *cs in classes) {
         //if([cs.stubClassname compare:@"S"] == NSOrderedAscending) continue;
         [ms appendFormat:@"<A HREF=\"/list/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
     }
@@ -155,14 +155,14 @@
     
     if([[name pathExtension] isEqualToString:@"framework"] == NO) return nil;
     
-    NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+    NSDictionary *allClassesByImagesPath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
     
     NSString *end = [[name lastPathComponent] stringByDeletingPathExtension];
     NSString *imagePath = [[dir stringByAppendingPathComponent:name] stringByAppendingPathComponent:end];
 
     if([allClassesByImagesPath objectForKey:imagePath] == NO) {
-        [[AllClasses sharedInstance] emptyCachesAndReadAllRuntimeClasses];
-        allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+        [[RTBRuntime sharedInstance] emptyCachesAndReadAllRuntimeClasses];
+        allClassesByImagesPath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
         //NSLog(@"-- %@", [allClassesByImagesPath objectForKey:imagePath]);
     }
     
@@ -192,7 +192,7 @@
     
     if([[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
-    NSDictionary *allClassesByImagesPath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+    NSDictionary *allClassesByImagesPath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
     __block NSArray *classes = nil;
     
     [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -248,10 +248,10 @@
     
     if([@[@"/Frameworks/", @"/PrivateFrameworks/"] containsObject:path]) {
 
-        NSDictionary *classStubsByImagePath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+        NSDictionary *classStubsByImagePath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
         
         NSMutableArray *files = [NSMutableArray array];
-        [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, ClassStub *classStub, BOOL *stop) {
+        [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, RTBClass *classStub, BOOL *stop) {
             
             NSString *prefix = [NSString stringWithFormat:@"/System/Library%@", path];
             if([imagePath hasPrefix:prefix] == NO) {
@@ -280,10 +280,10 @@
 
     } else if([path isEqualToString:@"/lib/"]) {
         
-        NSDictionary *classStubsByImagePath = [[AllClasses sharedInstance] allClassStubsByImagePath];
+        NSDictionary *classStubsByImagePath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
         
         NSMutableArray *files = [NSMutableArray array];
-        [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, ClassStub *classStub, BOOL *stop) {
+        [classStubsByImagePath enumerateKeysAndObjectsUsingBlock:^(NSString *imagePath, RTBClass *classStub, BOOL *stop) {
             if([[imagePath pathExtension] isEqualToString:@"dylib"] == NO) return;
             [files addObject:[imagePath lastPathComponent]];
         }];
@@ -394,7 +394,7 @@
     NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
     
-    self.allClasses = [AllClasses sharedInstance];
+    self.allClasses = [RTBRuntime sharedInstance];
     
     BOOL startWebServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"EnableWebServer"];
     

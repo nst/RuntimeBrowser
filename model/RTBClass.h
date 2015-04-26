@@ -40,13 +40,13 @@ The runtime tells us the superclass of a class, but we don't directly know which
 the subclasses of a class.
 The purpose of ClassStub is to have a way of accessing ALL of a class's currently loaded subclasses.
 "*/
-@interface ClassStub : NSObject
+@interface RTBClass : NSObject
 
-+ (ClassStub *)classStubWithClass:(Class)klass;
++ (RTBClass *)classStubWithClass:(Class)klass;
 
 - (NSArray *)subclassesStubs;
 
-- (void)addSubclassStub:(ClassStub *)klassStub;
+- (void)addSubclassStub:(RTBClass *)klassStub;
 
 - (NSString *)stubClassname;
 - (NSString *)imagePath;

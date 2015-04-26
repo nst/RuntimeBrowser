@@ -6,19 +6,19 @@
 //
 //
 
-#import "ProtocolStub.h"
-#import "ClassStub.h"
+#import "RTBProtocol.h"
+#import "RTBClass.h"
 
-@implementation ProtocolStub
+@implementation RTBProtocol
 
-- (NSComparisonResult)compare:(ProtocolStub *)other {
+- (NSComparisonResult)compare:(RTBProtocol *)other {
     return [self.protocolName compare:other.protocolName];
 }
 
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName {
     NSAssert([protocolName isKindOfClass:[NSString class]], @"");
     
-    ProtocolStub *ps = [[ProtocolStub alloc] init];
+    RTBProtocol *ps = [[RTBProtocol alloc] init];
     ps.protocolName = protocolName;
     ps.conformingClassesStubsSet = [NSMutableSet set];
     return ps;

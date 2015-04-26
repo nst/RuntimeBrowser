@@ -34,13 +34,13 @@
  */
 
 #import "AppController.h"
-#import "AllClasses.h"
+#import "RTBRuntime.h"
 #import "NSString+SyntaxColoring.h"
 #import "BrowserNode.h"
 #import "BrowserCell.h"
-#import "ClassStub.h"
+#import "RTBClass.h"
 #import "RTBRuntimeHeader.h"
-#import "ProtocolStub.h"
+#import "RTBProtocol.h"
 
 @implementation AppController
 
@@ -64,7 +64,7 @@
     
     self.keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
     
-    self.allClasses = [AllClasses sharedInstance];
+    self.allClasses = [RTBRuntime sharedInstance];
     
     NSDictionary *defaultsPath = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"]];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsPath];
@@ -324,7 +324,7 @@
     
     NSString *rootTitle = @"";
     if(viewType == RBBrowserViewTypeList) {
-        rootTitle = [NSString stringWithFormat:@"%lu classes", (unsigned long)[[rootItem children] count]];
+        rootTitle = [NSString stringWithFormat:@"%lu Classes", (unsigned long)[[rootItem children] count]];
         
         if([self isInSearchMode]) {
             rootTitle = @"No classes found";
@@ -383,7 +383,7 @@
     
     NSString *searchString = [[[searchField stringValue] copy] autorelease];
     
-    NSArray *classStubs = [[AllClasses sharedInstance] sortedClassStubs];
+    NSArray *classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
     
     self.searchQueue = [[[NSOperationQueue alloc] init] autorelease];
     
@@ -575,11 +575,11 @@
         [label setStringValue:[item nodeName]];
         [headerTextView setString:@""];
         return;
-    } else if ([item isKindOfClass:[ProtocolStub class]]) {
+    } else if ([item isKindOfClass:[RTBProtocol class]]) {
         [label setStringValue:[item nodeName]];
         [headerTextView setString:@""];
         
-        ProtocolStub *protocolStub = (ProtocolStub *)item;
+        RTBProtocol *protocolStub = (RTBProtocol *)item;
         NSString *header = [RTBRuntimeHeader headerForProtocolName:protocolStub.protocolName];
         
         NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
@@ -666,7 +666,7 @@
 
 - (NSInteger)browser:(NSBrowser *)browser numberOfChildrenOfItem:(id)item {
     RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
-    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[ClassStub class]]) return 0;
+    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBClass class]]) return 0;
     
     return [[item children] count];
 }
@@ -680,8 +680,8 @@
     
     if(viewType == RBBrowserViewTypeList) return YES;
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
-    if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[ClassStub class]];
-    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[ProtocolStub class]]) return [[item children] count] == 0;
+    if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[RTBClass class]];
+    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBProtocol class]]) return [[item children] count] == 0;
 
     return YES;
 }
@@ -732,8 +732,8 @@
     NSString *directoryPath = [dropDestination path];
     
     for(id item in selectedItems) {
-        if([item isKindOfClass:[ClassStub class]]) {
-            ClassStub *cs = (ClassStub *)item;
+        if([item isKindOfClass:[RTBClass class]]) {
+            RTBClass *cs = (RTBClass *)item;
             
             NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
             NSString *path = [directoryPath stringByAppendingPathComponent:filename];
@@ -756,7 +756,7 @@
                 break;
             }
             
-            for(ClassStub *cs in [bn children]) {
+            for(RTBClass *cs in [bn children]) {
                 
                 NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
                 NSString *path = [directoryPath stringByAppendingPathComponent:filename];
@@ -789,7 +789,7 @@
     NSIndexPath *ip = [classBrowser selectionIndexPath];
     id item = [classBrowser itemAtIndexPath:ip];
     
-    if([item isKindOfClass:[ClassStub class]]) {
+    if([item isKindOfClass:[RTBClass class]]) {
         return [[NSWorkspace sharedWorkspace] iconForFileType:@"public.c-header"];
     } else if([item isKindOfClass:[BrowserNode class]]) {
         BrowserNode *bn = (BrowserNode *)item;

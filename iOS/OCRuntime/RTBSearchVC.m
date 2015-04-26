@@ -7,9 +7,9 @@
 //
 
 #import "RTBSearchVC.h"
-#import "ClassStub.h"
+#import "RTBClass.h"
 #import "RTBClassCell.h"
-#import "AllClasses.h"
+#import "RTBRuntime.h"
 
 @implementation RTBSearchVC
 
@@ -33,7 +33,7 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	self.title = @"Search";
-	self.allClasses = [AllClasses sharedInstance];
+	self.allClasses = [RTBRuntime sharedInstance];
 	self.foundClasses = [NSMutableArray array];
 
 	//searchBar.keyboardType = UIKeyboardTypeASCIICapable;
@@ -72,7 +72,7 @@
     RTBClassCell *cell = (RTBClassCell *)[_tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
     
 	// Set up the cell
-	ClassStub *cs = [_foundClasses objectAtIndex:indexPath.row];
+	RTBClass *cs = [_foundClasses objectAtIndex:indexPath.row];
 	cell.className = cs.stubClassname;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
@@ -117,7 +117,7 @@
 	[_foundClasses removeAllObjects];
 	
 	NSRange range;
-	for(ClassStub *cs in [_allClasses sortedClassStubs]) {
+	for(RTBClass *cs in [_allClasses sortedClassStubs]) {
 		range = [[cs description] rangeOfString:searchBar.text options:NSCaseInsensitiveSearch];
 		if(range.location != NSNotFound) {
 			//NSLog(@"-- add %@", cs);
