@@ -118,6 +118,21 @@
     XCTAssertEqualObjects([self decodeIvarWithName:@"x" type:"^^{example}"], @"struct example {} **x;", @"");
 }
 
+- (void)testMultiTypes {
+
+    NSString *typesString = @"c32@0:8^{_colordef=II{_rgbquad=b8b8b8b8}}16@\"NSString\"24";
+
+    NSArray *types = [RTBTypeDecoder decodeTypes:typesString flat:YES];
+
+    XCTAssertEqual(5, [types count]);
+    
+    XCTAssertEqualObjects(types[0], @"BOOL");
+    XCTAssertEqualObjects(types[1], @"id");
+    XCTAssertEqualObjects(types[2], @"SEL");
+    XCTAssertEqualObjects(types[3], @"struct _colordef { unsigned int x1; unsigned int x2; struct _rgbquad { unsigned int x_3_1_1 : 8; unsigned int x_3_1_2 : 8; unsigned int x_3_1_3 : 8; unsigned int x_3_1_4 : 8; } x3; }*");
+    XCTAssertEqualObjects(types[4], @"NSString *");
+}
+
 - (void)_testHeadersLinesNSString {
 //    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
 //    NSString *generatedHeader = [cd header];

@@ -98,20 +98,50 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
 
 @synthesize namedStructs;
 
-+ (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat {
+- (void)setIvT:(const char*)s {
+    ivT = s;
+}
 
+- (const char*)ivT {
+    return ivT;
+}
+
++ (NSArray *)decodeTypes:(NSString *)encodedType flat:(BOOL)flat {
+    
+    //NSLog(@"-- %@", encodedType);
+    
     RTBTypeDecoder *typeDecoder = [[self alloc] init];
     typeDecoder.showCommentForBlocks = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"];
     
-    if(flat) {
-        NSDictionary *d = [typeDecoder flatCTypeDeclForEncType:[encodedType cStringUsingEncoding:NSUTF8StringEncoding]];
-        return d[TYPE_LABEL];
-    } else {
-        NSDictionary *d = [typeDecoder ivarCTypeDeclForEncType:[encodedType cStringUsingEncoding:NSUTF8StringEncoding]];
-        return d[TYPE_LABEL];
+    [typeDecoder setIvT:[encodedType cStringUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    while(YES) {
+        NSDictionary *d = nil;
+        
+        [typeDecoder skipDigits];
+
+        //printf("--> %s\n", typeDecoder.ivT);
+        
+        if(strlen(typeDecoder.ivT) == 0) break;
+        
+        if(flat) {
+            d = [typeDecoder flatCTypeDeclForEncType];
+        } else {
+            d = [typeDecoder ivarCTypeDeclForEncType];
+        }
+
+        [ma addObject:d[TYPE_LABEL]];
     }
     
-    return nil;
+    return ma;
+}
+
++ (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat {
+    NSArray *types = [self decodeTypes:encodedType flat:flat];
+    NSAssert([types count] > 0, @"no types found");
+    return types[0];
 }
 
 //OK
@@ -363,6 +393,12 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
 }
 
+- (void)skipDigits {
+    while (strlen(ivT) && isdigit (*ivT)) {
+        ivT++;
+    };
+}
+
 //OK
 - (NSDictionary *)flatCTypeDeclForEncType {
     structPart = structDepth = 0; // PENDING ....use global access rather than params?
@@ -540,9 +576,7 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     const char *startingIVT = ivT;  // used in "Warning" string
     char closingChar = '\0';        // for array, struct and union (null ('\0') for all else)
     NSString *parsedTypeName = nil; // one of: @"array", @"struct", @"union" or nil
-    
-    //NSLog(@"-- %s", ivT);
-    
+        
     switch (*ivT) {  // what sort of thing are we parsing
         case '!' :   // "weak" pointer specifier (for new Garbage collection...).
             ++ivT; // '!' indicates a runtime (non-declarative) feature, skip it and continue
@@ -592,6 +626,7 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
             }
             
             if (typeSpec == nil) { // most common case: types are NOT modified by a specifier
+                
                 type = [self typeForFilerCode:*ivT spaceAfter:spaceAfter];
                 modifier = @"";
                 ++ivT;

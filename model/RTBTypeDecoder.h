@@ -37,7 +37,7 @@ Boston, MA  02111-1307  USA
 
 @interface RTBTypeDecoder : NSObject {
     NSMutableDictionary *namedStructs;
-    const char* ivT;  // the currently-processed Ivar type string.
+    const char* ivT; // the currently-processed Ivar type string
     int structDepth;
     int structPart;
     BOOL currentWarning;
@@ -51,6 +51,7 @@ Boston, MA  02111-1307  USA
 @property (nonatomic) BOOL showCommentForBlocks;
 
 + (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat;
++ (NSArray *)decodeTypes:(NSString *)encodedType flat:(BOOL)flat;
 
 // for tests
 - (NSDictionary *)flatCTypeDeclForEncType:(const char*)encType;

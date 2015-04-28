@@ -165,8 +165,8 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     NSArray *argumentsTypes = [self argumentTypesForMethod:method];
     
-    //    NSLog(@"-- parts: %@", methodNameParts);
-    //    NSLog(@"-- types: %@", argumentsTypes);
+//    NSLog(@"-- parts: %@", methodNameParts);
+//    NSLog(@"-- types: %@", argumentsTypes);
     
     BOOL hasArgs = [argumentsTypes count] > 2;
     
@@ -193,7 +193,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
 + (NSString *)descriptionForProtocol:(Protocol *)protocol selector:(SEL)selector isRequiredMethod:(BOOL)isRequiredMethod isInstanceMethod:(BOOL)isInstanceMethod {
     
     const char *descriptionString = _protocol_getMethodTypeEncoding(protocol, selector, isRequiredMethod, isInstanceMethod);
-    //
     
     NSString *argsTypes = [NSString stringWithCString:descriptionString encoding:NSUTF8StringEncoding];
     
@@ -212,32 +211,11 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     [ms appendFormat:@" (%@)", [RTBTypeDecoder decodeType:returnType flat:YES]];
     
     NSString *argumentsTypesString = [argsTypes substringFromIndex:[returnType length]+1];
-    NSMutableArray *argumentsTypes = [NSMutableArray array];
+    NSArray *argumentsTypes = [RTBTypeDecoder decodeTypes:argumentsTypesString flat:YES];
     
-    // split argument types using the digits
-    NSMutableString *fullType = [NSMutableString string];
-    NSUInteger structLevel = 0;
-    while([argumentsTypesString length] > 0) {
-        unichar c = [argumentsTypesString characterAtIndex:0];
-        
-        if(c == '{') {
-            structLevel += 1;
-        } else if(c == '}') {
-            structLevel -= 1;
-        }
-        
-        BOOL isDigit = (c >= 0x30) && (c <= 0x39);
-        if(isDigit && structLevel == 0) {
-            if([fullType length] > 0) {
-                [argumentsTypes addObject:fullType];
-            }
-            fullType = [NSMutableString string];
-        } else {
-            [fullType appendFormat:@"%C", c];
-        }
-        argumentsTypesString = [argumentsTypesString substringFromIndex:1];
-    }
-    
+//    NSLog(@"-- parts: %@", methodNameParts);
+//    NSLog(@"-- types: %@", argumentsTypes);
+
     BOOL hasArgs = [argumentsTypes count] > 0;
     
     [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
@@ -251,8 +229,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         [ms appendString:part];
         
         if(hasArgs) {
-            NSString *decodedType = [RTBTypeDecoder decodeType:argumentsTypes[i] flat:YES];
-            [ms appendFormat:@":(%@)arg%@ ", decodedType, @(i+1)];
+            [ms appendFormat:@":(%@)arg%@ ", argumentsTypes[i], @(i+1)];
         }
     }];
     
