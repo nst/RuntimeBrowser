@@ -196,28 +196,26 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     NSString *argsTypes = [NSString stringWithCString:descriptionString encoding:NSUTF8StringEncoding];
     
-    NSArray *splitedArgsTypes = [argsTypes componentsSeparatedByString:@":"];
-    NSAssert([splitedArgsTypes count] > 1, @"return type and arg types separator not found");
+    NSArray *types = [RTBTypeDecoder decodeTypes:argsTypes flat:YES];
     
-    NSString *returnType = splitedArgsTypes[0];
+    NSString *returnType = [types objectAtIndex:0];
     
     NSString *methodName = NSStringFromSelector(selector);
+    //NSLog(@"-- methodName: %@", methodName);
     
     NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
     NSAssert([methodNameParts count] > 0, @"");
     
     NSMutableString *ms = [NSMutableString string];
     [ms appendString: isInstanceMethod ? @"-" : @"+"];
-    [ms appendFormat:@" (%@)", [RTBTypeDecoder decodeType:returnType flat:YES]];
-    
-    NSString *argumentsTypesString = [argsTypes substringFromIndex:[returnType length]+1];
-    NSArray *argumentsTypes = [RTBTypeDecoder decodeTypes:argumentsTypesString flat:YES];
+    [ms appendFormat:@" (%@)", returnType];
     
 //    NSLog(@"-- parts: %@", methodNameParts);
+//    NSLog(@"-- argsTypes: %@", argsTypes);
 //    NSLog(@"-- types: %@", argumentsTypes);
-
-    BOOL hasArgs = [argumentsTypes count] > 0;
     
+    BOOL hasArgs = [types count] > 3;
+
     [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
         
         if(i == [methodNameParts count] - 1 && [part isEqualToString:@""]) {
@@ -229,7 +227,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         [ms appendString:part];
         
         if(hasArgs) {
-            [ms appendFormat:@":(%@)arg%@ ", argumentsTypes[i], @(i+1)];
+            [ms appendFormat:@":(%@)arg%@ ", types[i+2], @(i+1)];
         }
     }];
     
