@@ -377,7 +377,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     free(methods);
     
-    [ma sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
+    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
         return [d1[@"name"] compare:d2[@"name"]];
     }];
     
