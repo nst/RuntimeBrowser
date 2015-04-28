@@ -140,7 +140,10 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
 
 + (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat {
     NSArray *types = [self decodeTypes:encodedType flat:flat];
-    NSAssert([types count] > 0, @"no types found");
+    if([types count] == 0) {
+        NSLog(@"-- no types found in encodedType: %@", encodedType);
+    }
+    NSAssert([types count] > 0, nil);
     return types[0];
 }
 
