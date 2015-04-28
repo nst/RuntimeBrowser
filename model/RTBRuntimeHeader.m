@@ -125,10 +125,10 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         else comment = [NSString stringWithFormat:@"/* unknown property attribute: %@ */", attribute];
     }
     
-        if(displayPropertiesDefaultValues) {
-            if(!memory) memory = @"assign";
-            if(!rw) rw = @"readwrite";
-        }
+    if(displayPropertiesDefaultValues) {
+        if(!memory) memory = @"assign";
+        if(!rw) rw = @"readwrite";
+    }
     
     NSMutableString *ms = [NSMutableString stringWithString:@"@property"];
     
@@ -151,22 +151,17 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return ms;
 }
 
-+ (NSString *)descriptionForMethod:(Method)method isClassMethod:(BOOL)isClassMethod {
-    
-    NSString *returnType = [NSString stringWithCString:method_copyReturnType(method) encoding:NSASCIIStringEncoding];
-    NSString *methodName = NSStringFromSelector(method_getName(method));
++ (NSString *)descriptionForMethodName:(NSString *)methodName
+                            returnType:(NSString *)returnType
+                         argumentTypes:(NSArray *)argumentsTypes
+                         isClassMethod:(BOOL)isClassMethod {
     
     NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
     NSAssert([methodNameParts count] > 0, @"");
     
     NSMutableString *ms = [NSMutableString string];
     [ms appendString: isClassMethod ? @"+" : @"-"];
-    [ms appendFormat:@" (%@)", [RTBTypeDecoder decodeType:returnType flat:YES]];
-    
-    NSArray *argumentsTypes = [self argumentTypesForMethod:method];
-    
-//    NSLog(@"-- parts: %@", methodNameParts);
-//    NSLog(@"-- types: %@", argumentsTypes);
+    [ms appendFormat:@" (%@)", returnType];
     
     BOOL hasArgs = [argumentsTypes count] > 2;
     
@@ -190,50 +185,31 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return ms;
 }
 
++ (NSString *)descriptionForMethod:(Method)method isClassMethod:(BOOL)isClassMethod {
+    
+    NSString *returnTypeEncoded = [NSString stringWithCString:method_copyReturnType(method) encoding:NSASCIIStringEncoding];
+    NSString *methodName = NSStringFromSelector(method_getName(method));
+    NSString *returnType = [RTBTypeDecoder decodeType:returnTypeEncoded flat:YES];
+    NSArray *argumentTypes = [self argumentTypesForMethod:method];
+    
+    return [self descriptionForMethodName:methodName
+                               returnType:returnType
+                            argumentTypes:argumentTypes
+                            isClassMethod:isClassMethod];
+}
+
 + (NSString *)descriptionForProtocol:(Protocol *)protocol selector:(SEL)selector isRequiredMethod:(BOOL)isRequiredMethod isInstanceMethod:(BOOL)isInstanceMethod {
     
     const char *descriptionString = _protocol_getMethodTypeEncoding(protocol, selector, isRequiredMethod, isInstanceMethod);
-    
-    NSString *argsTypes = [NSString stringWithCString:descriptionString encoding:NSUTF8StringEncoding];
-    
-    NSArray *types = [RTBTypeDecoder decodeTypes:argsTypes flat:YES];
-    
-    NSString *returnType = [types objectAtIndex:0];
-    
+    NSString *argumentTypesEncodedString = [NSString stringWithCString:descriptionString encoding:NSUTF8StringEncoding];
+    NSArray *argumentTypes = [RTBTypeDecoder decodeTypes:argumentTypesEncodedString flat:YES];
+    NSString *returnType = [argumentTypes objectAtIndex:0];
     NSString *methodName = NSStringFromSelector(selector);
-    //NSLog(@"-- methodName: %@", methodName);
     
-    NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
-    NSAssert([methodNameParts count] > 0, @"");
-    
-    NSMutableString *ms = [NSMutableString string];
-    [ms appendString: isInstanceMethod ? @"-" : @"+"];
-    [ms appendFormat:@" (%@)", returnType];
-    
-//    NSLog(@"-- parts: %@", methodNameParts);
-//    NSLog(@"-- argsTypes: %@", argsTypes);
-//    NSLog(@"-- types: %@", argumentsTypes);
-    
-    BOOL hasArgs = [types count] > 3;
-
-    [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
-        
-        if(i == [methodNameParts count] - 1 && [part isEqualToString:@""]) {
-            [ms deleteCharactersInRange:NSMakeRange([ms length]-1, 1)]; // remove extraneous space
-            *stop = YES;
-            return;
-        }
-        
-        [ms appendString:part];
-        
-        if(hasArgs) {
-            [ms appendFormat:@":(%@)arg%@ ", types[i+2], @(i+1)];
-        }
-    }];
-    
-    [ms appendString:@";"];
-    
-    return ms;
+    return [self descriptionForMethodName:methodName
+                               returnType:returnType
+                            argumentTypes:[argumentTypes subarrayWithRange:NSMakeRange(1, [argumentTypes count]-1)]
+                            isClassMethod:(isInstanceMethod == NO)];
 }
 
 + (NSArray *)sortedProtocolsForClass:(Class)aClass {
@@ -427,11 +403,11 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     NSArray *requiredInstanceMethods = [self sortedMethodsInProtocol:protocolName required:YES instanceMethods:YES];
     NSArray *optionalClassMethods = [self sortedMethodsInProtocol:protocolName required:NO instanceMethods:NO];
     NSArray *optionalInstanceMethods = [self sortedMethodsInProtocol:protocolName required:NO instanceMethods:YES];
-
+    
     if([requiredClassMethods count] + [requiredInstanceMethods count] > 0) {
         [header appendString:@"@required\n\n"];
     }
-
+    
     // required class methods
     for(NSDictionary *d in requiredClassMethods) {
         [header appendFormat:@"%@\n", d[@"description"]];
@@ -439,7 +415,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if([requiredClassMethods count] > 0) {
         [header appendString:@"\n"];
     }
-
+    
     // required instance methods
     for(NSDictionary *d in requiredInstanceMethods) {
         [header appendFormat:@"%@\n", d[@"description"]];
@@ -447,11 +423,11 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if([requiredInstanceMethods count] > 0) {
         [header appendString:@"\n"];
     }
-
+    
     if([optionalClassMethods count] + [optionalInstanceMethods count] > 0) {
         [header appendString:@"@optional\n\n"];
     }
-
+    
     // optional class methods
     for(NSDictionary *d in optionalClassMethods) {
         [header appendFormat:@"%@\n", d[@"description"]];
@@ -459,7 +435,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if([optionalClassMethods count] > 0) {
         [header appendString:@"\n"];
     }
-
+    
     // optional instance methods
     for(NSDictionary *d in optionalInstanceMethods) {
         [header appendFormat:@"%@\n", d[@"description"]];
@@ -467,7 +443,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if([optionalInstanceMethods count] > 0) {
         [header appendString:@"\n"];
     }
-
+    
     [header appendString:@"@end\n"];
     
     return header;
