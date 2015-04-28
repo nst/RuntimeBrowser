@@ -133,6 +133,33 @@
     XCTAssertEqualObjects(types[4], @"NSString *");
 }
 
+- (void)testExtendedEncodingForBlock {
+
+    // - (void)aaaWithCompletionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))completionHandler;
+    NSString *typeString = @"v24@0:8@?<v@?@\"NSURLResponse\"@\"NSData\"@\"NSError\">16";
+
+    NSArray *types = [RTBTypeDecoder decodeTypes:typeString flat:YES];
+    
+    XCTAssertEqual(4, [types count]);
+    
+    XCTAssertEqualObjects(types[0], @"void");
+    XCTAssertEqualObjects(types[1], @"id");
+    XCTAssertEqualObjects(types[2], @"SEL");
+    XCTAssertEqualObjects(types[3], @"void (^)(NSURLResponse* arg1, NSData *arg2, NSError* arg3)");
+}
+
+- (void)testSELReturnType {
+    NSString *typeString = @":16@0:8";
+    
+    NSArray *types = [RTBTypeDecoder decodeTypes:typeString flat:YES];
+    
+    XCTAssertEqual(3, [types count]);
+    
+    XCTAssertEqualObjects(types[0], @"SEL");
+    XCTAssertEqualObjects(types[1], @"id");
+    XCTAssertEqualObjects(types[2], @"SEL");
+}
+
 - (void)_testHeadersLinesNSString {
 //    ClassDisplay *cd = [ClassDisplay classDisplayWithClass:[NSString class]];
 //    NSString *generatedHeader = [cd header];

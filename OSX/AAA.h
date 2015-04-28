@@ -8,17 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol AAAProtocol <NSObject>
+- (void)aaaWithCompletionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))completionHandler;
+@end
+
 typedef struct example {
     char *aString;
     int  anInt;
 } Example;
 
-@interface AAA : NSObject {
+@interface AAA : NSObject <AAAProtocol> {
     NSArray *_array;
     NSUInteger _i;
     struct example example;
-    
-    void*(^)(void*) _recordChangedBlock;
 }
 
 @property (nonatomic, strong) NSDictionary *dictionary;
