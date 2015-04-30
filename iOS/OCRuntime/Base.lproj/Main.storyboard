@@ -344,24 +344,6 @@ We have found this to be a useful development tool. Please note, however, that e
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="MLO-SK-r0a" id="eNg-ml-svd">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k7l-JW-zuY">
-                                            <rect key="frame" x="60" y="11" width="240" height="21"/>
-                                            <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gx4-dg-HUc">
-                                            <rect key="frame" x="20" y="6" width="32" height="32"/>
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                            <state key="normal" title="Button" image="header.png">
-                                                <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                            </state>
-                                            <state key="highlighted">
-                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            </state>
-                                        </button>
-                                    </subviews>
                                 </tableViewCellContentView>
                             </tableViewCell>
                         </prototypes>
@@ -452,44 +434,20 @@ We have found this to be a useful development tool. Please note, however, that e
                         <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" showsCancelButton="YES" id="JO9-LX-acH">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits" keyboardType="alphabet"/>
+                            <connections>
+                                <outlet property="delegate" destination="4qv-bU-juL" id="Ovo-dV-Qcv"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBClassCell" id="UnG-Kl-Bn5" customClass="RTBClassCell">
                                 <rect key="frame" x="0.0" y="66" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="UnG-Kl-Bn5" id="miH-rb-Z9B">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </tableViewCellContentView>
-                            </tableViewCell>
-                        </prototypes>
-                        <sections/>
-                        <connections>
-                            <outlet property="dataSource" destination="4qv-bU-juL" id="guY-gI-0iI"/>
-                            <outlet property="delegate" destination="4qv-bU-juL" id="GRi-uJ-jpB"/>
-                        </connections>
-                    </tableView>
-                    <extendedEdge key="edgesForExtendedLayout"/>
-                    <navigationItem key="navigationItem" title="Search Classes" id="HkD-Mr-yp9"/>
-                    <connections>
-                        <outlet property="tableView" destination="Fkj-4s-Q0W" id="vAP-gn-QrX"/>
-                    </connections>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="VKz-F7-KVM" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1151" y="1051"/>
-        </scene>
-        <!--Protocols-->
-        <scene sceneID="SRj-3N-iSm">
-            <objects>
-                <tableViewController id="Hja-zv-rS0" customClass="RTBProtocolsTVC" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="nu6-y3-9ck">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="RTBProtocolCell" id="X6T-AR-ag4" customClass="RTBProtocolCell">
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="X6T-AR-ag4" id="dVn-y1-tha">
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bOw-c4-seR">
@@ -508,26 +466,32 @@ We have found this to be a useful development tool. Please note, however, that e
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <connections>
-                                                <action selector="showHeaders:" destination="X6T-AR-ag4" eventType="touchUpInside" id="4Tf-lk-I9I"/>
+                                                <action selector="showHeaders:" destination="UnG-Kl-Bn5" eventType="touchUpInside" id="rgw-wX-M29"/>
                                             </connections>
                                         </button>
                                     </subviews>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <outlet property="label" destination="bOw-c4-seR" id="DwI-cp-qY5"/>
+                                    <outlet property="label" destination="bOw-c4-seR" id="eaM-6L-5Ix"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
+                        <sections/>
                         <connections>
-                            <outlet property="dataSource" destination="Hja-zv-rS0" id="sWN-4Q-y35"/>
-                            <outlet property="delegate" destination="Hja-zv-rS0" id="64W-Ej-7yd"/>
+                            <outlet property="dataSource" destination="4qv-bU-juL" id="guY-gI-0iI"/>
+                            <outlet property="delegate" destination="4qv-bU-juL" id="GRi-uJ-jpB"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Protocols" id="EwQ-WE-EPL"/>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <navigationItem key="navigationItem" title="Search Classes" id="HkD-Mr-yp9"/>
+                    <connections>
+                        <outlet property="tableView" destination="Fkj-4s-Q0W" id="vAP-gn-QrX"/>
+                        <outlet property="theSearchBar" destination="JO9-LX-acH" id="Dg1-88-gb3"/>
+                    </connections>
                 </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Lcp-AZ-5UW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VKz-F7-KVM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1151" y="390"/>
+            <point key="canvasLocation" x="1151" y="1051"/>
         </scene>
         <!--Protocols-->
         <scene sceneID="hca-hx-Mgx">
@@ -540,7 +504,7 @@ We have found this to be a useful development tool. Please note, however, that e
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
-                        <segue destination="Hja-zv-rS0" kind="relationship" relationship="rootViewController" id="WWE-s0-RQD"/>
+                        <segue destination="56C-oV-MWn" kind="relationship" relationship="rootViewController" id="h25-xJ-HAM"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mmZ-ez-0Jb" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -603,6 +567,58 @@ We have found this to be a useful development tool. Please note, however, that e
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FNP-y4-bzi" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-192" y="-256"/>
+        </scene>
+        <!--Protocols-->
+        <scene sceneID="oaP-Ig-2zZ">
+            <objects>
+                <tableViewController storyboardIdentifier="RTBProtocolsTVC" title="Protocols" useStoryboardIdentifierAsRestorationIdentifier="YES" id="56C-oV-MWn" customClass="RTBProtocolsTVC" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="CPo-0x-pbX">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RTBProtocolCell" id="KcM-iV-xIj" customClass="RTBProtocolCell">
+                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KcM-iV-xIj" id="QaI-a4-ltx">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Dkt-sK-Krf">
+                                            <rect key="frame" x="60" y="11" width="240" height="21"/>
+                                            <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="itZ-xe-enG">
+                                            <rect key="frame" x="20" y="6" width="32" height="32"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                            <state key="normal" title="Button" image="header.png">
+                                                <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <state key="highlighted">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="showHeaders:" destination="KcM-iV-xIj" eventType="touchUpInside" id="ZOb-GD-awK"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="button" destination="itZ-xe-enG" id="ojB-xN-uHQ"/>
+                                    <outlet property="label" destination="Dkt-sK-Krf" id="bgS-B2-qyz"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <sections/>
+                    </tableView>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <navigationItem key="navigationItem" title="Protocols" id="Vwd-J1-2zB"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DRW-n3-KfO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1151" y="390"/>
         </scene>
     </scenes>
     <resources>
