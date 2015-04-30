@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "HTTPResponse.h"
 
-@class RTBObjectsTVC;
+//@class RTBObjectsTVC;
 @class HTTPServer;
 @class RTBRuntime;
 
@@ -18,7 +18,7 @@
 @property (strong, nonatomic) UIWindow *window;
 
 @property (strong, nonatomic) RTBRuntime *allClasses;
-@property (strong, nonatomic) RTBObjectsTVC *objectsTVC;
+//@property (strong, nonatomic) RTBObjectsTVC *objectsTVC;
 @property (strong, nonatomic) HTTPServer *httpServer;
 
 - (NSObject<HTTPResponse> *)responseForPath:(NSString *)path;

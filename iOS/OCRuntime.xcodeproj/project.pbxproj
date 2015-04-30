@@ -44,6 +44,7 @@
 		0360F4FE17969BBE00F58672 /* RTBSearchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0360F4FD17969BBE00F58672 /* RTBSearchVC.m */; };
 		0360F50817969FDA00F58672 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F50717969FDA00F58672 /* header.png */; };
 		0360F50A1796A1F100F58672 /* framework.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F5091796A1F100F58672 /* framework.png */; };
+		036C40361AF25A8E00477DE1 /* RTBProtocolCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 036C40351AF25A8E00477DE1 /* RTBProtocolCell.m */; };
 		037402E617968370005D1AFB /* RTBTreeTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 037402E517968370005D1AFB /* RTBTreeTVC.m */; };
 		037402E917968502005D1AFB /* RTBClassCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 037402E817968502005D1AFB /* RTBClassCell.m */; };
 		037402EC1796855F005D1AFB /* RTBClassDisplayVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 037402EB1796855F005D1AFB /* RTBClassDisplayVC.m */; };
@@ -64,7 +65,6 @@
 		03959DE2176AFC4D002A1FCC /* RTBAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DE1176AFC4D002A1FCC /* RTBAppDelegate.m */; };
 		03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 03959DE3176AFC4D002A1FCC /* Main.storyboard */; };
 		03959DED176AFC4D002A1FCC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03959DEC176AFC4D002A1FCC /* Images.xcassets */; };
-		03959DF4176AFC4E002A1FCC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DF3176AFC4E002A1FCC /* XCTest.framework */; };
 		03959DF5176AFC4E002A1FCC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD1176AFC4D002A1FCC /* Foundation.framework */; };
 		03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
 		03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03959DFC176AFC4E002A1FCC /* InfoPlist.strings */; };
@@ -77,6 +77,7 @@
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F830D21AEAF59A00425494 /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */; };
+		03FA8B771AEE3D2500D55C16 /* RTBProtocolsTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */; };
 		4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
@@ -158,6 +159,8 @@
 		0360F4FD17969BBE00F58672 /* RTBSearchVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBSearchVC.m; sourceTree = "<group>"; };
 		0360F50717969FDA00F58672 /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
 		0360F5091796A1F100F58672 /* framework.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = framework.png; sourceTree = "<group>"; };
+		036C40341AF25A8E00477DE1 /* RTBProtocolCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBProtocolCell.h; sourceTree = "<group>"; };
+		036C40351AF25A8E00477DE1 /* RTBProtocolCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBProtocolCell.m; sourceTree = "<group>"; };
 		037402E417968370005D1AFB /* RTBTreeTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBTreeTVC.h; sourceTree = "<group>"; };
 		037402E517968370005D1AFB /* RTBTreeTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBTreeTVC.m; sourceTree = "<group>"; };
 		037402E717968502005D1AFB /* RTBClassCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBClassCell.h; sourceTree = "<group>"; };
@@ -195,7 +198,6 @@
 		03959DE4176AFC4D002A1FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		03959DEC176AFC4D002A1FCC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		03959DF2176AFC4E002A1FCC /* OCRuntimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OCRuntimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		03959DF3176AFC4E002A1FCC /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		03959DFB176AFC4E002A1FCC /* OCRuntimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCRuntimeTests-Info.plist"; sourceTree = "<group>"; };
 		03959DFD176AFC4E002A1FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCRuntimeTests.m; sourceTree = "<group>"; };
@@ -212,6 +214,8 @@
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 		03F830D01AEAF59A00425494 /* ClassDisplayDeprecated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassDisplayDeprecated.h; path = ../model/ClassDisplayDeprecated.h; sourceTree = "<group>"; };
 		03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassDisplayDeprecated.m; path = ../model/ClassDisplayDeprecated.m; sourceTree = "<group>"; };
+		03FA8B751AEE3D2500D55C16 /* RTBProtocolsTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBProtocolsTVC.h; sourceTree = "<group>"; };
+		03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBProtocolsTVC.m; sourceTree = "<group>"; };
 		4CE3701F17E375DD00CD4BF2 /* UIAlertView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Blocks.h"; sourceTree = "<group>"; };
 		4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Blocks.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -231,7 +235,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03959DF4176AFC4E002A1FCC /* XCTest.framework in Frameworks */,
 				03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */,
 				03959DF5176AFC4E002A1FCC /* Foundation.framework in Frameworks */,
 			);
@@ -432,7 +435,6 @@
 				03959DD1176AFC4D002A1FCC /* Foundation.framework */,
 				03959DD3176AFC4D002A1FCC /* CoreGraphics.framework */,
 				03959DD5176AFC4D002A1FCC /* UIKit.framework */,
-				03959DF3176AFC4E002A1FCC /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -454,8 +456,12 @@
 				0374034A17969813005D1AFB /* RTBListTVC.m */,
 				0374034B17969813005D1AFB /* RTBFrameworksTVC.h */,
 				0374034C17969813005D1AFB /* RTBFrameworksTVC.m */,
+				03FA8B751AEE3D2500D55C16 /* RTBProtocolsTVC.h */,
+				03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */,
 				037402E717968502005D1AFB /* RTBClassCell.h */,
 				037402E817968502005D1AFB /* RTBClassCell.m */,
+				036C40341AF25A8E00477DE1 /* RTBProtocolCell.h */,
+				036C40351AF25A8E00477DE1 /* RTBProtocolCell.m */,
 				037402FD17969143005D1AFB /* RTBMethodCell.h */,
 				037402FE17969143005D1AFB /* RTBMethodCell.m */,
 				0374034F179698CC005D1AFB /* RTBFrameworkCell.h */,
@@ -655,6 +661,7 @@
 				037402EF17968588005D1AFB /* RTBObjectsTVC.m in Sources */,
 				03B0E3681AED353900A9DAC3 /* RTBProtocol.m in Sources */,
 				037402FF17969143005D1AFB /* RTBMethodCell.m in Sources */,
+				03FA8B771AEE3D2500D55C16 /* RTBProtocolsTVC.m in Sources */,
 				030959BA17B5434000221D0E /* DDFileLogger.m in Sources */,
 				030959BE17B5434000221D0E /* DispatchQueueLogFormatter.m in Sources */,
 				03B0E3671AED353900A9DAC3 /* RTBClass.m in Sources */,
@@ -663,6 +670,7 @@
 				0309595917B5434000221D0E /* WebSocket.m in Sources */,
 				0309594A17B5434000221D0E /* DDNumber.m in Sources */,
 				0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */,
+				036C40361AF25A8E00477DE1 /* RTBProtocolCell.m in Sources */,
 				0309595017B5434000221D0E /* MultipartFormDataParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

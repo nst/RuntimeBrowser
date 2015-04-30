@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @class RTBClassDisplayVC;
-@class RTBInfoVC;
 @class RTBRuntime;
 
 @interface RTBTreeTVC : UITableViewController <UITableViewDataSource, UITableViewDelegate>
@@ -18,8 +17,5 @@
 @property (nonatomic, retain) NSArray *classStubs;
 @property (nonatomic, retain) RTBRuntime *allClasses;
 @property (nonatomic, retain) RTBClassDisplayVC *classDisplayVC;
-@property (nonatomic, retain) RTBInfoVC *infoVC;
-
-- (IBAction)showInfo:(id)sender;
 
 @end

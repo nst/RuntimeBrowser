@@ -11,6 +11,7 @@
 #import "RTBAppDelegate.h"
 #import "RTBObjectsTVC.h"
 #import "NSString+SyntaxColoring.h"
+#import "RTBRuntimeHeader.h"
 
 @interface RTBClassDisplayVC ()
 
@@ -39,7 +40,7 @@
     
 	self.textView.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
     
-    self.useButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Use", nil) style:UIBarButtonItemStylePlain target:self action:@selector(use:)];
+    self.useButton = _className ? [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Use", nil) style:UIBarButtonItemStylePlain target:self action:@selector(use:)] : nil;
     self.navigationItem.leftBarButtonItem = self.useButton;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissModalView:)];
 }
@@ -48,12 +49,13 @@
     [super viewWillAppear:animated];
     
 	self.textView.text = @"";
-	self.title = _className;
+    self.title = _className ? _className : _protocolName;
 	
-	// FIXME: ??
-	NSArray *forbiddenClasses = [NSArray arrayWithObjects:@"NSMessageBuilder", /*, @"NSObject", @"NSProxy", */@"Object", @"_NSZombie_", nil];
-	
-	self.useButton.enabled = ![forbiddenClasses containsObject:self.className];
+//	// FIXME: ??
+//	NSArray *forbiddenClasses = [NSArray arrayWithObjects:@"NSMessageBuilder", /*, @"NSObject", @"NSProxy", */@"Object", @"_NSZombie_", nil];
+//	
+//	self.useButton.enabled = ![forbiddenClasses containsObject:self.className];
+    self.useButton.enabled = YES;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -63,14 +65,20 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-	ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(self.className)];
-    self.textView.text = [cd header];
+    NSString *header = nil;
+    
+    if(_className) {
+        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(self.className)];
+        header = [cd header];
+    } else if (_protocolName) {
+        header = [RTBRuntimeHeader headerForProtocolName:_protocolName];
+    }
     
     NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];
 	
 	NSArray *keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
     
-    NSAttributedString *as = [[cd header] colorizeWithKeywords:keywords classes:nil colorize:YES];
+    NSAttributedString *as = [header colorizeWithKeywords:keywords classes:nil colorize:YES];
     
     self.textView.attributedText = as;
 }

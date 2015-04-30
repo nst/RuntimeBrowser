@@ -21,12 +21,12 @@
 
 @implementation RTBObjectsTVC
 
+- (IBAction)close:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)setObject:(id)o {
 	
-	//NSLog(@"-- setObject: %@", o);
-	
-//	[object autorelease];
-//	[o retain];
 	_object = o;
 	
 	self.methods = [NSMutableArray array];
@@ -38,6 +38,8 @@
 		NSArray *m = nil;
 	
 		ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[_object class]];
+
+#warning FIXME: show all class methods
 
 		if(_object == [_object class]) {
 			m = [cd sortedMethodLinesWithSign:'+'];
@@ -83,6 +85,8 @@
 	// (sometimes fails to get the description)
 	self.title = [_object description];
 	
+    [self setObject:_object];
+    
 	//Class metaCls = object->isa;
     //self.methods = [object rb_classMethods];	
 }

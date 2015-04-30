@@ -7,7 +7,7 @@
 //
 
 #import "RTBListTVC.h"
-#import "RTBRuntime.h""
+#import "RTBRuntime.h"
 #import "RTBClassCell.h"
 #import "RTBClassDisplayVC.h"
 #import "RTBClass.h"
@@ -198,4 +198,3 @@
 }
 
 @end
-

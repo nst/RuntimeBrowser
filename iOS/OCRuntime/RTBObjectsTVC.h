@@ -14,4 +14,6 @@
 @property (nonatomic, retain) id object;
 @property (nonatomic, retain) NSMutableArray *methods;
 
+- (IBAction)close:(id)sender;
+
 @end

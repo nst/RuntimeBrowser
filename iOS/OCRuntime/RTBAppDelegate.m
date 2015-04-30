@@ -73,17 +73,18 @@
 
 - (void)useClass:(NSString *)className {
     
-    UITabBarController *tabBarController = (UITabBarController *)_window.rootViewController;
-    
-    tabBarController.selectedIndex = 4;
-    
-    UINavigationController *nc = (UINavigationController *)[tabBarController.viewControllers objectAtIndex:4];
-    [nc popToRootViewControllerAnimated:NO];
-    
-    RTBObjectsTVC *objectsTVC = (RTBObjectsTVC *)nc.topViewController;
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    UINavigationController *objectsNC = (UINavigationController *)[sb instantiateViewControllerWithIdentifier:@"RTBObjectsNC"];
     
     Class klass = NSClassFromString(className);
+
+    RTBObjectsTVC *objectsTVC = (RTBObjectsTVC *)[objectsNC topViewController];
     objectsTVC.object = klass;
+    
+    UITabBarController *tabBarController = (UITabBarController *)_window.rootViewController;
+    [tabBarController presentViewController:objectsNC animated:YES completion:^{
+        //
+    }];
 }
 
 - (NSString *)myIPAddress {
@@ -414,6 +415,16 @@
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
     classDisplayVC.className = className;
+    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
+    [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)showHeaderForProtocolName:(NSString *)protocolName {
+    
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
+    classDisplayVC.protocolName = protocolName;
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
     [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];

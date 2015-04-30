@@ -11,7 +11,6 @@
 #import "RTBClassCell.h"
 #import "RTBClass.h"
 #import "RTBClassDisplayVC.h"
-#import "RTBInfoVC.h"
 
 @interface RTBTreeTVC ()
 
@@ -24,15 +23,6 @@
 		self.classDisplayVC = [[RTBClassDisplayVC alloc] initWithNibName:@"ClassDisplayVC" bundle:nil];
 	}
 	return _classDisplayVC;
-}
-
-- (IBAction)showInfo:(id)sender {
-    
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-    RTBInfoVC *infoVC = (RTBInfoVC *)[sb instantiateViewControllerWithIdentifier:@"RTBInfoVC"];
-    
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:infoVC];
-	[self presentViewController:navigationController animated:YES completion:nil];
 }
 
 - (void)viewDidLoad {

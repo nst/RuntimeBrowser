@@ -10,11 +10,21 @@
 #import "RTBFrameworkCell.h"
 #import "RTBRuntime.h"
 #import "RTBListTVC.h"
+#import "RTBInfoVC.h"
 
 static const NSUInteger kPublicFrameworks = 0;
 static const NSUInteger kPrivateFrameworks = 1;
 
 @implementation RTBFrameworksTVC
+
+- (IBAction)showInfo:(id)sender {
+    
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    RTBInfoVC *infoVC = (RTBInfoVC *)[sb instantiateViewControllerWithIdentifier:@"RTBInfoVC"];
+    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:infoVC];
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 2;

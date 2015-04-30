@@ -11,5 +11,6 @@
 @interface RTBClassDisplayVC : UIViewController
 
 @property (nonatomic, copy) NSString *className;
+@property (nonatomic, copy) NSString *protocolName;
 
 @end
