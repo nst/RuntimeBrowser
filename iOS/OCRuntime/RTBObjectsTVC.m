@@ -22,7 +22,9 @@
 @implementation RTBObjectsTVC
 
 - (IBAction)close:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 - (void)setObject:(id)o {

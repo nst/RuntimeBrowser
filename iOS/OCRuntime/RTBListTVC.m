@@ -117,6 +117,8 @@
 	if(_frameworkName == nil) {
 		self.classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
 	}
+    
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

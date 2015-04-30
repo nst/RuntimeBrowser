@@ -60,6 +60,8 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
 	self.textView.text = @"";
+    
+    [super viewDidDisappear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
