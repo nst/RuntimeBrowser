@@ -79,7 +79,7 @@
     Class klass = NSClassFromString(className);
 
     RTBObjectsTVC *objectsTVC = (RTBObjectsTVC *)[objectsNC topViewController];
-    objectsTVC.object = klass;
+    [objectsTVC setInspectedObject:klass];
     
     UITabBarController *tabBarController = (UITabBarController *)_window.rootViewController;
     [tabBarController presentViewController:objectsNC animated:YES completion:^{
@@ -417,6 +417,9 @@
     classDisplayVC.className = className;
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
+    navigationController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+
+    self.window.rootViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
 }
 
@@ -427,6 +430,9 @@
     classDisplayVC.protocolName = protocolName;
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
+    navigationController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+
+    self.window.rootViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
 }
 

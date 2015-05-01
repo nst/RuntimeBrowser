@@ -11,8 +11,7 @@
 
 @interface RTBObjectsTVC : UITableViewController
 
-@property (nonatomic, retain) id object;
-@property (nonatomic, retain) NSMutableArray *methods;
+- (void)setInspectedObject:(id)o;
 
 - (IBAction)close:(id)sender;
 

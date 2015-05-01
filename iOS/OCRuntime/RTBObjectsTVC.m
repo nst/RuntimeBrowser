@@ -13,9 +13,13 @@
 // Shmoopi's Addition
 #import "UIAlertView+Blocks.h"
 
-@interface RTBObjectsTVC () {
-    NSMutableArray *paramsToAdd, *paramsToRemove;
-}
+@interface RTBObjectsTVC ()
+
+@property (nonatomic, strong) NSMutableArray *methods;
+@property (nonatomic, strong) NSMutableArray *paramsToAdd;
+@property (nonatomic, strong) NSMutableArray *paramsToRemove;
+@property (nonatomic, strong) id object;
+
 
 @end
 
@@ -27,84 +31,84 @@
     }];
 }
 
-- (void)setObject:(id)o {
-	
-	_object = o;
-	
-	self.methods = [NSMutableArray array];
-	[self.tableView reloadData];
-
-	if(_object == nil) return;
-	
-	@try {
-		NSArray *m = nil;
-	
-		ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[_object class]];
-
+- (void)setInspectedObject:(id)o {
+    
+    self.object = o;
+    
+    self.methods = [NSMutableArray array];
+    [self.tableView reloadData];
+    
+    if(_object == nil) return;
+    
+    @try {
+        NSArray *m = nil;
+        
+        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[_object class]];
+        
 #warning FIXME: show all class methods
-
-		if(_object == [_object class]) {
-			m = [cd sortedMethodLinesWithSign:'+'];
+        
+        if(_object == [_object class]) {
+            m = [cd sortedMethodLinesWithSign:'+'];
             if (m.count == 1) {
                 m = [NSArray arrayWithObject:[NSString stringWithFormat:@"%@%@", [m objectAtIndex:0], @"+ (id)alloc;\n"]];
             }
-		} else {
-			m = [cd sortedMethodLinesWithSign:'-'];
-		}
-		
-		self.methods = [NSMutableArray arrayWithArray:[[m lastObject] componentsSeparatedByString:@"\n"]];
-		
-		if ([[_methods lastObject] isEqualToString:@""]) {
-			[_methods removeObjectAtIndex:[_methods count]-1];
-		}		
-	} @catch (NSException * e) {
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
-														message:[e reason]
-													   delegate:nil 
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil]; 
-		[alert show]; 
-	} @finally {
-		[self.tableView reloadData];
-	}	
+        } else {
+            m = [cd sortedMethodLinesWithSign:'-'];
+        }
+        
+        self.methods = [NSMutableArray arrayWithArray:[[m lastObject] componentsSeparatedByString:@"\n"]];
+        
+        if ([[_methods lastObject] isEqualToString:@""]) {
+            [_methods removeObjectAtIndex:[_methods count]-1];
+        }
+    } @catch (NSException * e) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
+                                                        message:[e reason]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    } @finally {
+        [self.tableView reloadData];
+    }
 }
 
-- (void)viewWillAppear:(BOOL)animated {	
-	
+- (void)viewWillAppear:(BOOL)animated {
+    
     [super viewWillAppear:animated];
     
-	if(!_object) {
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No class!" 
-														message:@"Open a class header file\nand you'll be able to use it."
-													   delegate:nil 
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil]; 
-		[alert show]; 
-		
-		return;
-	}
-	
-	// (sometimes fails to get the description)
-	self.title = [_object description];
-	
-    [self setObject:_object];
+    if(!_object) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No class!"
+                                                        message:@"Open a class header file\nand you'll be able to use it."
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        
+        return;
+    }
     
-	//Class metaCls = object->isa;
-    //self.methods = [object rb_classMethods];	
+    // (sometimes fails to get the description)
+    self.title = [_object description];
+    
+    [self setInspectedObject:_object];
+    
+    //Class metaCls = object->isa;
+    //self.methods = [object rb_classMethods];
 }
 /*
-- (void)didReceiveMemoryWarning {
+ - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
+ [super didReceiveMemoryWarning];
 	
 	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
+ }
+ 
+ - (void)viewDidUnload {
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
-}
-*/
+ }
+ */
 
 #pragma mark Table view methods
 
@@ -114,35 +118,35 @@
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return [_methods count];
+    return [_methods count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	
+    
     RTBMethodCell *cell = (RTBMethodCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBMethodCell"];
     
     if (!cell) {
         cell = [[RTBMethodCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RTBMethodCell"];
     }
     
-	// Set up the cell
-	NSString *method = [_methods objectAtIndex:indexPath.row];
-	cell.textLabel.text = [method substringToIndex:[method length]-1]; // remove terminating ';'
-	BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
-	cell.textLabel.textColor = [UIColor blackColor];
-	cell.accessoryType = hasParameters ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
+    // Set up the cell
+    NSString *method = [_methods objectAtIndex:indexPath.row];
+    cell.textLabel.text = [method substringToIndex:[method length]-1]; // remove terminating ';'
+    BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
+    cell.textLabel.textColor = [UIColor blackColor];
+    cell.accessoryType = hasParameters ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     
     // Get the method name to highlight different methods
     NSRange range = [method rangeOfString:@")"]; // return type
     
     // Verify the location of the )
     if(range.location == NSNotFound) return cell;
-	
+    
     // Get the return type
-	NSString *returnType = [method substringWithRange:NSMakeRange(3, range.location-3)];
+    NSString *returnType = [method substringWithRange:NSMakeRange(3, range.location-3)];
     
     range = NSMakeRange(range.location+1, [method length]-range.location-2);
-	method = [method substringWithRange:range];
+    method = [method substringWithRange:range];
     
     // Check which method type it is
     if ([method isEqualToString:@"alloc"]) {
@@ -152,19 +156,19 @@
         // Show orange
         cell.textLabel.textColor = [UIColor orangeColor];
     }
-	return cell;
+    return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-	if(indexPath.row > ([_methods count]-1) ) return;
-	
-	NSString *method = [_methods objectAtIndex:indexPath.row];
-
-	BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
-
+    
+    if(indexPath.row > ([_methods count]-1) ) return;
+    
+    NSString *method = [_methods objectAtIndex:indexPath.row];
+    
+    BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
+    
     // Check if the method has parameters
-	if (hasParameters) {
+    if (hasParameters) {
         // We have some parameters to fill!
         
         NSMutableArray *params = [[NSMutableArray alloc] init];
@@ -196,123 +200,142 @@
             }
         }
         
+        __weak typeof(self) weakSelf = self;
+        
         for (NSString *objects in [params reverseObjectEnumerator]) {
             // Need to fill in the parameters to run the argument
             [UIAlertView rtb_displayAlertWithTitle:objects
-                                       message:method
-                               leftButtonTitle:@"Cancel"
-                              leftButtonAction:^{
-                                  // Add nil parameter to the parameters array
-                                  
-                                  // If this is the first object, clear the array
-                                  if ([params.firstObject isEqualToString:objects]) {
-                                      paramsToAdd = nil;
-                                      paramsToRemove = nil;
+                                           message:method
+                                   leftButtonTitle:@"Cancel"
+                                  leftButtonAction:^{
+                                      // Add nil parameter to the parameters array
+                                      
+                                      __strong typeof(weakSelf) strongSelf = weakSelf;
+                                      if(strongSelf == nil) return;
+                                      
+                                      // If this is the first object, clear the array
+                                      if ([params.firstObject isEqualToString:objects]) {
+                                          strongSelf.paramsToAdd = nil;
+                                          strongSelf.paramsToRemove = nil;
+                                      }
+                                      
+                                      // Verify the paramsArray
+                                      if (strongSelf.paramsToAdd == nil) {
+                                          strongSelf.paramsToAdd = [[NSMutableArray alloc] init];
+                                      }
+                                      
+                                      // Verify the paramsRemoveArray
+                                      if (strongSelf.paramsToRemove == nil) {
+                                          strongSelf.paramsToRemove = [[NSMutableArray alloc] init];
+                                      }
+                                      
+                                      // Add the objects to the params
+                                      [strongSelf.paramsToAdd addObject:@""];
+                                      [strongSelf.paramsToRemove addObject:objects];
                                   }
-                                  
-                                  // Verify the paramsArray
-                                  if (paramsToAdd == nil) {
-                                      paramsToAdd = [[NSMutableArray alloc] init];
-                                  }
-                                  
-                                  // Verify the paramsRemoveArray
-                                  if (paramsToRemove == nil) {
-                                      paramsToRemove = [[NSMutableArray alloc] init];
-                                  }
-                                  
-                                  // Add the objects to the params
-                                  [paramsToAdd addObject:@""];
-                                  [paramsToRemove addObject:objects];
-                              }
-                              rightButtonTitle:@"Enter"
-                             rightButtonAction:^(NSString *output){
-                                 // Add this parameter to the parameters array
-                                 
-                                 // If this is the first object, clear the array
-                                 if ([params.firstObject isEqualToString:objects]) {
-                                     paramsToAdd = nil;
-                                     paramsToRemove = nil;
-                                 }
-                                 
-                                 // Verify the paramsArray
-                                 if (paramsToAdd == nil) {
-                                     paramsToAdd = [[NSMutableArray alloc] init];
-                                 }
-                                 
-                                 // Verify the paramsRemoveArray
-                                 if (paramsToRemove == nil) {
-                                     paramsToRemove = [[NSMutableArray alloc] init];
-                                 }
-                                 
-                                 // Verify the output
-                                 if (output.length < 1 || output == nil || [output isEqualToString:@"nil"] || [output isEqualToString:@"NULL"] || [output isEqualToString:@""] || [output isEqualToString:@"null"] || [output isEqualToString:@"0"]) {
-                                     // Pass nil
-                                     output = @"";
-                                 }
-                                 
-                                 // Create the output based on the type
-                                 NSUInteger bracketEnd = [objects rangeOfString:@")" options:NSCaseInsensitiveSearch].location;
-                                 NSRange typeRange = NSMakeRange(1, bracketEnd - 1);
-                                 NSString *typeParam = [objects substringWithRange:typeRange];
-                                 
-                                 // int
-                                 if ([typeParam isEqualToString:@"int"]) {
-                                    [paramsToAdd addObject:[NSNumber numberWithInt:[output intValue]]];
-                                 }
-                                 // Bool
-                                 else if ([typeParam isEqualToString:@"BOOL"]) {
-                                     [paramsToAdd addObject:[NSNumber numberWithBool:[output boolValue]]];
-                                 }
-                                 // Otherwise
-                                 else {
-                                     // Add the objects to the params
-                                     [paramsToAdd addObject:output];
-                                 }
-                                 
-                                 // Add the removable param
-                                 [paramsToRemove addObject:objects];
-                                 
-                                 // Check if this is the last parameter in the method
-                                 if ([params.lastObject isEqualToString:objects]) {
-                                     // Yes
-                                     // Pass the parameters in the array and run them through the obj
-                                     dispatch_async(dispatch_get_main_queue(), ^{
-                                         // On main thread
-                                         [self performFunction:method withObjects:paramsToAdd removing:paramsToRemove];
-                                     });
-                                 }
-                             }];
+                                  rightButtonTitle:@"Enter"
+                                 rightButtonAction:^(NSString *output){
+                                     // Add this parameter to the parameters array
+                                     
+                                     __strong typeof(weakSelf) strongSelf = weakSelf;
+                                     if(strongSelf == nil) return;
+                                     
+                                     // If this is the first object, clear the array
+                                     if ([params.firstObject isEqualToString:objects]) {
+                                         strongSelf.paramsToAdd = nil;
+                                         strongSelf.paramsToRemove = nil;
+                                     }
+                                     
+                                     // Verify the paramsArray
+                                     if (strongSelf.paramsToAdd == nil) {
+                                         strongSelf.paramsToAdd = [[NSMutableArray alloc] init];
+                                     }
+                                     
+                                     // Verify the paramsRemoveArray
+                                     if (strongSelf.paramsToRemove == nil) {
+                                         strongSelf.paramsToRemove = [[NSMutableArray alloc] init];
+                                     }
+                                     
+                                     // Verify the output
+                                     if (output.length < 1 || output == nil || [output isEqualToString:@"nil"] || [output isEqualToString:@"NULL"] || [output isEqualToString:@""] || [output isEqualToString:@"null"] || [output isEqualToString:@"0"]) {
+                                         // Pass nil
+                                         output = @"";
+                                     }
+                                     
+                                     // Create the output based on the type
+                                     NSUInteger bracketEnd = [objects rangeOfString:@")" options:NSCaseInsensitiveSearch].location;
+                                     NSRange typeRange = NSMakeRange(1, bracketEnd - 1);
+                                     NSString *typeParam = [objects substringWithRange:typeRange];
+                                     
+                                     // int
+                                     if ([typeParam isEqualToString:@"int"]) {
+                                         [strongSelf.paramsToAdd addObject:[NSNumber numberWithInt:[output intValue]]];
+                                     }
+                                     // Bool
+                                     else if ([typeParam isEqualToString:@"BOOL"]) {
+                                         [strongSelf.paramsToAdd addObject:[NSNumber numberWithBool:[output boolValue]]];
+                                     }
+                                     // Otherwise
+                                     else {
+                                         // Add the objects to the params
+                                         [strongSelf.paramsToAdd addObject:output];
+                                     }
+                                     
+                                     // Add the removable param
+                                     [strongSelf.paramsToRemove addObject:objects];
+                                     
+                                     // Check if this is the last parameter in the method
+                                     if ([params.lastObject isEqualToString:objects]) {
+                                         // Yes
+                                         // Pass the parameters in the array and run them through the obj
+                                         
+                                         __weak typeof(strongSelf) weakSelf2 = strongSelf;
+                                         
+                                         NSLog(@"********* main thread: %d", [NSThread isMainThread]);
+                                         
+                                         dispatch_async(dispatch_get_main_queue(), ^{
+                                             // On main thread
+                                             
+                                             __strong typeof(weakSelf2) strongSelf2 = weakSelf2;
+                                             if(strongSelf2 == nil) {
+                                                 return;
+                                             }
+                                         
+                                             [strongSelf performFunction:method withObjects:strongSelf.paramsToAdd removing:strongSelf.paramsToRemove];
+                                         });
+                                     }
+                                 }];
         }
         
         return;
     }
-	
-	NSRange range = [method rangeOfString:@")"]; // return type
-	
-	if(range.location == NSNotFound) return;
-	
-	NSString *t = [method substringWithRange:NSMakeRange(3, range.location-3)];
-	
-	range = NSMakeRange(range.location+1, [method length]-range.location-2);
-	
-	method = [method substringWithRange:range];
-	
-	if([method isEqualToString:@"dealloc"]) {
-		[self.navigationController popViewControllerAnimated:YES];
-        return;
-	}
-
-	RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] init];
-	
-	SEL selector = NSSelectorFromString(method);
-	
-	if(![_object respondsToSelector:selector]) {
-		return;
-	}
     
-	if([t hasPrefix:@"struct"]) return;
-
-	id o = nil;
+    NSRange range = [method rangeOfString:@")"]; // return type
+    
+    if(range.location == NSNotFound) return;
+    
+    NSString *t = [method substringWithRange:NSMakeRange(3, range.location-3)];
+    
+    range = NSMakeRange(range.location+1, [method length]-range.location-2);
+    
+    method = [method substringWithRange:range];
+    
+    if([method isEqualToString:@"dealloc"]) {
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+    
+    RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
+    
+    SEL selector = NSSelectorFromString(method);
+    
+    if(![_object respondsToSelector:selector]) {
+        return;
+    }
+    
+    if([t hasPrefix:@"struct"]) return;
+    
+    id o = nil;
     
     NSParameterAssert(selector != NULL);
     NSParameterAssert([_object respondsToSelector:selector]);
@@ -375,15 +398,15 @@
     @catch (NSException *exception) {
         NSLog(@"Exception!  Broke this:  %@", exception);
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
-														message:[exception description]
-													   delegate:nil
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil];
-		[alert show];
+                                                        message:[exception description]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
     }
     
 #pragma clang diagnostic pop
-
+    
     // Verify the output is good
     if (o == NULL || o == nil) {
         // o is empty
@@ -392,71 +415,72 @@
     }
     
     /*
-	if([_object respondsToSelector:selector]) {
-        o = [_object performSelector:selector];
-    }
+     if([_object respondsToSelector:selector]) {
+     o = [_object performSelector:selector];
+     }
      
-	@try {
-        
-	} @catch (NSException * e) {
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
-														message:[e reason]
-													   delegate:nil 
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil]; 
-		[alert show]; 
-	} @finally {
-		
-	}
-    */
-	
-	if(![t isEqualToString:@"id"]) {
-		if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
-			o = [NSString stringWithFormat:@"%d", (int)o];
-		} else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
-			o = [NSString stringWithFormat:@"%f", o];
-		} else if([t isEqualToString:@"BOOL"]) {
-			o = ([o boolValue]) ? @"YES" : @"NO";
-		} else if ([t isEqualToString:@"void"]) {
+     @try {
+     
+     } @catch (NSException * e) {
+     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
+     message:[e reason]
+     delegate:nil
+     cancelButtonTitle:@"OK"
+     otherButtonTitles:nil];
+     [alert show];
+     } @finally {
+     
+     }
+     */
+    
+    if(![t isEqualToString:@"id"]) {
+        if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
+            o = [NSString stringWithFormat:@"%d", (int)o];
+        } else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
+            o = [NSString stringWithFormat:@"%f", o];
+        } else if([t isEqualToString:@"BOOL"]) {
+            o = ([o boolValue]) ? @"YES" : @"NO";
+        } else if ([t isEqualToString:@"void"]) {
             o = @"Completed";
         } else {
-			o = [NSString stringWithFormat:@"%d",(int) o]; // default
-		}
-	}		
-	
-	if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
-		NSLog(@"-- %@", o);
-		
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" 
-														message:[o description] 
-													   delegate:nil 
-											  cancelButtonTitle:@"OK" 
-											  otherButtonTitles:nil]; 
-		[alert show]; 
-		
-		return;
-	}
-	
-	ovc.object = o;
-	
-	[self.navigationController pushViewController:ovc animated:YES];
+            o = [NSString stringWithFormat:@"%d",(int) o]; // default
+        }
+    }
+    
+    if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
+        NSLog(@"-- %@", o);
+        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
+                                                        message:[o description]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        
+        return;
+    }
+    
+    ovc.object = o;
+    
+    [self.navigationController pushViewController:ovc animated:YES];
 }
 
 - (void)performFunction:(NSString *)method withObjects:(NSMutableArray *)parameters removing:(NSMutableArray *)removing {
+        
     NSRange range = [method rangeOfString:@")"]; // return type
-	
-	if(range.location == NSNotFound) return;
-	
-	NSString *t = [method substringWithRange:NSMakeRange(3, range.location-3)];
-	
-	range = NSMakeRange(range.location+1, [method length]-range.location-2);
-	
-	method = [method substringWithRange:range];
-	
-	if([method isEqualToString:@"dealloc"]) {
-		[self.navigationController popViewControllerAnimated:YES];
+    
+    if(range.location == NSNotFound) return;
+    
+    NSString *t = [method substringWithRange:NSMakeRange(3, range.location-3)];
+    
+    range = NSMakeRange(range.location+1, [method length]-range.location-2);
+    
+    method = [method substringWithRange:range];
+    
+    if([method isEqualToString:@"dealloc"]) {
+        [self.navigationController popViewControllerAnimated:YES];
         return;
-	}
+    }
     
     // Remove all the args and return parameters from the method
     for (NSString *removables in removing) {
@@ -465,17 +489,17 @@
     // Remove all the strings from the method
     method = [method stringByReplacingOccurrencesOfString:@" " withString:@""];
     
-	RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] init];
-	
-	SEL selector = NSSelectorFromString(method);
-	
-	if(![_object respondsToSelector:selector]) {
-		return;
-	}
+    RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     
-	if([t hasPrefix:@"struct"]) return;
+    SEL selector = NSSelectorFromString(method);
     
-	id o = nil;
+    if(![_object respondsToSelector:selector]) {
+        return;
+    }
+    
+    if([t hasPrefix:@"struct"]) return;
+    
+    id o = nil;
     
     NSParameterAssert(selector != NULL);
     NSParameterAssert([_object respondsToSelector:selector]);
@@ -486,8 +510,8 @@
         return;
     }
     
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
     // Check to see if it's alloc
     if ([method isEqualToString:@"alloc"]) {
@@ -507,9 +531,9 @@
         
         return;
     }
-
-#pragma clang diagnostic pop
-
+    
+    #pragma clang diagnostic pop
+    
     // Figure out the return type for the selector
     const char* retType = [methodSig methodReturnType];
     
@@ -522,7 +546,7 @@
             [inv setSelector:selector];
             [inv setTarget:_object];
             
-            for (int x = 0;x < parameters.count;x++) {
+            for (int x = 0; x < [parameters count]; x++) {
                 // Determine the type of input
                 if ([[removing objectAtIndex:x] rangeOfString:@"BOOL"].location != NSNotFound) {
                     // BOOL
@@ -740,11 +764,11 @@
     @catch (NSException *exception) {
         NSLog(@"Exception!  Broke this:  %@", exception);
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
-														message:[exception description]
-													   delegate:nil
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil];
-		[alert show];
+                                                        message:[exception description]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
     }
     
     // Verify the output is good
@@ -772,37 +796,37 @@
      
      }
      */
-	
-	if(![t isEqualToString:@"id"]) {
-		if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
-			o = [NSString stringWithFormat:@"%d", (int)o];
-		} else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
-			o = [NSString stringWithFormat:@"%f", o];
-		} else if([t isEqualToString:@"BOOL"]) {
-			o = ([o boolValue]) ? @"YES" : @"NO";
-		} else if ([t isEqualToString:@"void"]) {
+    
+    if(![t isEqualToString:@"id"]) {
+        if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
+            o = [NSString stringWithFormat:@"%d", (int)o];
+        } else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
+            o = [NSString stringWithFormat:@"%f", o];
+        } else if([t isEqualToString:@"BOOL"]) {
+            o = ([o boolValue]) ? @"YES" : @"NO";
+        } else if ([t isEqualToString:@"void"]) {
             o = @"Completed";
         } else {
-			o = [NSString stringWithFormat:@"%d", (int)o]; // default
-		}
-	}
-	
-	if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
-		NSLog(@"-- %@", o);
-		
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
-														message:[o description]
-													   delegate:nil
-											  cancelButtonTitle:@"OK"
-											  otherButtonTitles:nil];
-		[alert show];
-		
-		return;
-	}
-	
-	ovc.object = o;
-	
-	[self.navigationController pushViewController:ovc animated:YES];
+            o = [NSString stringWithFormat:@"%d", (int)o]; // default
+        }
+    }
+    
+    if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
+        NSLog(@"-- %@", o);
+        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
+                                                        message:[o description]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        
+        return;
+    }
+    
+    ovc.object = o;
+    
+    [self.navigationController pushViewController:ovc animated:YES];
 }
 
 @end
