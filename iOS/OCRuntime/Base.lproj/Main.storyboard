@@ -497,7 +497,7 @@ We have found this to be a useful development tool. Please note, however, that e
         <scene sceneID="hca-hx-Mgx">
             <objects>
                 <navigationController id="1dm-Wz-Ugo" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Protocols" image="search.png" id="4ix-rX-2be"/>
+                    <tabBarItem key="tabBarItem" title="Protocols" image="use.png" id="4ix-rX-2be"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="E5E-vm-NLb">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
