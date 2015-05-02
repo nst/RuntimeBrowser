@@ -12,13 +12,14 @@
 #include <sys/sysctl.h>
 
 #import "RTBClassDisplayVC.h"
-#import "ClassDisplayDeprecated.h"
+#import "RTBRuntimeHeader.h"
 #import "RTBClass.h"
 #import "HTTPServer.h"
 #import "HTTPDataResponse.h"
 #import "RTBMyIP.h"
 #import "RTBRuntime.h"
 #import "RTBObjectsTVC.h"
+#import "ClassDisplayDeprecated.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -143,9 +144,13 @@
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
     
-    ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(className)];
-    
-    NSString *header = [cd header];
+    NSString *header = nil;
+    if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
+        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(className)];
+        header = [cd header];
+    } else {
+        header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:YES];
+    }
     
     NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
     
