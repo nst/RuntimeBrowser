@@ -45,21 +45,23 @@
         
         ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[_object class]];
         
-#warning FIXME: show all class methods
-        
         if(_object == [_object class]) {
             m = [cd sortedMethodLinesWithSign:'+'];
-            if (m.count == 1) {
+            if ([m count] == 1) {
                 m = [NSArray arrayWithObject:[NSString stringWithFormat:@"%@%@", [m objectAtIndex:0], @"+ (id)alloc;\n"]];
             }
         } else {
             m = [cd sortedMethodLinesWithSign:'-'];
         }
         
-        self.methods = [NSMutableArray arrayWithArray:[[m lastObject] componentsSeparatedByString:@"\n"]];
+        if([m count] == 1) {
+            self.methods = [NSMutableArray arrayWithArray:[[m lastObject] componentsSeparatedByString:@"\n"]];
+        } else {
+            self.methods = [m mutableCopy];
+        }
         
         if ([[_methods lastObject] isEqualToString:@""]) {
-            [_methods removeObjectAtIndex:[_methods count]-1];
+            [_methods removeLastObject];
         }
     } @catch (NSException * e) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
@@ -320,12 +322,14 @@
     
     method = [method substringWithRange:range];
     
+    if([method hasSuffix:@";"]) {
+        method = [method substringToIndex:[method length]-1];
+    }
+    
     if([method isEqualToString:@"dealloc"]) {
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
-    
-    RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     
     SEL selector = NSSelectorFromString(method);
     
@@ -340,12 +344,12 @@
     NSParameterAssert(selector != NULL);
     NSParameterAssert([_object respondsToSelector:selector]);
     
-    NSMethodSignature* methodSig = [_object methodSignatureForSelector:selector];
+    NSMethodSignature *methodSig = [_object methodSignatureForSelector:selector];
     if(methodSig == nil) {
         NSLog(@"Invalid Method Signature for class: %@ and selector: %@", _object, NSStringFromSelector(selector));
         return;
     }
-    
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
@@ -359,40 +363,55 @@
         
         // Verify we can init it
         if ([o respondsToSelector:NSSelectorFromString(@"init")]) {
-            
             theOb = [o performSelector:NSSelectorFromString(@"init")];
-            
         }
         
+        RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
         ovc.object = theOb;
-        
         [self.navigationController pushViewController:ovc animated:YES];
         
         return;
     }
     
-    // Figure out the return type for the selector
     const char* retType = [methodSig methodReturnType];
     
-    // Do a try and catch block to prevent the app from crashing
     @try {
-        // Allow the object to perform the selector if it's of certain types
+
         if(strcmp(retType, @encode(id)) == 0) {
-            
             o = [_object performSelector:selector];
-            
-        } else if (strcmp(retType, @encode(BOOL)) == 0) {
-            // BOOL
-            BOOL b = (BOOL)[_object performSelector:selector];
-            o = [NSNumber numberWithBool:b];
-        } else if (strcmp(retType, @encode(void)) == 0) {
-            [_object performSelector:selector];
-        } else if (strcmp(retType, @encode(int)) == 0) {
-            int i = (int)[_object performSelector:selector];
-            o = [NSNumber numberWithInt:i];
         } else {
-            NSLog(@"-[%@ performSelector:@selector(%@)] shouldn't be used. The selector doesn't return an object or void", _object, NSStringFromSelector(selector));
-            return;
+            
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+            [invocation setTarget:_object];
+            [invocation setSelector:selector];
+            [invocation invoke];
+
+            if (strcmp(retType, @encode(BOOL)) == 0) {
+                BOOL result;
+                [invocation getReturnValue:&result];
+                o = result ? @"YES" : @"NO";
+            } else if (strcmp(retType, @encode(void)) == 0) {
+                [_object performSelector:selector];
+            } else if (strcmp(retType, @encode(int)) == 0) {
+                int result;
+                [invocation getReturnValue:&result];
+                o = [@(result) description];
+            } else if (strcmp(retType, @encode(unsigned int)) == 0) {
+                unsigned int result;
+                [invocation getReturnValue:&result];
+                o = [@(result) description];
+            } else if (strcmp(retType, @encode(unsigned long long)) == 0) {
+                unsigned long long result;
+                [invocation getReturnValue:&result];
+                o = [@(result) description];
+            } else if (strcmp(retType, @encode(double)) == 0) {
+                double result;
+                [invocation getReturnValue:&result];
+                o = [@(result) description];
+            } else {
+                NSLog(@"-[%@ performSelector:@selector(%@)] shouldn't be used. The selector doesn't return an object or void", _object, NSStringFromSelector(selector));
+                return;
+            }
         }
     }
     @catch (NSException *exception) {
@@ -414,32 +433,13 @@
         o = @"NULL";
     }
     
-    /*
-     if([_object respondsToSelector:selector]) {
-     o = [_object performSelector:selector];
-     }
-     
-     @try {
-     
-     } @catch (NSException * e) {
-     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
-     message:[e reason]
-     delegate:nil
-     cancelButtonTitle:@"OK"
-     otherButtonTitles:nil];
-     [alert show];
-     } @finally {
-     
-     }
-     */
-    
     if(![t isEqualToString:@"id"]) {
         if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
-            o = [NSString stringWithFormat:@"%d", (int)o];
+//            o = [NSString stringWithFormat:@"%d", (int)o];
         } else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
-            o = [NSString stringWithFormat:@"%f", o];
+//            o = [NSString stringWithFormat:@"%f", o];
         } else if([t isEqualToString:@"BOOL"]) {
-            o = ([o boolValue]) ? @"YES" : @"NO";
+//            o = ([o boolValue]) ? @"YES" : @"NO";
         } else if ([t isEqualToString:@"void"]) {
             o = @"Completed";
         } else {
@@ -448,6 +448,7 @@
     }
     
     if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
+        NSLog(@"-- %p", o);
         NSLog(@"-- %@", o);
         
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
@@ -460,8 +461,8 @@
         return;
     }
     
+    RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     ovc.object = o;
-    
     [self.navigationController pushViewController:ovc animated:YES];
 }
 
@@ -534,10 +535,8 @@
     
     #pragma clang diagnostic pop
     
-    // Figure out the return type for the selector
     const char* retType = [methodSig methodReturnType];
     
-    // Do a try and catch block to prevent the app from crashing
     @try {
         // Allow the object to perform the selector if it's of certain types
         if(strcmp(retType, @encode(id)) == 0) {
