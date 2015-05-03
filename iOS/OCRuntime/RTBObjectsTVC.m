@@ -293,8 +293,6 @@
                                          
                                          __weak typeof(strongSelf) weakSelf2 = strongSelf;
                                          
-                                         NSLog(@"********* main thread: %d", [NSThread isMainThread]);
-                                         
                                          dispatch_async(dispatch_get_main_queue(), ^{
                                              // On main thread
                                              
