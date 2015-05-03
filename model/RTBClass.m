@@ -34,7 +34,7 @@
  */
 
 #import "RTBClass.h"
-#import "ClassDisplayDeprecated.h"
+//#import "ClassDisplayDeprecated.h"
 #import "RTBRuntimeHeader.h"
 
 #if (! TARGET_OS_IPHONE)
@@ -71,16 +71,9 @@
 - (BOOL)writeAtPath:(NSString *)path {
     
     NSURL *pathURL = [NSURL fileURLWithPath:path];
-    
-    NSString *header = nil;
-    
+
     Class klass = NSClassFromString(stubClassname);
-    if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:klass];
-        header = [cd header];
-    } else {
-        header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
-    }
+    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
     
     NSError *error = nil;
     BOOL success = [header writeToURL:pathURL atomically:NO encoding:NSUTF8StringEncoding error:&error];
@@ -262,14 +255,7 @@
         }
     }
     
-    NSSet *tokens = nil;
-    
-    if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(stubClassname)];
-        tokens = [cd ivarsTypeTokens];
-    } else {
-        tokens = [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)];
-    }
+    NSSet *tokens = [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)];
     
     for(NSString *token in tokens) {
         if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {

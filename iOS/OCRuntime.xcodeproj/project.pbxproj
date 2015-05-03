@@ -57,6 +57,7 @@
 		03740351179698CC005D1AFB /* RTBFrameworkCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03740350179698CC005D1AFB /* RTBFrameworkCell.m */; };
 		0379BB7C179D0B2D00F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7B179D0B2D00F4B8BF /* NSString+SyntaxColoring.m */; };
 		0379BB83179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB82179D0BCB00F4B8BF /* NSMutableAttributedString+RTB.m */; };
+		037EFD4B1AF636A400835763 /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */; };
 		03959DD2176AFC4D002A1FCC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD1176AFC4D002A1FCC /* Foundation.framework */; };
 		03959DD4176AFC4D002A1FCC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD3176AFC4D002A1FCC /* CoreGraphics.framework */; };
 		03959DD6176AFC4D002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
@@ -76,7 +77,6 @@
 		03B0E3681AED353900A9DAC3 /* RTBProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B0E3651AED353900A9DAC3 /* RTBProtocol.m */; };
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
-		03F830D21AEAF59A00425494 /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */; };
 		03FA8B771AEE3D2500D55C16 /* RTBProtocolsTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */; };
 		4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
@@ -559,6 +559,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Nicolas Seriot";
 				TargetAttributes = {
+					03959DCD176AFC4D002A1FCC = {
+						DevelopmentTeam = VBYRKYS73S;
+					};
 					03959DF1176AFC4E002A1FCC = {
 						TestTargetID = 03959DCD176AFC4D002A1FCC;
 					};
@@ -623,6 +626,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				037EFD4B1AF636A400835763 /* ClassDisplayDeprecated.m in Sources */,
 				03740344179694CE005D1AFB /* RTBMyIP.m in Sources */,
 				037402F217968FCB005D1AFB /* RTBInfoVC.m in Sources */,
 				0309594D17B5434000221D0E /* HTTPConnection.m in Sources */,
@@ -635,7 +639,6 @@
 				0309595617B5434000221D0E /* HTTPErrorResponse.m in Sources */,
 				0309595417B5434000221D0E /* HTTPDataResponse.m in Sources */,
 				030959B917B5434000221D0E /* DDASLLogger.m in Sources */,
-				03F830D21AEAF59A00425494 /* ClassDisplayDeprecated.m in Sources */,
 				0309595217B5434000221D0E /* MultipartMessageHeaderField.m in Sources */,
 				0374034D17969813005D1AFB /* RTBListTVC.m in Sources */,
 				030959BD17B5434000221D0E /* ContextFilterLogFormatter.m in Sources */,

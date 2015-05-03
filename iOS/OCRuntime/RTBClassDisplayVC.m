@@ -7,7 +7,6 @@
 //
 
 #import "RTBClassDisplayVC.h"
-#import "ClassDisplayDeprecated.h"
 #import "RTBAppDelegate.h"
 #import "RTBObjectsTVC.h"
 #import "NSString+SyntaxColoring.h"
@@ -70,8 +69,7 @@
     NSString *header = nil;
     
     if(_className) {
-        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(self.className)];
-        header = [cd header];
+        header = [RTBRuntimeHeader headerForClass:NSClassFromString(self.className) displayPropertiesDefaultValues:YES];
     } else if (_protocolName) {
         header = [RTBRuntimeHeader headerForProtocolName:_protocolName];
     }

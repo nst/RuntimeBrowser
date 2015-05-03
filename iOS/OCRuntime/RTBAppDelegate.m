@@ -14,12 +14,12 @@
 #import "RTBClassDisplayVC.h"
 #import "RTBRuntimeHeader.h"
 #import "RTBClass.h"
+#import "RTBProtocol.h"
 #import "HTTPServer.h"
 #import "HTTPDataResponse.h"
 #import "RTBMyIP.h"
 #import "RTBRuntime.h"
 #import "RTBObjectsTVC.h"
-#import "ClassDisplayDeprecated.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -118,6 +118,22 @@
     return [[HTTPDataResponse alloc] initWithData:data];
 }
 
+- (NSObject<HTTPResponse> *)responseForProtocols {
+    NSMutableString *ms = [NSMutableString string];
+    
+    NSArray *protocols = [_allClasses sortedProtocolStubs];
+    [ms appendFormat:@"%@ protocols loaded\n\n", @([protocols count])];
+    for(RTBProtocol *p in protocols) {
+        [ms appendFormat:@"<A HREF=\"/protocols/%@.h\">%@.h</A>\n", p.protocolName, p.protocolName];
+    }
+    
+    NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Protocols"];
+    
+    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return [[HTTPDataResponse alloc] initWithData:data];
+}
+
 + (NSString *)basePath {
     
     static NSString *basePath = nil;
@@ -140,17 +156,22 @@
     return basePath;
 }
 
-- (NSObject<HTTPResponse> *)responseForHeaderPath:(NSString *)headerPath {
+- (NSObject<HTTPResponse> *)responseForClassHeaderPath:(NSString *)headerPath {
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
     
-    NSString *header = nil;
-    if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(className)];
-        header = [cd header];
-    } else {
-        header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:YES];
-    }
+    NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:YES];
+    
+    NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
+    
+    return [[HTTPDataResponse alloc] initWithData:data];
+}
+
+- (NSObject<HTTPResponse> *)responseForProtocolHeaderPath:(NSString *)headerPath {
+    NSString *fileName = [headerPath lastPathComponent];
+    NSString *protocolName = [fileName stringByDeletingPathExtension];
+    
+    NSString *header = [RTBRuntimeHeader headerForProtocolName:protocolName];
     
     NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
     
@@ -326,8 +347,15 @@
 
 - (NSObject<HTTPResponse> *)responseForPath:(NSString *)path {
     
-    if([path hasSuffix:@".h"]) {
-        return [self responseForHeaderPath:path];
+    BOOL isProtocol = [path hasPrefix:@"/protocols/"];
+    BOOL isHeaderFile = [path hasSuffix:@".h"];
+    
+    if(isHeaderFile) {
+        if(isProtocol) {
+            return [self responseForProtocolHeaderPath:path];
+        } else {
+            return [self responseForClassHeaderPath:path];
+        }
     }
     
     if([path hasPrefix:@"/list"]) {
@@ -335,9 +363,11 @@
     } else if ([path hasPrefix:@"/tree"]) {
         NSString *subPath = [path substringFromIndex:[@"/tree" length]];
         return [self responseForTreeWithPath:subPath];
+    } else if([path hasPrefix:@"/protocols"]) {
+            return [self responseForProtocols];
     } else {
         NSString *s = [NSString stringWithFormat:
-                       @" You can browse the loaded classes either by <a href=\"/list/\">list</a> or by <a href=\"/tree/\">tree</a>.\n\n"
+                       @" You can browse the loaded classes either by <a href=\"/list/\">list</a> or by <a href=\"/tree/\">tree</a>, as well as <a href=\"/protocols/\">protocols</a>.\n\n"
                        " To retrieve the headers as on <a href=\"https://github.com/nst/iOS-Runtime-Headers\">https://github.com/nst/iOS-Runtime-Headers</a>:\n\n"
                        "     1. iOS OCRuntime > Frameworks tab > Load All\n"
                        "     2. $ wget -r http://%@:10000/tree/\n", [self myIPAddress]];
