@@ -408,6 +408,10 @@
                 double result;
                 [invocation getReturnValue:&result];
                 o = [@(result) description];
+            } else if (strcmp(retType, @encode(float)) == 0) {
+                float result;
+                [invocation getReturnValue:&result];
+                o = [@(result) description];
             } else {
                 NSLog(@"-[%@ performSelector:@selector(%@)] shouldn't be used. The selector doesn't return an object or void", _object, NSStringFromSelector(selector));
                 return;
