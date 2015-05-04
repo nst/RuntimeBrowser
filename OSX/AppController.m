@@ -73,7 +73,7 @@
 }
 
 - (BOOL)saveAsHeaderIsEnabled {
-    id item = [classBrowser itemAtIndexPath:[classBrowser selectionIndexPath]];
+    id item = [_classBrowser itemAtIndexPath:[_classBrowser selectionIndexPath]];
     return [item canBeSavedAsHeader];
 }
 
@@ -101,16 +101,16 @@
     if (loadedNew) {
         //[classBrowser scrollColumnToVisible:0];
         [allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
-        [classBrowser loadColumnZero];
+        [_classBrowser loadColumnZero];
         
         //self.openDir = [[bundlesURLs lastObject] stringByDeletingLastPathComponent];
-        [label setStringValue:@"Select a Class"];
-        [headerTextView setString:@""];
+        [_label setStringValue:@"Select a Class"];
+        [_headerTextView setString:@""];
         
         RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
         if(viewType == RBBrowserViewTypeImages) {
             NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
-            [classBrowser setTitle:rootTitle ofColumn:0];
+            [_classBrowser setTitle:rootTitle ofColumn:0];
         }
     }
 }
@@ -149,7 +149,7 @@
 
 - (IBAction)saveAction:(id)sender {
     
-    NSString *className = [[classBrowser selectedCell] stringValue];
+    NSString *className = [[_classBrowser selectedCell] stringValue];
     if ([className length] == 0) {
         NSRunAlertPanel(nil, @"Select a class before saving.", @"OK", nil, nil);
         return;
@@ -160,11 +160,16 @@
     [sp setAllowedFileTypes:[NSArray arrayWithObject:@"h"]];
     [sp setNameFieldStringValue:className];
     
-    [sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
+    __weak typeof(self) weakSelf = self;
+    
+    [sp beginSheetModalForWindow:[_classBrowser window] completionHandler:^(NSInteger result) {
+        
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if(strongSelf == nil) return;
         
         if ( result != NSModalResponseOK ) return;
         
-        NSString *fileContents = [headerTextView string];
+        NSString *fileContents = [strongSelf.headerTextView string];
         NSURL *fileURL = [sp URL];
         
         NSError *error = nil;
@@ -209,18 +214,23 @@
     [sp setTitle:@"Save All Classes"];
     [sp setPrompt:@"Save"];
     
-    [sp beginSheetModalForWindow:[classBrowser window] completionHandler:^(NSInteger result) {
+    __weak typeof(self) weakSelf = self;
+    
+    [sp beginSheetModalForWindow:[_classBrowser window] completionHandler:^(NSInteger result) {
         
         if ( result != NSModalResponseOK ) return;
         
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperationWithBlock:^{
+
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if(strongSelf == nil) return;
             
             NSUInteger saved = 0;
             NSUInteger failed = 0;
             NSURL *dirURL = [sp URL];
             
-            NSArray *classNames = [[[allClasses allClassStubsByName] allKeys] copy];
+            NSArray *classNames = [[[strongSelf.allClasses allClassStubsByName] allKeys] copy];
             
             [[NSProcessInfo processInfo] disableSuddenTermination];
             //               if(canUseLionAPIs) {
@@ -277,7 +287,7 @@
 
 - (BOOL)validateMenuItem:(NSMenuItem *)aMenuItem {
     if ( [[aMenuItem title] isEqualToString:@"Save As..."] )
-        return ( [[[classBrowser selectedCell] stringValue] length] != 0 );
+        return ( [[[_classBrowser selectedCell] stringValue] length] != 0 );
     return YES;
 }
 
@@ -287,7 +297,7 @@
 }
 
 - (BOOL)isInSearchMode {
-    return [[searchField stringValue] length] > 0;
+    return [[_searchField stringValue] length] > 0;
 }
 
 - (void)changeViewTypeTo:(RBBrowserViewType)viewType {
@@ -297,14 +307,14 @@
     if(viewType == RBBrowserViewTypeImages) nbOfColumns = 2;
     if(viewType == RBBrowserViewTypeTree) nbOfColumns = 3;
     if(viewType == RBBrowserViewTypeProtocols) nbOfColumns = 2;
-    [classBrowser setMaxVisibleColumns:nbOfColumns];
+    [_classBrowser setMaxVisibleColumns:nbOfColumns];
     
     NSBrowserColumnResizingType resizingType = viewType == RBBrowserViewTypeTree ? NSBrowserUserColumnResizing : NSBrowserAutoColumnResizing;
-    [classBrowser setColumnResizingType:resizingType];
+    [_classBrowser setColumnResizingType:resizingType];
     
-    [classBrowser loadColumnZero];
+    [_classBrowser loadColumnZero];
     
-    id rootItem = [self rootItemForBrowser:classBrowser];
+    id rootItem = [self rootItemForBrowser:_classBrowser];
     
     NSString *rootTitle = @"";
     if(viewType == RBBrowserViewTypeList) {
@@ -319,15 +329,15 @@
     if(viewType == RBBrowserViewTypeImages) rootTitle = [NSString stringWithFormat:@"%lu Images", (unsigned long)[[rootItem children] count]];
     if(viewType == RBBrowserViewTypeProtocols) rootTitle = [NSString stringWithFormat:@"%lu Protocols", (unsigned long)[[rootItem children] count]];
     
-    [label setStringValue:@""];
-    [headerTextView setString:@""];
+    [_label setStringValue:@""];
+    [_headerTextView setString:@""];
     
-    [classBrowser setTitle:rootTitle ofColumn:0];
+    [_classBrowser setTitle:rootTitle ofColumn:0];
 }
 
 - (IBAction)changeViewTypeFromSegmentedControl:(NSSegmentedControl *)sender {
     RBBrowserViewType viewType = sender.selectedSegment;
-    if(viewType != RBBrowserViewTypeList) [searchField setStringValue:@""];
+    if(viewType != RBBrowserViewTypeList) [_searchField setStringValue:@""];
     
     [self changeViewTypeTo:sender.selectedSegment];
 }
@@ -336,7 +346,7 @@
     RBBrowserViewType viewType = [sender tag];
     
     if([self isInSearchMode]) {
-        if(viewType != RBBrowserViewTypeList) [searchField setStringValue:@""];
+        if(viewType != RBBrowserViewTypeList) [_searchField setStringValue:@""];
         [segmentedControl setEnabled:YES forSegment:0];
         [segmentedControl setEnabled:YES forSegment:2];
     }
@@ -365,7 +375,7 @@
     
     self.searchResultsNode = [[BrowserNode alloc] init];
     
-    NSString *searchString = [[searchField stringValue] copy];
+    NSString *searchString = [[_searchField stringValue] copy];
     
     NSArray *classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
     
@@ -377,11 +387,21 @@
     
     NSBlockOperation *op = [[NSBlockOperation alloc] init];
     
+    __weak NSBlockOperation *weakOp = op;
+    
+    __weak typeof(self) weakSelf = self;
+    
     for (id classStub in classStubs) {
         
         [op addExecutionBlock:^{
             
-            if([op isCancelled]) {
+            __strong NSBlockOperation *strongOp = weakOp;
+            if(strongOp == nil) return;
+
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if(strongSelf == nil) return;
+            
+            if([strongOp isCancelled]) {
                 //NSLog(@"-- op isCancelled");
                 return;
             }
@@ -392,22 +412,25 @@
                 
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     
-                    if([searchString isEqualToString:[searchField stringValue]] == NO) {
+                    __strong typeof(weakSelf) strongSelf = weakSelf;
+                    if(strongSelf == nil) return;
+                    
+                    if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
                         //rNSLog(@"-- discard results for %@", searchString);
-                        [op cancel];
+                        [strongOp cancel];
                         return;
                     }
                     
-                    if([searchResults containsObject:classStub]) return;
+                    if([strongSelf.searchResults containsObject:classStub]) return;
                     
-                    [searchResults addObject:classStub];
+                    [strongSelf.searchResults addObject:classStub];
                     
-                    searchResultsNode.children = searchResults;
+                    strongSelf.searchResultsNode.children = strongSelf.searchResults;
                     
-                    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes, searching...", searchString, (unsigned long)[searchResults count]];
-                    [classBrowser setTitle:rootTitle ofColumn:0];
+                    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes, searching...", searchString, (unsigned long)[strongSelf.searchResults count]];
+                    [strongSelf.classBrowser setTitle:rootTitle ofColumn:0];
                     
-                    [classBrowser loadColumnZero];
+                    [strongSelf.classBrowser loadColumnZero];
                 }];
             }
         }];
@@ -417,15 +440,18 @@
     [op setCompletionBlock:^{
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            if([searchString isEqualToString:[searchField stringValue]] == NO) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if(strongSelf == nil) return;
+
+            if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
                 NSLog(@"-- discard all results for %@", searchString);
                 return;
             }
             
-            NSLog(@"-- finished searching for %@, %lul results", searchString, (unsigned long)[searchResults count]);
+            NSLog(@"-- finished searching for %@, %lul results", searchString, (unsigned long)[strongSelf.searchResults count]);
             
-            NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes", searchString, (unsigned long)[searchResults count]];
-            [classBrowser setTitle:rootTitle ofColumn:0];
+            NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes", searchString, (unsigned long)[strongSelf.searchResults count]];
+            [strongSelf.classBrowser setTitle:rootTitle ofColumn:0];
             
         }];
     }];
@@ -525,14 +551,14 @@
     
     [mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
     
-    [classBrowser setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
-    [classBrowser setAllowsMultipleSelection:YES];
+    [_classBrowser setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
+    [_classBrowser setAllowsMultipleSelection:YES];
     
-    [classBrowser setRowHeight:18];
-    [classBrowser setAutohidesScroller:YES];
-    [classBrowser setCellClass:[BrowserCell class]];
+    [_classBrowser setRowHeight:18];
+    [_classBrowser setAutohidesScroller:YES];
+    [_classBrowser setCellClass:[BrowserCell class]];
     
-    [headerTextView setFont:[NSFont userFixedPitchFontOfSize:11.0]]; // TODO -- make size and font a default
+    [_headerTextView setFont:[NSFont userFixedPitchFontOfSize:11.0]]; // TODO -- make size and font a default
     
     RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
     [self changeViewTypeTo:viewType];
@@ -542,31 +568,31 @@
     
     NSBrowserCell *cell = [sender selectedCell];
     if(cell == nil) {
-        [label setStringValue:@""];
-        [headerTextView setString:@""];
+        [_label setStringValue:@""];
+        [_headerTextView setString:@""];
         return;
     }
     
     BOOL colorize = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBColorizeHeaderFile"];
     
-    NSIndexPath *ip = [classBrowser selectionIndexPath];
-    id item = [classBrowser itemAtIndexPath:ip];
+    NSIndexPath *ip = [_classBrowser selectionIndexPath];
+    id item = [_classBrowser itemAtIndexPath:ip];
     
-    [classBrowser setTitle:[item nodeInfo] ofColumn:[ip length]];
+    [_classBrowser setTitle:[item nodeInfo] ofColumn:[ip length]];
     
     if([item isKindOfClass:[BrowserNode class]]) {
-        [label setStringValue:[item nodeName]];
-        [headerTextView setString:@""];
+        [_label setStringValue:[item nodeName]];
+        [_headerTextView setString:@""];
         return;
     } else if ([item isKindOfClass:[RTBProtocol class]]) {
-        [label setStringValue:[item nodeName]];
-        [headerTextView setString:@""];
+        [_label setStringValue:[item nodeName]];
+        [_headerTextView setString:@""];
         
         RTBProtocol *protocolStub = (RTBProtocol *)item;
         NSString *header = [RTBRuntimeHeader headerForProtocolName:protocolStub.protocolName];
         
         NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
-        [[headerTextView textStorage] setAttributedString:attributedString];
+        [[_headerTextView textStorage] setAttributedString:attributedString];
         
         return;
     }
@@ -575,14 +601,14 @@
     Class klass = nil;
     
     if ([classname length]) {
-        [label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
+        [_label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
         
         klass = NSClassFromString(classname);
     }
     
     if(klass == nil) {
-        [label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
-        [headerTextView setString:[NSString stringWithFormat:@"can't load class with name: %@", classname]];
+        [_label setStringValue:[NSString stringWithFormat:@"%@.h", classname]];
+        [_headerTextView setString:[NSString stringWithFormat:@"can't load class with name: %@", classname]];
         return;
     }
     
@@ -600,18 +626,18 @@
     
     NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
     
-    [[headerTextView textStorage] setAttributedString:attributedString];
+    [[_headerTextView textStorage] setAttributedString:attributedString];
     
     /* highlight search string */
     
     // TODO: highlight each occurrence
     
-    NSString *searchString = [searchField stringValue];
+    NSString *searchString = [_searchField stringValue];
     if([searchString length] > 0) {
         NSRange range = [header rangeOfString:searchString options:NSCaseInsensitiveSearch];
         if(range.location != NSNotFound) {
-            [headerTextView scrollRangeToVisible:range];
-            [headerTextView showFindIndicatorForRange:range];
+            [_headerTextView scrollRangeToVisible:range];
+            [_headerTextView showFindIndicatorForRange:range];
         }
     }
     
@@ -635,7 +661,7 @@
 - (BrowserNode *)rootItemForBrowser:(NSBrowser *)browser {
     RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
     
-    NSString *searchString = [searchField stringValue];
+    NSString *searchString = [_searchField stringValue];
     if([searchString length] > 0) {
         return searchResultsNode;
     }
@@ -699,12 +725,12 @@
 
 - (NSArray *)browser:(NSBrowser *)aBrowser namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column {
     
-    NSArray *selectedIndexPaths = [classBrowser selectionIndexPaths];
+    NSArray *selectedIndexPaths = [_classBrowser selectionIndexPaths];
     
     NSMutableArray *selectedItems = [NSMutableArray array];
     
     for(NSIndexPath *ip in selectedIndexPaths) {
-        id item = [classBrowser itemAtIndexPath:ip];
+        id item = [_classBrowser itemAtIndexPath:ip];
         [selectedItems addObject:item];
     }
     
@@ -769,8 +795,8 @@
  */
 - (NSImage *)browser:(NSBrowser *)browser draggingImageForRowsWithIndexes:(NSIndexSet *)rowIndexes inColumn:(NSInteger)column withEvent:(NSEvent *)event offset:(NSPointPointer)dragImageOffset {
     
-    NSIndexPath *ip = [classBrowser selectionIndexPath];
-    id item = [classBrowser itemAtIndexPath:ip];
+    NSIndexPath *ip = [_classBrowser selectionIndexPath];
+    id item = [_classBrowser itemAtIndexPath:ip];
     
     if([item isKindOfClass:[RTBClass class]]) {
         return [[NSWorkspace sharedWorkspace] iconForFileType:@"public.c-header"];

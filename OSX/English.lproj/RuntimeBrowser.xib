@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="14D131" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7531" systemVersion="14D131" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7531"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
@@ -66,17 +66,17 @@
                                             <rect key="frame" x="5" y="10" width="609" height="470"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="7ux-cM-wjF">
-                                                <rect key="frame" x="1" y="1" width="586" height="459"/>
+                                                <rect key="frame" x="1" y="1" width="592" height="468"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" findStyle="panel" allowsDocumentBackgroundColorChange="YES" usesFontPanel="YES" verticallyResizable="YES" textReplacement="YES" smartInsertDelete="YES" id="155">
                                                         <rect key="frame" x="0.0" y="0.0" width="586" height="468"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="592" height="468"/>
+                                                        <size key="minSize" width="586" height="468"/>
                                                         <size key="maxSize" width="609" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="592" height="468"/>
+                                                        <size key="minSize" width="586" height="468"/>
                                                         <size key="maxSize" width="609" height="10000000"/>
                                                         <connections>
                                                             <outlet property="delegate" destination="137" id="435"/>
@@ -118,12 +118,12 @@
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="282"/>
                     <toolbarItem implicitItemIdentifier="5E8D4844-987B-436B-93F7-ABCED8423E1C" label="View" paletteLabel="View" id="291">
                         <nil key="toolTip"/>
-                        <size key="minSize" width="104" height="25"/>
+                        <size key="minSize" width="104" height="24"/>
                         <size key="maxSize" width="171" height="25"/>
                         <segmentedControl key="view" verticalHuggingPriority="750" id="289">
-                            <rect key="frame" x="0.0" y="14" width="137" height="25"/>
+                            <rect key="frame" x="0.0" y="13" width="137" height="25"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <segmentedCell key="cell" state="on" borderStyle="border" alignment="left" style="texturedRounded" trackingMode="selectOne" id="290">
+                            <segmentedCell key="cell" state="on" borderStyle="border" alignment="left" style="automatic" trackingMode="selectOne" id="290">
                                 <font key="font" metaFont="system"/>
                                 <segments>
                                     <segment image="NSIconViewTemplate" width="32">
