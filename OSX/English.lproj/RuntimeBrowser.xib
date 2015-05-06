@@ -73,10 +73,10 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="586" height="468"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="586" height="468"/>
+                                                        <size key="minSize" width="592" height="468"/>
                                                         <size key="maxSize" width="609" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="586" height="468"/>
+                                                        <size key="minSize" width="592" height="468"/>
                                                         <size key="maxSize" width="609" height="10000000"/>
                                                         <connections>
                                                             <outlet property="delegate" destination="137" id="435"/>
@@ -658,14 +658,14 @@
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="202" userLabel="Panel (Preferences)" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="436" width="265" height="125"/>
+            <rect key="contentRect" x="196" y="436" width="265" height="94"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
             <view key="contentView" id="203">
-                <rect key="frame" x="0.0" y="0.0" width="265" height="125"/>
+                <rect key="frame" x="0.0" y="6" width="265" height="94"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button id="206">
-                        <rect key="frame" x="18" y="89" width="229" height="18"/>
+                        <rect key="frame" x="18" y="58" width="229" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Display properties default values" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="269">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -676,7 +676,7 @@
                         </connections>
                     </button>
                     <button id="208">
-                        <rect key="frame" x="18" y="69" width="229" height="18"/>
+                        <rect key="frame" x="18" y="38" width="229" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Colorize header file" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="270">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -687,7 +687,7 @@
                         </connections>
                     </button>
                     <button id="436">
-                        <rect key="frame" x="18" y="49" width="229" height="18"/>
+                        <rect key="frame" x="18" y="18" width="229" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Add comment for blocks" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="437">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -697,27 +697,9 @@
                             <binding destination="210" name="value" keyPath="values.RTBAddCommentsForBlocks" id="440"/>
                         </connections>
                     </button>
-                    <button id="445">
-                        <rect key="frame" x="18" y="18" width="229" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Use Legacy Mode" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="446">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <binding destination="210" name="value" keyPath="values.RTBLegacyMode" id="450"/>
-                        </connections>
-                    </button>
-                    <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" id="448">
-                        <rect key="frame" x="20" y="40" width="225" height="5"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        <font key="titleFont" metaFont="system"/>
-                    </box>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="210.5" y="859.5"/>
+            <point key="canvasLocation" x="210.5" y="844"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="210" userLabel="Shared User Defaults Controller"/>
         <customObject id="400" customClass="NSFontManager"/>
