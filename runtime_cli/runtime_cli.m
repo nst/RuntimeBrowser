@@ -1,12 +1,10 @@
 #import <Foundation/Foundation.h>
-#import "ClassDisplayDeprecated.h"
+#import "RTBRuntimeHeader.h"
 
 int main (int argc, const char * argv[]) {
 
     @autoreleasepool {
-        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[NSString class]];
-        
-        NSString *header = [cd header];
+        NSString *header = [RTBRuntimeHeader headerForClass:[NSString class] displayPropertiesDefaultValues:YES];
         
         NSLog(@"-- %@", header);
     }

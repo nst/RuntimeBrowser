@@ -211,8 +211,6 @@
 		03B0E3641AED353900A9DAC3 /* RTBProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBProtocol.h; path = ../model/RTBProtocol.h; sourceTree = "<group>"; };
 		03B0E3651AED353900A9DAC3 /* RTBProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBProtocol.m; path = ../model/RTBProtocol.m; sourceTree = "<group>"; };
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
-		03F830D01AEAF59A00425494 /* ClassDisplayDeprecated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClassDisplayDeprecated.h; path = ../model/ClassDisplayDeprecated.h; sourceTree = "<group>"; };
-		03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ClassDisplayDeprecated.m; path = ../model/ClassDisplayDeprecated.m; sourceTree = "<group>"; };
 		03FA8B751AEE3D2500D55C16 /* RTBProtocolsTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBProtocolsTVC.h; sourceTree = "<group>"; };
 		03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBProtocolsTVC.m; sourceTree = "<group>"; };
 		4CE3701F17E375DD00CD4BF2 /* UIAlertView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Blocks.h"; sourceTree = "<group>"; };
@@ -381,8 +379,6 @@
 				03B0E3631AED353900A9DAC3 /* RTBClass.m */,
 				03B0E3641AED353900A9DAC3 /* RTBProtocol.h */,
 				03B0E3651AED353900A9DAC3 /* RTBProtocol.m */,
-				03F830D01AEAF59A00425494 /* ClassDisplayDeprecated.h */,
-				03F830D11AEAF59A00425494 /* ClassDisplayDeprecated.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";

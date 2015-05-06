@@ -35,8 +35,6 @@
 /* Begin PBXFileReference section */
 		030706D0130FCAD2009E6B08 /* RTBRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBRuntime.h; sourceTree = "<group>"; };
 		030706D1130FCAD2009E6B08 /* RTBRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBRuntime.m; sourceTree = "<group>"; };
-		030F16C812DFA4CB000180B1 /* ClassDisplayDeprecated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassDisplayDeprecated.h; sourceTree = "<group>"; };
-		030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassDisplayDeprecated.m; sourceTree = "<group>"; };
 		0315C0310E47AB9F00DFB2F3 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 		0315C2770E47D3A200DFB2F3 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		033148A1131157A200695BB1 /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrowserNode.h; sourceTree = "<group>"; };
@@ -103,8 +101,6 @@
 				037EDADB1307102300298C79 /* RTBClass.m */,
 				03CAF3441AEAD7D100282C77 /* RTBProtocol.h */,
 				03CAF3451AEAD7D100282C77 /* RTBProtocol.m */,
-				030F16C812DFA4CB000180B1 /* ClassDisplayDeprecated.h */,
-				030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */,
 			);
 			name = Model;
 			path = ../model;
