@@ -41,7 +41,6 @@ Boston, MA  02111-1307  USA
 //TODO: keep selection on view change
 
 #import <AppKit/AppKit.h>
-#import "ClassDisplayDeprecated.h"
 
 @class RTBRuntime;
 @class BrowserNode;

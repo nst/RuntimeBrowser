@@ -241,15 +241,8 @@
                 NSString *filename = [NSString stringWithFormat:@"%@.h", className];
                 NSURL *url = [dirURL URLByAppendingPathComponent:filename];
                 
-                NSString *header = nil;
-                
-                if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-                    ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:NSClassFromString(className)];
-                    header = [cd header];
-                } else {
-                    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
-                    header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-                }
+                BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
+                NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
                 
                 NSError *error = nil;
                 BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
@@ -614,15 +607,7 @@
     
     BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
     
-    NSString *header = nil;
-    
-    if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBLegacyMode"]) {
-        ClassDisplayDeprecated *classDisplay = [ClassDisplayDeprecated classDisplayWithClass:klass];
-        classDisplay.displayPropertiesDefaultValues = displayPropertiesDefaultValues;
-        header = [classDisplay header];
-    } else {
-        header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-    }
+    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     
     NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
     

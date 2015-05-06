@@ -7,15 +7,15 @@
 //
 
 #import "RTBObjectsTVC.h"
-#import "ClassDisplayDeprecated.h"
 #import "RTBMethodCell.h"
-
-// Shmoopi's Addition
+#import "RTBRuntimeHeader.h"
 #import "UIAlertView+Blocks.h"
+
+// TODO: create RTBMethod to provide selector, description, return type and argument types
 
 @interface RTBObjectsTVC ()
 
-@property (nonatomic, strong) NSMutableArray *methods;
+@property (nonatomic, strong) NSArray *methods; // dictionaries with 'name' and 'description' keys
 @property (nonatomic, strong) NSMutableArray *paramsToAdd;
 @property (nonatomic, strong) NSMutableArray *paramsToRemove;
 @property (nonatomic, strong) id object;
@@ -35,44 +35,19 @@
     
     self.object = o;
     
-    self.methods = [NSMutableArray array];
-    [self.tableView reloadData];
-    
-    if(_object == nil) return;
-    
-    @try {
-        NSArray *m = nil;
-        
-        ClassDisplayDeprecated *cd = [ClassDisplayDeprecated classDisplayWithClass:[_object class]];
-        
-        if(_object == [_object class]) {
-            m = [cd sortedMethodLinesWithSign:'+'];
-            if ([m count] == 1) {
-                m = [NSArray arrayWithObject:[NSString stringWithFormat:@"%@%@", [m objectAtIndex:0], @"+ (id)alloc;\n"]];
-            }
-        } else {
-            m = [cd sortedMethodLinesWithSign:'-'];
-        }
-        
-        if([m count] == 1) {
-            self.methods = [NSMutableArray arrayWithArray:[[m lastObject] componentsSeparatedByString:@"\n"]];
-        } else {
-            self.methods = [m mutableCopy];
-        }
-        
-        if ([[_methods lastObject] isEqualToString:@""]) {
-            [_methods removeLastObject];
-        }
-    } @catch (NSException * e) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
-                                                        message:[e reason]
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-    } @finally {
+    if(_object == nil) {
+        self.methods = [NSArray array];
         [self.tableView reloadData];
+        return;
     }
+    
+    if(_object == [_object class]) {
+        self.methods = [RTBRuntimeHeader sortedMethodDictionariesForClass:[_object class] isClassMethod:YES];
+    } else {
+        self.methods = [RTBRuntimeHeader sortedMethodDictionariesForClass:[_object class] isClassMethod:NO];
+    }
+
+    [self.tableView reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -132,29 +107,30 @@
     }
     
     // Set up the cell
-    NSString *method = [_methods objectAtIndex:indexPath.row];
-    cell.textLabel.text = [method substringToIndex:[method length]-1]; // remove terminating ';'
-    BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
+    NSDictionary *d = [_methods objectAtIndex:indexPath.row];
+    NSString *description = d[@"description"];
+    cell.textLabel.text = description;
+    BOOL hasParameters = [d[@"name"] rangeOfString:@":"].location != NSNotFound;
     cell.textLabel.textColor = [UIColor blackColor];
     cell.accessoryType = hasParameters ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     
     // Get the method name to highlight different methods
-    NSRange range = [method rangeOfString:@")"]; // return type
+    NSRange range = [description rangeOfString:@")"]; // return type
     
     // Verify the location of the )
     if(range.location == NSNotFound) return cell;
     
     // Get the return type
-    NSString *returnType = [method substringWithRange:NSMakeRange(3, range.location-3)];
+    NSString *returnType = [description substringWithRange:NSMakeRange(3, range.location-3)];
     
-    range = NSMakeRange(range.location+1, [method length]-range.location-2);
-    method = [method substringWithRange:range];
+    range = NSMakeRange(range.location+1, [description length]-range.location-2);
+    description = [description substringWithRange:range];
     
     // Check which method type it is
-    if ([method isEqualToString:@"alloc"]) {
+    if ([description isEqualToString:@"alloc"]) {
         // Show blue
         cell.textLabel.textColor = [UIColor blueColor];
-    } else if ([returnType hasPrefix:@"void"]  && !hasParameters && ([method isEqualToString:@".cxx_destruct"] || [method isEqualToString:@"dealloc"])) {
+    } else if ([returnType hasPrefix:@"void"]  && !hasParameters && ([description isEqualToString:@".cxx_destruct"] || [description isEqualToString:@"dealloc"])) {
         // Show orange
         cell.textLabel.textColor = [UIColor orangeColor];
     }
@@ -165,9 +141,10 @@
     
     if(indexPath.row > ([_methods count]-1) ) return;
     
-    NSString *method = [_methods objectAtIndex:indexPath.row];
+    NSDictionary *d = [_methods objectAtIndex:indexPath.row];
+    NSString *description = d[@"description"];
     
-    BOOL hasParameters = [method rangeOfString:@":"].location != NSNotFound;
+    BOOL hasParameters = [d[@"name"] rangeOfString:@":"].location != NSNotFound;
     
     // Check if the method has parameters
     if (hasParameters) {
@@ -176,10 +153,10 @@
         NSMutableArray *params = [[NSMutableArray alloc] init];
         
         // Get all instances of the parameters we'd like to fill
-        NSUInteger length = [method length];
+        NSUInteger length = [description length];
         NSRange range = NSMakeRange(0, length);
         while (range.location != NSNotFound) {
-            range = [method rangeOfString:@":" options:NSCaseInsensitiveSearch range:range];
+            range = [description rangeOfString:@":" options:NSCaseInsensitiveSearch range:range];
             if (range.location != NSNotFound) {
                 range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
                 
@@ -187,14 +164,14 @@
                 NSString *argNumber = [NSString stringWithFormat:@"arg%@", @(params.count + 1)];
                 
                 // Check to see if we have a space or a semi colon to separate the arguments
-                if ([method rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location == NSNotFound) {
+                if ([description rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location == NSNotFound) {
                     // Didn't find the arg
                     [params addObject:@"Unknown Argument"];
                     
                 } else {
                     // Create a substring that can be used from that
-                    NSRange toSlash = NSMakeRange(range.location, ([method rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location - range.location) + argNumber.length);
-                    NSString *subStringfromBingo = [method substringWithRange:toSlash];
+                    NSRange toSlash = NSMakeRange(range.location, ([description rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location - range.location) + argNumber.length);
+                    NSString *subStringfromBingo = [description substringWithRange:toSlash];
                     
                     // Add the parameters
                     [params addObject:subStringfromBingo];
@@ -207,7 +184,7 @@
         for (NSString *objects in [params reverseObjectEnumerator]) {
             // Need to fill in the parameters to run the argument
             [UIAlertView rtb_displayAlertWithTitle:objects
-                                           message:method
+                                           message:description
                                    leftButtonTitle:@"Cancel"
                                   leftButtonAction:^{
                                       // Add nil parameter to the parameters array
@@ -301,7 +278,7 @@
                                                  return;
                                              }
                                          
-                                             [strongSelf performFunction:method withObjects:strongSelf.paramsToAdd removing:strongSelf.paramsToRemove];
+                                             [strongSelf performMethod:d withParameters:strongSelf.paramsToAdd removing:strongSelf.paramsToRemove];
                                          });
                                      }
                                  }];
@@ -310,26 +287,26 @@
         return;
     }
     
-    NSRange range = [method rangeOfString:@")"]; // return type
+    NSRange range = [description rangeOfString:@")"]; // return type
     
     if(range.location == NSNotFound) return;
     
-    NSString *t = [method substringWithRange:NSMakeRange(3, range.location-3)];
+    NSString *t = [description substringWithRange:NSMakeRange(3, range.location-3)];
     
-    range = NSMakeRange(range.location+1, [method length]-range.location-2);
+    range = NSMakeRange(range.location+1, [description length]-range.location-2);
     
-    method = [method substringWithRange:range];
+    description = [description substringWithRange:range];
     
-    if([method hasSuffix:@";"]) {
-        method = [method substringToIndex:[method length]-1];
+    if([description hasSuffix:@";"]) {
+        description = [description substringToIndex:[description length]-1];
     }
     
-    if([method isEqualToString:@"dealloc"]) {
+    if([description isEqualToString:@"dealloc"]) {
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
     
-    SEL selector = NSSelectorFromString(method);
+    SEL selector = NSSelectorFromString(description);
     
     if(![_object respondsToSelector:selector]) {
         return;
@@ -352,7 +329,7 @@
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
     // Check to see if it's alloc
-    if ([method isEqualToString:@"alloc"]) {
+    if ([description isEqualToString:@"alloc"]) {
         // Alloc and init the class
         
         o = [_object performSelector:selector];
@@ -468,8 +445,10 @@
     [self.navigationController pushViewController:ovc animated:YES];
 }
 
-- (void)performFunction:(NSString *)method withObjects:(NSMutableArray *)parameters removing:(NSMutableArray *)removing {
-        
+- (void)performMethod:(NSDictionary *)methodDictionary withParameters:(NSMutableArray *)parameters removing:(NSMutableArray *)removing {
+    
+    NSString *method = methodDictionary[@"description"];
+    
     NSRange range = [method rangeOfString:@")"]; // return type
     
     if(range.location == NSNotFound) return;
@@ -494,7 +473,7 @@
     
     RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     
-    SEL selector = NSSelectorFromString(method);
+    SEL selector = NSSelectorFromString(methodDictionary[@"name"]);
     
     if(![_object respondsToSelector:selector]) {
         return;
@@ -778,25 +757,6 @@
         NSLog(@"Output is empty");
         o = @"NULL";
     }
-    
-    /*
-     if([_object respondsToSelector:selector]) {
-     o = [_object performSelector:selector];
-     }
-     
-     @try {
-     
-     } @catch (NSException * e) {
-     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[e name]
-     message:[e reason]
-     delegate:nil
-     cancelButtonTitle:@"OK"
-     otherButtonTitles:nil];
-     [alert show];
-     } @finally {
-     
-     }
-     */
     
     if(![t isEqualToString:@"id"]) {
         if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {

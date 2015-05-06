@@ -14,7 +14,6 @@
 		03314FCD131251A500695BB1 /* BrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03314FCC131251A500695BB1 /* BrowserCell.m */; };
 		0331C1FA1AE59C0B002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F71AE59C0B002A641E /* RTBTypeDecoder.m */; };
 		0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */; };
-		0331C1FC1AE5A12F002A641E /* ClassDisplayDeprecated.m in Sources */ = {isa = PBXBuildFile; fileRef = 030F16C912DFA4CB000180B1 /* ClassDisplayDeprecated.m */; };
 		0333858A131D9738002654D3 /* RuntimeBrowser.icns in Resources */ = {isa = PBXBuildFile; fileRef = 03338589131D9738002654D3 /* RuntimeBrowser.icns */; };
 		03561DB40E4BA18A002FEBCD /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 03561DB30E4BA18A002FEBCD /* Credits.html */; };
 		0379BB80179D0B4000F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */; };
@@ -296,7 +295,6 @@
 				037EDADC1307102300298C79 /* RTBClass.m in Sources */,
 				030706D2130FCAD3009E6B08 /* RTBRuntime.m in Sources */,
 				033148A3131157A200695BB1 /* BrowserNode.m in Sources */,
-				0331C1FC1AE5A12F002A641E /* ClassDisplayDeprecated.m in Sources */,
 				03CAF3461AEAD7D100282C77 /* RTBProtocol.m in Sources */,
 				0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */,
 				03314FCD131251A500695BB1 /* BrowserCell.m in Sources */,
