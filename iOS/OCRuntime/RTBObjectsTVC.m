@@ -10,16 +10,14 @@
 #import "RTBMethodCell.h"
 #import "RTBRuntimeHeader.h"
 #import "UIAlertView+Blocks.h"
-
-// TODO: create RTBMethod to provide selector, description, return type and argument types
+#import "RTBMethod.h"
 
 @interface RTBObjectsTVC ()
 
-@property (nonatomic, strong) NSArray *methods; // dictionaries with 'name' and 'description' keys
+@property (nonatomic, strong) NSArray *methods;
 @property (nonatomic, strong) NSMutableArray *paramsToAdd;
 @property (nonatomic, strong) NSMutableArray *paramsToRemove;
 @property (nonatomic, strong) id object;
-
 
 @end
 
@@ -42,9 +40,9 @@
     }
     
     if(_object == [_object class]) {
-        self.methods = [RTBRuntimeHeader sortedMethodDictionariesForClass:[_object class] isClassMethod:YES];
+        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:YES];
     } else {
-        self.methods = [RTBRuntimeHeader sortedMethodDictionariesForClass:[_object class] isClassMethod:NO];
+        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:NO];
     }
 
     [self.tableView reloadData];
@@ -107,10 +105,10 @@
     }
     
     // Set up the cell
-    NSDictionary *d = [_methods objectAtIndex:indexPath.row];
-    NSString *description = d[@"description"];
+    RTBMethod *m = [_methods objectAtIndex:indexPath.row];
+    NSString *description = [m headerDescription];
     cell.textLabel.text = description;
-    BOOL hasParameters = [d[@"name"] rangeOfString:@":"].location != NSNotFound;
+    BOOL hasParameters = [[m selectorString] rangeOfString:@":"].location != NSNotFound;
     cell.textLabel.textColor = [UIColor blackColor];
     cell.accessoryType = hasParameters ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     
@@ -141,10 +139,10 @@
     
     if(indexPath.row > ([_methods count]-1) ) return;
     
-    NSDictionary *d = [_methods objectAtIndex:indexPath.row];
-    NSString *description = d[@"description"];
+    RTBMethod *m = [_methods objectAtIndex:indexPath.row];
+    NSString *description = [m headerDescription];
     
-    BOOL hasParameters = [d[@"name"] rangeOfString:@":"].location != NSNotFound;
+    BOOL hasParameters = [[m selectorString] rangeOfString:@":"].location != NSNotFound;
     
     // Check if the method has parameters
     if (hasParameters) {
@@ -278,7 +276,7 @@
                                                  return;
                                              }
                                          
-                                             [strongSelf performMethod:d withParameters:strongSelf.paramsToAdd removing:strongSelf.paramsToRemove];
+                                             [strongSelf performMethod:m withParameters:strongSelf.paramsToAdd removing:strongSelf.paramsToRemove];
                                          });
                                      }
                                  }];
@@ -445,9 +443,9 @@
     [self.navigationController pushViewController:ovc animated:YES];
 }
 
-- (void)performMethod:(NSDictionary *)methodDictionary withParameters:(NSMutableArray *)parameters removing:(NSMutableArray *)removing {
+- (void)performMethod:(RTBMethod *)m withParameters:(NSMutableArray *)parameters removing:(NSMutableArray *)removing {
     
-    NSString *method = methodDictionary[@"description"];
+    NSString *method = [m headerDescription];
     
     NSRange range = [method rangeOfString:@")"]; // return type
     
@@ -473,7 +471,7 @@
     
     RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     
-    SEL selector = NSSelectorFromString(methodDictionary[@"name"]);
+    SEL selector = NSSelectorFromString([m selectorString]);
     
     if(![_object respondsToSelector:selector]) {
         return;
@@ -486,7 +484,7 @@
     NSParameterAssert(selector != NULL);
     NSParameterAssert([_object respondsToSelector:selector]);
     
-    NSMethodSignature* methodSig = [_object methodSignatureForSelector:selector];
+    NSMethodSignature *methodSig = [_object methodSignatureForSelector:selector];
     if(methodSig == nil) {
         NSLog(@"Invalid Method Signature for class: %@ and selector: %@", _object, NSStringFromSelector(selector));
         return;

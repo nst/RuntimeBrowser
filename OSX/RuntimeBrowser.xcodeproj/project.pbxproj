@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		030706D2130FCAD3009E6B08 /* RTBRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 030706D1130FCAD2009E6B08 /* RTBRuntime.m */; };
+		0308D7431AFA4DF1000CEC87 /* RTBMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D7421AFA4DF1000CEC87 /* RTBMethod.m */; };
 		0315C0320E47AB9F00DFB2F3 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0315C0310E47AB9F00DFB2F3 /* Keywords.plist */; };
 		0315C2780E47D3A200DFB2F3 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0315C2770E47D3A200DFB2F3 /* Defaults.plist */; };
 		033148A3131157A200695BB1 /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 033148A2131157A200695BB1 /* BrowserNode.m */; };
@@ -35,6 +36,8 @@
 /* Begin PBXFileReference section */
 		030706D0130FCAD2009E6B08 /* RTBRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBRuntime.h; sourceTree = "<group>"; };
 		030706D1130FCAD2009E6B08 /* RTBRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBRuntime.m; sourceTree = "<group>"; };
+		0308D7411AFA4DF1000CEC87 /* RTBMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBMethod.h; sourceTree = "<group>"; };
+		0308D7421AFA4DF1000CEC87 /* RTBMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBMethod.m; sourceTree = "<group>"; };
 		0315C0310E47AB9F00DFB2F3 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 		0315C2770E47D3A200DFB2F3 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		033148A1131157A200695BB1 /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrowserNode.h; sourceTree = "<group>"; };
@@ -101,6 +104,8 @@
 				037EDADB1307102300298C79 /* RTBClass.m */,
 				03CAF3441AEAD7D100282C77 /* RTBProtocol.h */,
 				03CAF3451AEAD7D100282C77 /* RTBProtocol.m */,
+				0308D7411AFA4DF1000CEC87 /* RTBMethod.h */,
+				0308D7421AFA4DF1000CEC87 /* RTBMethod.m */,
 			);
 			name = Model;
 			path = ../model;
@@ -294,6 +299,7 @@
 				03CAF3461AEAD7D100282C77 /* RTBProtocol.m in Sources */,
 				0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */,
 				03314FCD131251A500695BB1 /* BrowserCell.m in Sources */,
+				0308D7431AFA4DF1000CEC87 /* RTBMethod.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

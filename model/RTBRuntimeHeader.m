@@ -8,6 +8,7 @@
 
 #import "RTBRuntimeHeader.h"
 #import "RTBTypeDecoder.h"
+#import "RTBMethod.h"
 
 OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL isRequiredMethod, BOOL isInstanceMethod) __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
 
@@ -17,7 +18,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return [RTBTypeDecoder decodeType:s flat:YES];
 }
 
-+ (NSArray *)sortedMethodDictionariesForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod {
++ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod {
     
     Class class = aClass;
     
@@ -33,19 +34,14 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     for (NSUInteger i = 0; i < methodListCount; i++) {
         Method method = methodList[i];
         
-        NSString *name = NSStringFromSelector(method_getName(method));
-        NSString *description = [[self class] descriptionForMethod:method isClassMethod:isClassMethod];
+        RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
         
-        NSDictionary *d = @{@"name":name, @"description":description};
-        
-        [ma addObject:d];
+        [ma addObject:m];
     }
     
     free(methodList);
     
-    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-        return [obj1[@"name"] compare:obj2[@"name"]];
-    }];
+    [ma sortUsingSelector:@selector(compare:)];
     
     return ma;
 }
@@ -77,22 +73,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }];
     
     return ma;
-}
-
-+ (NSArray *)argumentTypesForMethod:(Method)method {
-    unsigned int numberOfArguments = method_getNumberOfArguments(method);
-    
-    NSMutableArray *argumentsTypes = [NSMutableArray array];
-    for(unsigned int i = 0; i < numberOfArguments; i++) {
-        char *argType = method_copyArgumentType(method, i);
-        NSAssert(argType != NULL, @"");
-        NSString *encodedType = [NSString stringWithCString:argType encoding:NSASCIIStringEncoding];
-        free(argType);
-        
-        NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:YES];
-        [argumentsTypes addObject:decodedType];
-    }
-    return argumentsTypes;
 }
 
 + (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
@@ -183,19 +163,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     [ms appendString:@";"];
     
     return ms;
-}
-
-+ (NSString *)descriptionForMethod:(Method)method isClassMethod:(BOOL)isClassMethod {
-    
-    NSString *returnTypeEncoded = [NSString stringWithCString:method_copyReturnType(method) encoding:NSASCIIStringEncoding];
-    NSString *methodName = NSStringFromSelector(method_getName(method));
-    NSString *returnType = [RTBTypeDecoder decodeType:returnTypeEncoded flat:YES];
-    NSArray *argumentTypes = [self argumentTypesForMethod:method];
-    
-    return [self descriptionForMethodName:methodName
-                               returnType:returnType
-                            argumentTypes:argumentTypes
-                            isClassMethod:isClassMethod];
 }
 
 + (NSString *)descriptionForProtocol:(Protocol *)protocol selector:(SEL)selector isRequiredMethod:(BOOL)isRequiredMethod isInstanceMethod:(BOOL)isInstanceMethod {
@@ -313,21 +280,21 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     
     // class methods
-    NSArray *sortedClassMethodsDictionaries = [self sortedMethodDictionariesForClass:aClass isClassMethod:YES];
-    for(NSDictionary *d in sortedClassMethodsDictionaries) {
-        [header appendFormat:@"%@\n", d[@"description"]];
+    NSArray *sortedClassMethods = [self sortedMethodsForClass:aClass isClassMethod:YES];
+    for(RTBMethod *m in sortedClassMethods) {
+        [header appendFormat:@"%@\n", [m headerDescription]];
     }
-    if([sortedClassMethodsDictionaries count] > 0) {
+    if([sortedClassMethods count] > 0) {
         [header appendString:@"\n"];
     }
     
     // instance methods
     // class methods
-    NSArray *sortedInstanceMethodsDictionaries = [self sortedMethodDictionariesForClass:aClass isClassMethod:NO];
-    for(NSDictionary *d in sortedInstanceMethodsDictionaries) {
-        [header appendFormat:@"%@\n", d[@"description"]];
+    NSArray *sortedInstanceMethods = [self sortedMethodsForClass:aClass isClassMethod:NO];
+    for(RTBMethod *m in sortedInstanceMethods) {
+        [header appendFormat:@"%@\n", [m headerDescription]];
     }
-    if([sortedInstanceMethodsDictionaries count] > 0) {
+    if([sortedInstanceMethods count] > 0) {
         [header appendString:@"\n"];
     }
     

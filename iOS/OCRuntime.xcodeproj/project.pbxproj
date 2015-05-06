@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0308D7401AFA3BB2000CEC87 /* RTBMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D73F1AFA3BB2000CEC87 /* RTBMethod.m */; };
 		0309594917B5434000221D0E /* DDData.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309584B17B5433F00221D0E /* DDData.m */; };
 		0309594A17B5434000221D0E /* DDNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309584D17B5433F00221D0E /* DDNumber.m */; };
 		0309594B17B5434000221D0E /* DDRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 0309584F17B5433F00221D0E /* DDRange.m */; };
@@ -91,6 +92,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0308D73E1AFA3BB2000CEC87 /* RTBMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBMethod.h; path = ../model/RTBMethod.h; sourceTree = "<group>"; };
+		0308D73F1AFA3BB2000CEC87 /* RTBMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBMethod.m; path = ../model/RTBMethod.m; sourceTree = "<group>"; };
 		0309584A17B5433F00221D0E /* DDData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDData.h; sourceTree = "<group>"; };
 		0309584B17B5433F00221D0E /* DDData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDData.m; sourceTree = "<group>"; };
 		0309584C17B5433F00221D0E /* DDNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDNumber.h; sourceTree = "<group>"; };
@@ -379,6 +382,8 @@
 				03B0E3631AED353900A9DAC3 /* RTBClass.m */,
 				03B0E3641AED353900A9DAC3 /* RTBProtocol.h */,
 				03B0E3651AED353900A9DAC3 /* RTBProtocol.m */,
+				0308D73E1AFA3BB2000CEC87 /* RTBMethod.h */,
+				0308D73F1AFA3BB2000CEC87 /* RTBMethod.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -641,6 +646,7 @@
 				0309594F17B5434000221D0E /* HTTPServer.m in Sources */,
 				037402E617968370005D1AFB /* RTBTreeTVC.m in Sources */,
 				03959DDE176AFC4D002A1FCC /* main.m in Sources */,
+				0308D7401AFA3BB2000CEC87 /* RTBMethod.m in Sources */,
 				030959B617B5434000221D0E /* GCDAsyncSocket.m in Sources */,
 				0309594B17B5434000221D0E /* DDRange.m in Sources */,
 				0309594917B5434000221D0E /* DDData.m in Sources */,

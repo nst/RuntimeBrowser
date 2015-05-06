@@ -17,8 +17,7 @@
 
 @interface RTBRuntimeHeader : NSObject
 
-+ (NSArray *)sortedMethodDictionariesForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod;
-+ (NSString *)descriptionForMethod:(Method)method isClassMethod:(BOOL)isClassMethod;
++ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod;
 
 + (NSString *)decodedTypeForEncodedString:(NSString *)s;
 
@@ -42,5 +41,10 @@ displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
 + (NSArray *)sortedProtocolsAdoptedByProtocol:(NSString *)protocol;
 + (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods;
+
++ (NSString *)descriptionForMethodName:(NSString *)methodName
+                            returnType:(NSString *)returnType
+                         argumentTypes:(NSArray *)argumentsTypes
+                         isClassMethod:(BOOL)isClassMethod;
 
 @end
