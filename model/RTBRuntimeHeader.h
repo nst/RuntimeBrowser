@@ -18,6 +18,7 @@
 @interface RTBRuntimeHeader : NSObject
 
 + (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod;
++ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod includeSuperclasses:(BOOL)includeSuperclasses;
 
 + (NSString *)decodedTypeForEncodedString:(NSString *)s;
 

@@ -24,11 +24,22 @@
     return m;
 }
 
-- (NSString *)returnType {
-    return nil;
+- (NSString *)returnTypeEncoded {
+    static int BUFFER_SIZE = 255;
+    
+    char* buffer = malloc(BUFFER_SIZE * sizeof(char));
+    method_getReturnType(_method, buffer, BUFFER_SIZE);
+    NSString *s = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
+    free(buffer);
+    return s;
 }
 
-- (NSArray *)argumentsTypes {
+- (NSString *)returnTypeDecoded {
+    NSString *s = [self returnTypeEncoded];
+    return [RTBTypeDecoder decodeType:s flat:YES];
+}
+
+- (NSArray *)argumentsTypesDecoded {
     
     unsigned int numberOfArguments = method_getNumberOfArguments(_method);
     
@@ -52,7 +63,7 @@
     free(returnTypeCString);
     NSString *returnType = [RTBTypeDecoder decodeType:returnTypeEncoded flat:YES];
     NSString *methodName = NSStringFromSelector(method_getName(_method));
-    NSArray *argumentTypes = [self argumentsTypes];
+    NSArray *argumentTypes = [self argumentsTypesDecoded];
     
     return [RTBRuntimeHeader descriptionForMethodName:methodName
                                            returnType:returnType
@@ -62,6 +73,10 @@
 
 - (NSString *)selectorString {
     return NSStringFromSelector(method_getName(_method));
+}
+
+- (SEL)selector {
+    return method_getName(_method);
 }
 
 - (NSComparisonResult)compare:(RTBMethod *)otherMethod {

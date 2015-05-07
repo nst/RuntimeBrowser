@@ -17,8 +17,10 @@
 
 - (NSString *)headerDescription;
 
-- (NSString *)returnType;
-- (NSArray *)argumentsTypes;
+- (NSString *)returnTypeEncoded;
+- (NSString *)returnTypeDecoded;
+- (NSArray *)argumentsTypesDecoded;
 - (NSString *)selectorString;
+- (SEL)selector;
 
 @end

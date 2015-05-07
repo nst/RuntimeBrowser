@@ -21,6 +21,8 @@
 
 @end
 
+#define INCLUDE_METHODS_FROM_SUPERCLASSES 0
+
 @implementation RTBObjectsTVC
 
 - (IBAction)close:(id)sender {
@@ -38,13 +40,46 @@
         [self.tableView reloadData];
         return;
     }
+
+    RTBMethod *methodToAdd = nil;
     
     if(_object == [_object class]) {
-        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:YES];
+        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:YES includeSuperclasses:INCLUDE_METHODS_FROM_SUPERCLASSES];
+        
+        BOOL containsAlloc = NO;
+        for(RTBMethod *m in _methods) {
+            if([[m selectorString] isEqualToString:@"alloc"]) containsAlloc = YES;
+            break;
+        }
+
+        if(containsAlloc == NO) {
+            Method method = class_getClassMethod([_object class], @selector(alloc));
+            methodToAdd = [RTBMethod methodObjectWithMethod:method isClassMethod:YES];
+        }
+
     } else {
-        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:NO];
+        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:NO includeSuperclasses:INCLUDE_METHODS_FROM_SUPERCLASSES];
+
+        BOOL containsInit = NO;
+        for(RTBMethod *m in _methods) {
+            if([[m selectorString] isEqualToString:@"init"]) containsInit = YES;
+            break;
+        }
+        
+        if(containsInit == NO) {
+            Method method = class_getInstanceMethod([_object class], @selector(init));
+            methodToAdd = [RTBMethod methodObjectWithMethod:method isClassMethod:NO];
+        }
+
     }
 
+    if(methodToAdd) {
+        NSMutableArray *ma = [NSMutableArray array];
+        [ma addObject:methodToAdd];
+        [ma addObjectsFromArray:_methods];
+        self.methods = ma;
+    }
+    
     [self.tableView reloadData];
 }
 
@@ -108,27 +143,20 @@
     RTBMethod *m = [_methods objectAtIndex:indexPath.row];
     NSString *description = [m headerDescription];
     cell.textLabel.text = description;
-    BOOL hasParameters = [[m selectorString] rangeOfString:@":"].location != NSNotFound;
+    BOOL hasParameters = [[m argumentsTypesDecoded] count] > 2; // id, SEL, ...
     cell.textLabel.textColor = [UIColor blackColor];
     cell.accessoryType = hasParameters ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     
-    // Get the method name to highlight different methods
-    NSRange range = [description rangeOfString:@")"]; // return type
-    
-    // Verify the location of the )
-    if(range.location == NSNotFound) return cell;
-    
     // Get the return type
-    NSString *returnType = [description substringWithRange:NSMakeRange(3, range.location-3)];
+    NSString *returnType = [m returnTypeDecoded];
     
-    range = NSMakeRange(range.location+1, [description length]-range.location-2);
-    description = [description substringWithRange:range];
+    NSString *selectorString = [m selectorString];
     
     // Check which method type it is
-    if ([description isEqualToString:@"alloc"]) {
+    if ([selectorString isEqualToString:@"alloc"]) {
         // Show blue
         cell.textLabel.textColor = [UIColor blueColor];
-    } else if ([returnType hasPrefix:@"void"]  && !hasParameters && ([description isEqualToString:@".cxx_destruct"] || [description isEqualToString:@"dealloc"])) {
+    } else if ([returnType isEqualToString:@"void"]  && !hasParameters && ([selectorString isEqualToString:@".cxx_destruct"] || [selectorString isEqualToString:@"dealloc"])) {
         // Show orange
         cell.textLabel.textColor = [UIColor orangeColor];
     }
@@ -140,49 +168,30 @@
     if(indexPath.row > ([_methods count]-1) ) return;
     
     RTBMethod *m = [_methods objectAtIndex:indexPath.row];
-    NSString *description = [m headerDescription];
+    NSString *headerDescription = [m headerDescription];
+    NSArray *argTypes = [m argumentsTypesDecoded];
     
-    BOOL hasParameters = [[m selectorString] rangeOfString:@":"].location != NSNotFound;
+    BOOL hasParameters = [argTypes count] > 2;
     
-    // Check if the method has parameters
     if (hasParameters) {
-        // We have some parameters to fill!
         
-        NSMutableArray *params = [[NSMutableArray alloc] init];
+        NSMutableArray *params = [NSMutableArray array];
         
-        // Get all instances of the parameters we'd like to fill
-        NSUInteger length = [description length];
-        NSRange range = NSMakeRange(0, length);
-        while (range.location != NSNotFound) {
-            range = [description rangeOfString:@":" options:NSCaseInsensitiveSearch range:range];
-            if (range.location != NSNotFound) {
-                range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
-                
-                // Make a string of the arg number
-                NSString *argNumber = [NSString stringWithFormat:@"arg%@", @(params.count + 1)];
-                
-                // Check to see if we have a space or a semi colon to separate the arguments
-                if ([description rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location == NSNotFound) {
-                    // Didn't find the arg
-                    [params addObject:@"Unknown Argument"];
-                    
-                } else {
-                    // Create a substring that can be used from that
-                    NSRange toSlash = NSMakeRange(range.location, ([description rangeOfString:argNumber options:NSCaseInsensitiveSearch range:range].location - range.location) + argNumber.length);
-                    NSString *subStringfromBingo = [description substringWithRange:toSlash];
-                    
-                    // Add the parameters
-                    [params addObject:subStringfromBingo];
-                }
-            }
-        }
+        [argTypes enumerateObjectsUsingBlock:^(NSString *argType, NSUInteger idx, BOOL *stop) {
+            
+            if (idx <= 1) return; // skip id and SEL
+
+            // eg. "(unsigned long)arg1"
+            NSString *s = [NSString stringWithFormat:@"(%@)arg%d", argType, idx-1];
+            [params addObject:s];
+        }];
         
         __weak typeof(self) weakSelf = self;
         
         for (NSString *objects in [params reverseObjectEnumerator]) {
             // Need to fill in the parameters to run the argument
             [UIAlertView rtb_displayAlertWithTitle:objects
-                                           message:description
+                                           message:headerDescription
                                    leftButtonTitle:@"Cancel"
                                   leftButtonAction:^{
                                       // Add nil parameter to the parameters array
@@ -285,32 +294,22 @@
         return;
     }
     
-    NSRange range = [description rangeOfString:@")"]; // return type
+    NSString *returnTypeDecodedString = [m returnTypeDecoded];
     
-    if(range.location == NSNotFound) return;
+    NSString *selectorString = [m selectorString];
     
-    NSString *t = [description substringWithRange:NSMakeRange(3, range.location-3)];
-    
-    range = NSMakeRange(range.location+1, [description length]-range.location-2);
-    
-    description = [description substringWithRange:range];
-    
-    if([description hasSuffix:@";"]) {
-        description = [description substringToIndex:[description length]-1];
-    }
-    
-    if([description isEqualToString:@"dealloc"]) {
+    if([selectorString isEqualToString:@"dealloc"]) {
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
     
-    SEL selector = NSSelectorFromString(description);
+    SEL selector = [m selector];
     
-    if(![_object respondsToSelector:selector]) {
+    if([_object respondsToSelector:selector] == NO) {
         return;
     }
     
-    if([t hasPrefix:@"struct"]) return;
+    if([returnTypeDecodedString hasPrefix:@"struct"]) return;
     
     id o = nil;
     
@@ -327,7 +326,7 @@
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
     // Check to see if it's alloc
-    if ([description isEqualToString:@"alloc"]) {
+    if ([headerDescription isEqualToString:@"alloc"]) {
         // Alloc and init the class
         
         o = [_object performSelector:selector];
@@ -410,14 +409,14 @@
         o = @"NULL";
     }
     
-    if(![t isEqualToString:@"id"]) {
-        if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
+    if(![returnTypeDecodedString isEqualToString:@"id"]) {
+        if([returnTypeDecodedString isEqualToString:@"NSInteger"] || [returnTypeDecodedString isEqualToString:@"NSUInteger"] || [returnTypeDecodedString hasSuffix:@"int"]) {
 //            o = [NSString stringWithFormat:@"%d", (int)o];
-        } else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
+        } else if([returnTypeDecodedString isEqualToString:@"double"] || [returnTypeDecodedString isEqualToString:@"float"]) {
 //            o = [NSString stringWithFormat:@"%f", o];
-        } else if([t isEqualToString:@"BOOL"]) {
+        } else if([returnTypeDecodedString isEqualToString:@"BOOL"]) {
 //            o = ([o boolValue]) ? @"YES" : @"NO";
-        } else if ([t isEqualToString:@"void"]) {
+        } else if ([returnTypeDecodedString isEqualToString:@"void"]) {
             o = @"Completed";
         } else {
             o = [NSString stringWithFormat:@"%d",(int) o]; // default
@@ -425,8 +424,6 @@
     }
     
     if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
-        NSLog(@"-- %p", o);
-        NSLog(@"-- %@", o);
         
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
                                                         message:[o description]
@@ -771,7 +768,6 @@
     }
     
     if([o isKindOfClass:[NSString class]] || [o isKindOfClass:[NSArray class]] || [o isKindOfClass:[NSDictionary class]] || [o isKindOfClass:[NSSet class]]) {
-        NSLog(@"-- %@", o);
         
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
                                                         message:[o description]
