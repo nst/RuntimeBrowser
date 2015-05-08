@@ -46,22 +46,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return ma;
 }
 
-+ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod includeSuperclasses:(BOOL)includeSuperclasses {
-    NSMutableArray *allMethods = [NSMutableArray array];
-    
-    Class c = aClass;
-    
-    do {
-        NSArray *methods = [self sortedMethodsForClass:c isClassMethod:isClassMethod];
-        [allMethods addObjectsFromArray:methods];
-        c = class_getSuperclass(c);
-    } while (includeSuperclasses && c != NULL);
-    
-    [allMethods sortedArrayUsingSelector:@selector(compare:)];
-    
-    return allMethods;
-}
-
 + (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
     NSMutableArray *ma = [NSMutableArray array];

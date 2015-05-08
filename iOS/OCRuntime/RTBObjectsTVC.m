@@ -14,14 +14,12 @@
 
 @interface RTBObjectsTVC ()
 
-@property (nonatomic, strong) NSArray *methods;
+@property (nonatomic, strong) NSMutableArray *methodsSections; // [ { 'ClassName':'xxx', 'Methods':[a,b,c,...] }, { 'ClassName':'ParentClass', 'Methods':[a,x,y] } ]
 @property (nonatomic, strong) NSMutableArray *paramsToAdd;
 @property (nonatomic, strong) NSMutableArray *paramsToRemove;
 @property (nonatomic, strong) id object;
 
 @end
-
-#define INCLUDE_METHODS_FROM_SUPERCLASSES 0
 
 @implementation RTBObjectsTVC
 
@@ -34,51 +32,24 @@
 - (void)setInspectedObject:(id)o {
     
     self.object = o;
-    
+
+    self.methodsSections = [NSMutableArray array];
+
     if(_object == nil) {
-        self.methods = [NSArray array];
         [self.tableView reloadData];
         return;
     }
 
-    RTBMethod *methodToAdd = nil;
+    BOOL objectIsAClass = _object == [_object class];
+
+    Class c = [_object class];
     
-    if(_object == [_object class]) {
-        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:YES includeSuperclasses:INCLUDE_METHODS_FROM_SUPERCLASSES];
-        
-        BOOL containsAlloc = NO;
-        for(RTBMethod *m in _methods) {
-            if([[m selectorString] isEqualToString:@"alloc"]) containsAlloc = YES;
-            break;
-        }
-
-        if(containsAlloc == NO) {
-            Method method = class_getClassMethod([_object class], @selector(alloc));
-            methodToAdd = [RTBMethod methodObjectWithMethod:method isClassMethod:YES];
-        }
-
-    } else {
-        self.methods = [RTBRuntimeHeader sortedMethodsForClass:[_object class] isClassMethod:NO includeSuperclasses:INCLUDE_METHODS_FROM_SUPERCLASSES];
-
-        BOOL containsInit = NO;
-        for(RTBMethod *m in _methods) {
-            if([[m selectorString] isEqualToString:@"init"]) containsInit = YES;
-            break;
-        }
-        
-        if(containsInit == NO) {
-            Method method = class_getInstanceMethod([_object class], @selector(init));
-            methodToAdd = [RTBMethod methodObjectWithMethod:method isClassMethod:NO];
-        }
-
-    }
-
-    if(methodToAdd) {
-        NSMutableArray *ma = [NSMutableArray array];
-        [ma addObject:methodToAdd];
-        [ma addObjectsFromArray:_methods];
-        self.methods = ma;
-    }
+    do {
+        NSArray *methods = [RTBRuntimeHeader sortedMethodsForClass:c isClassMethod:objectIsAClass];
+        NSDictionary *d = @{ @"ClassName":NSStringFromClass(c), @"Methods":methods };
+        [_methodsSections addObject:d];
+        c = class_getSuperclass(c);
+    } while (c != NULL);
     
     [self.tableView reloadData];
 }
@@ -122,13 +93,27 @@
 
 #pragma mark Table view methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+    NSMutableArray *ma = [NSMutableArray array];
+    for(int i = 0; i < [_methodsSections count]; i++) {
+        [ma addObject:[NSString stringWithFormat:@"%d", i]];
+    }
+    return ma;
 }
 
-// Customize the number of rows in the table view.
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    NSDictionary *d = _methodsSections[section];
+    return d[@"ClassName"];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return [_methodsSections count];
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_methods count];
+    NSDictionary *d = _methodsSections[section];
+    NSArray *methods = d[@"Methods"];
+    return [methods count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -140,7 +125,9 @@
     }
     
     // Set up the cell
-    RTBMethod *m = [_methods objectAtIndex:indexPath.row];
+    NSDictionary *d = _methodsSections[indexPath.section];
+    NSArray *methods = d[@"Methods"];
+    RTBMethod *m = methods[indexPath.row];
     NSString *description = [m headerDescription];
     cell.textLabel.text = description;
     BOOL hasParameters = [[m argumentsTypesDecoded] count] > 2; // id, SEL, ...
@@ -165,9 +152,10 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if(indexPath.row > ([_methods count]-1) ) return;
-    
-    RTBMethod *m = [_methods objectAtIndex:indexPath.row];
+    NSDictionary *d = _methodsSections[indexPath.section];
+    NSArray *methods = d[@"Methods"];
+    RTBMethod *m = methods[indexPath.row];
+
     NSString *headerDescription = [m headerDescription];
     NSArray *argTypes = [m argumentsTypesDecoded];
     
