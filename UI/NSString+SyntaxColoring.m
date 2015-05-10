@@ -71,9 +71,9 @@ char **stringArrayFromNSArray(NSArray *a) {
     
     /**/
     
-#ifdef DEBUG
-    double start = [[NSDate date] timeIntervalSince1970];
-#endif
+//#ifdef DEBUG
+//    double start = [[NSDate date] timeIntervalSince1970];
+//#endif
     
     const char* text = [self cStringUsingEncoding:NSUTF8StringEncoding];
     char *tmp = (char *)text;
@@ -141,9 +141,9 @@ char **stringArrayFromNSArray(NSArray *a) {
             tmp++;
             if(*tmp == '\0') {
                 free(kw); free(cl);
-#ifdef DEBUG
-                NSLog(@"-- colored in %f seconds", [[NSDate date] timeIntervalSince1970] - start);
-#endif
+//#ifdef DEBUG
+//                NSLog(@"-- colored in %f seconds", [[NSDate date] timeIntervalSince1970] - start);
+//#endif
                 
                 return attributedString;
             }
@@ -159,9 +159,9 @@ char **stringArrayFromNSArray(NSArray *a) {
     
     free(kw); free(cl);
     
-#ifdef DEBUG
-    NSLog(@"-- colored in %f seconds", [[NSDate date] timeIntervalSince1970] - start);
-#endif
+//#ifdef DEBUG
+//    NSLog(@"-- colored in %f seconds", [[NSDate date] timeIntervalSince1970] - start);
+//#endif
     
     return attributedString;
 }
