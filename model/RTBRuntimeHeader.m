@@ -77,11 +77,12 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
 
 + (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
-    //NSLog(@"---- %@ | %@", name, attributes);
+    // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
     
     NSString *getter = nil;
     NSString *setter = nil;
     NSString *type = nil;
+    NSString *atomicity = nil;
     NSString *memory = nil;
     NSString *rw = nil;
     NSString *comment = nil;
@@ -92,34 +93,35 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         unichar c = [attribute characterAtIndex:0];
         NSString *tail = [attribute substringFromIndex:1];
         if (c == 'R') rw = @"readonly";
-        else if (c == 'C') rw = @"copy";
-        else if (c == '&') rw = @"retain";
-        else if (c == 'G') getter = tail;
-        else if (c == 'S') setter = tail;
-        else if (c == 't' || c == 'T') type = [RTBTypeDecoder decodeType:tail flat:YES];
+        else if (c == 'C') memory = @"copy";
+        else if (c == '&') memory = @"retain";
+        else if (c == 'G') getter = tail; // custom getter
+        else if (c == 'S') setter = tail; // custome setter
+        else if (c == 't' || c == 'T') type = [RTBTypeDecoder decodeType:tail flat:YES]; // Specifies the type using old-style encoding
         else if (c == 'D') {} // The property is dynamic (@dynamic)
         else if (c == 'W') {} // The property is a weak reference (__weak)
         else if (c == 'P') {} // The property is eligible for garbage collection
-        else if (c == 'N') {} // The property is non-atomic (nonatomic)
+        else if (c == 'N') {} // memory - The property is non-atomic (nonatomic)
         else if (c == 'V') {} // oneway
         else comment = [NSString stringWithFormat:@"/* unknown property attribute: %@ */", attribute];
     }
     
     if(displayPropertiesDefaultValues) {
-        if(!memory) memory = @"assign";
+        if(!atomicity) atomicity = @"nonatomic";
         if(!rw) rw = @"readwrite";
     }
     
-    NSMutableString *ms = [NSMutableString stringWithString:@"@property"];
+    NSMutableString *ms = [NSMutableString stringWithString:@"@property "];
     
-    NSMutableArray *attributesString = [NSMutableArray array];
-    if(getter) [attributesString addObject:[NSString stringWithFormat:@"getter=%@", getter]];
-    if(setter) [attributesString addObject:[NSString stringWithFormat:@"setter=%@", setter]];
-    if(memory) [attributesString addObject:memory];
-    if(rw)     [attributesString addObject:rw];
+    NSMutableArray *attributesArray = [NSMutableArray array];
+    if(getter)    [attributesArray addObject:[NSString stringWithFormat:@"getter=%@", getter]];
+    if(setter)    [attributesArray addObject:[NSString stringWithFormat:@"setter=%@", setter]];
+    if(atomicity) [attributesArray addObject:atomicity];
+    if(rw)        [attributesArray addObject:rw];
+    if(memory)    [attributesArray addObject:memory];
     
-    if([attributesString count] > 0) {
-        NSString *attributesDescription = [NSString stringWithFormat:@"(%@)", [attributesString componentsJoinedByString:@","]];
+    if([attributesArray count] > 0) {
+        NSString *attributesDescription = [NSString stringWithFormat:@"(%@)", [attributesArray componentsJoinedByString:@", "]];
         [ms appendString:attributesDescription];
     }
     
@@ -134,35 +136,85 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
 + (NSString *)descriptionForMethodName:(NSString *)methodName
                             returnType:(NSString *)returnType
                          argumentTypes:(NSArray *)argumentsTypes
+                      newlineAfterArgs:(BOOL)newlineAfterArgs
                          isClassMethod:(BOOL)isClassMethod {
     
+    //NSLog(@"-- methodName: %@", methodName);
+    
     NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
+    if([[methodNameParts lastObject] length] == 0) {
+        methodNameParts = [methodNameParts subarrayWithRange:NSMakeRange(0, [methodNameParts count]-1)];
+    }
     NSAssert([methodNameParts count] > 0, @"");
     
-    NSMutableString *ms = [NSMutableString string];
-    [ms appendString: isClassMethod ? @"+" : @"-"];
-    [ms appendFormat:@" (%@)", returnType];
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    __block NSMutableString *ms = [NSMutableString string];
+    
+    NSString *signAndReturnTypeString = [NSString stringWithFormat:@"%c (%@)", (isClassMethod ? '+' : '-'), returnType];
+    
+    [ms appendString:signAndReturnTypeString];
     
     BOOL hasArgs = [argumentsTypes count] > 2;
     
+    __block NSUInteger paddingIndex = 0;
+    
     [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
         
-        if(i == [methodNameParts count] - 1 && [part isEqualToString:@""]) {
-            [ms deleteCharactersInRange:NSMakeRange([ms length]-1, 1)]; // remove extraneous space
-            *stop = YES;
-            return;
-        }
-        
         [ms appendString:part];
-        
+
         if(hasArgs) {
-            [ms appendFormat:@":(%@)arg%@ ", argumentsTypes[i+2], @(i+1)]; // offset of 2 because argumentsTypes start with cmd and sel
+            NSString *s = [NSString stringWithFormat:@":(%@)arg%@", argumentsTypes[i+2], @(i+1)];
+            
+            if(paddingIndex == 0) {
+                paddingIndex = [ms length];
+            }
+            
+            paddingIndex = MAX(paddingIndex, [part length]);
+            
+            [ms appendString:s];
+            
+            BOOL isLastPart = i == [methodNameParts count] - 1;
+            
+            [ms appendString:(isLastPart ? @";" : @" ")];
         }
+
+        [ma addObject:ms];
+        ms = [NSMutableString string];
     }];
     
-    [ms appendString:@";"];
+    if([[ma lastObject] hasSuffix:@";"] == NO) {
+        [[ma lastObject] appendString:@";"];
+    }
+
+    NSString *joinerString = @"";
     
-    return ms;
+    if(newlineAfterArgs) {
+        NSMutableArray *ma2 = [NSMutableArray array];
+        
+        [ma enumerateObjectsUsingBlock:^(NSString *s, NSUInteger idx, BOOL *stop) {
+            NSString *part = methodNameParts[idx];
+            if(idx == 0) {
+                part = [part stringByAppendingString:signAndReturnTypeString];
+            }
+            NSMutableString *_ms = [NSMutableString string];
+            NSInteger padSize = paddingIndex - [part length];
+            if(padSize < 0) padSize = 0;
+            for(int i = 0; i < padSize; i++) [_ms appendString:@" "];
+            NSString *s2 = [_ms stringByAppendingString:s];
+            
+            [ma2 addObject:s2];
+            
+        }];
+        
+        ma = ma2;
+        
+        joinerString = @"\n";
+    }
+    
+    NSString *s = [ma componentsJoinedByString:joinerString];
+    
+    return s;
 }
 
 + (NSString *)descriptionForProtocol:(Protocol *)protocol selector:(SEL)selector isRequiredMethod:(BOOL)isRequiredMethod isInstanceMethod:(BOOL)isInstanceMethod {
@@ -176,6 +228,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return [self descriptionForMethodName:methodName
                                returnType:returnType
                             argumentTypes:[argumentTypes subarrayWithRange:NSMakeRange(1, [argumentTypes count]-1)]
+                         newlineAfterArgs:NO
                             isClassMethod:(isInstanceMethod == NO)];
 }
 
@@ -282,7 +335,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     // class methods
     NSArray *sortedClassMethods = [self sortedMethodsForClass:aClass isClassMethod:YES];
     for(RTBMethod *m in sortedClassMethods) {
-        [header appendFormat:@"%@\n", [m headerDescription]];
+        [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
     }
     if([sortedClassMethods count] > 0) {
         [header appendString:@"\n"];
@@ -292,7 +345,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     // class methods
     NSArray *sortedInstanceMethods = [self sortedMethodsForClass:aClass isClassMethod:NO];
     for(RTBMethod *m in sortedInstanceMethods) {
-        [header appendFormat:@"%@\n", [m headerDescription]];
+        [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
     }
     if([sortedInstanceMethods count] > 0) {
         [header appendString:@"\n"];

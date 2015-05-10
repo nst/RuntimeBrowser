@@ -23,6 +23,11 @@
 
 @implementation RTBObjectsTVC
 
+- (void)viewDidLoad {
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(close:)];
+    [super viewDidLoad];
+}
+
 - (IBAction)close:(id)sender {
     [self dismissViewControllerAnimated:YES completion:^{
         //
@@ -95,6 +100,7 @@
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
     NSMutableArray *ma = [NSMutableArray array];
+    
     for(int i = 0; i < [_methodsSections count]; i++) {
         [ma addObject:[NSString stringWithFormat:@"%d", i]];
     }
@@ -128,25 +134,8 @@
     NSDictionary *d = _methodsSections[indexPath.section];
     NSArray *methods = d[@"Methods"];
     RTBMethod *m = methods[indexPath.row];
-    NSString *description = [m headerDescription];
-    cell.textLabel.text = description;
-    BOOL hasParameters = [[m argumentsTypesDecoded] count] > 2; // id, SEL, ...
-    cell.textLabel.textColor = [UIColor blackColor];
-    cell.accessoryType = hasParameters ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     
-    // Get the return type
-    NSString *returnType = [m returnTypeDecoded];
-    
-    NSString *selectorString = [m selectorString];
-    
-    // Check which method type it is
-    if ([selectorString isEqualToString:@"alloc"]) {
-        // Show blue
-        cell.textLabel.textColor = [UIColor blueColor];
-    } else if ([returnType isEqualToString:@"void"]  && !hasParameters && ([selectorString isEqualToString:@".cxx_destruct"] || [selectorString isEqualToString:@"dealloc"])) {
-        // Show orange
-        cell.textLabel.textColor = [UIColor orangeColor];
-    }
+    cell.method = m;
     return cell;
 }
 
@@ -156,7 +145,7 @@
     NSArray *methods = d[@"Methods"];
     RTBMethod *m = methods[indexPath.row];
 
-    NSString *headerDescription = [m headerDescription];
+    NSString *headerDescription = [m headerDescriptionWithNewlineAfterArgs:YES];
     NSArray *argTypes = [m argumentsTypesDecoded];
     
     BOOL hasParameters = [argTypes count] > 2;
@@ -273,6 +262,8 @@
                                                  return;
                                              }
                                          
+                                             NSLog(@"-- [%@ %@]", strongSelf, [m selectorString]);
+                                             
                                              [strongSelf performMethod:m withParameters:strongSelf.paramsToAdd removing:strongSelf.paramsToRemove];
                                          });
                                      }
@@ -430,30 +421,16 @@
 
 - (void)performMethod:(RTBMethod *)m withParameters:(NSMutableArray *)parameters removing:(NSMutableArray *)removing {
     
-    NSString *method = [m headerDescription];
+    NSString *selectorString = [m selectorString];
     
-    NSRange range = [method rangeOfString:@")"]; // return type
-    
-    if(range.location == NSNotFound) return;
-    
-    NSString *t = [method substringWithRange:NSMakeRange(3, range.location-3)];
-    
-    range = NSMakeRange(range.location+1, [method length]-range.location-2);
-    
-    method = [method substringWithRange:range];
-    
-    if([method isEqualToString:@"dealloc"]) {
+    NSString *returnTypeDecoded = [m returnTypeDecoded];
+    if([returnTypeDecoded hasPrefix:@"struct"]) return;
+
+    if([selectorString isEqualToString:@"dealloc"]) {
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
-    
-    // Remove all the args and return parameters from the method
-    for (NSString *removables in removing) {
-        method = [method stringByReplacingOccurrencesOfString:removables withString:@""];
-    }
-    // Remove all the strings from the method
-    method = [method stringByReplacingOccurrencesOfString:@" " withString:@""];
-    
+
     RTBObjectsTVC *ovc = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     
     SEL selector = NSSelectorFromString([m selectorString]);
@@ -461,8 +438,6 @@
     if(![_object respondsToSelector:selector]) {
         return;
     }
-    
-    if([t hasPrefix:@"struct"]) return;
     
     id o = nil;
     
@@ -479,7 +454,7 @@
     #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
     // Check to see if it's alloc
-    if ([method isEqualToString:@"alloc"]) {
+    if ([selectorString isEqualToString:@"alloc"]) {
         // Alloc and init the class
         o = [_object performSelector:selector];
         
@@ -509,11 +484,13 @@
             [inv setSelector:selector];
             [inv setTarget:_object];
             
+            NSLog(@"-- PARAMETERS: %@", parameters);
+            
             for (int x = 0; x < [parameters count]; x++) {
                 // Determine the type of input
                 if ([[removing objectAtIndex:x] rangeOfString:@"BOOL"].location != NSNotFound) {
                     // BOOL
-                    BOOL obj;
+                    BOOL obj = NO;
                     if ([[parameters objectAtIndex:x] isEqualToString:@""]) {
                         obj = false;
                     } else if ([[parameters objectAtIndex:x] isEqualToString:@"true"]) {
@@ -741,14 +718,14 @@
         o = @"NULL";
     }
     
-    if(![t isEqualToString:@"id"]) {
-        if([t isEqualToString:@"NSInteger"] || [t isEqualToString:@"NSUInteger"] || [t hasSuffix:@"int"]) {
+    if(![returnTypeDecoded isEqualToString:@"id"]) {
+        if([returnTypeDecoded isEqualToString:@"NSInteger"] || [returnTypeDecoded isEqualToString:@"NSUInteger"] || [returnTypeDecoded hasSuffix:@"int"]) {
             o = [NSString stringWithFormat:@"%d", (int)o];
-        } else if([t isEqualToString:@"double"] || [t isEqualToString:@"float"]) {
+        } else if([returnTypeDecoded isEqualToString:@"double"] || [returnTypeDecoded isEqualToString:@"float"]) {
             o = [NSString stringWithFormat:@"%f", o];
-        } else if([t isEqualToString:@"BOOL"]) {
+        } else if([returnTypeDecoded isEqualToString:@"BOOL"]) {
             o = ([o boolValue]) ? @"YES" : @"NO";
-        } else if ([t isEqualToString:@"void"]) {
+        } else if ([returnTypeDecoded isEqualToString:@"void"]) {
             o = @"Completed";
         } else {
             o = [NSString stringWithFormat:@"%d", (int)o]; // default

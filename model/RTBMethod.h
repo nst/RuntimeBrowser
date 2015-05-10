@@ -15,12 +15,13 @@
 
 + (instancetype)methodObjectWithMethod:(Method)method isClassMethod:(BOOL)isClassMethod;
 
-- (NSString *)headerDescription;
+- (NSString *)headerDescriptionWithNewlineAfterArgs:(BOOL)newlineAfterArgs;
 
 - (NSString *)returnTypeEncoded;
 - (NSString *)returnTypeDecoded;
 - (NSArray *)argumentsTypesDecoded;
 - (NSString *)selectorString;
 - (SEL)selector;
+- (BOOL)hasArguments;
 
 @end

@@ -45,6 +45,7 @@ displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 + (NSString *)descriptionForMethodName:(NSString *)methodName
                             returnType:(NSString *)returnType
                          argumentTypes:(NSArray *)argumentsTypes
+                      newlineAfterArgs:(BOOL)newlineAfterArgs
                          isClassMethod:(BOOL)isClassMethod;
 
 @end

@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "RTBMethod.h"
 
 @interface RTBMethodCell : UITableViewCell
 
 @property (nonatomic, retain) IBOutlet UILabel *label;
+
+@property (nonatomic, strong) RTBMethod *method;
 
 @end

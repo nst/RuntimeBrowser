@@ -74,14 +74,12 @@
 
 - (void)useClass:(NSString *)className {
     
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-    UINavigationController *objectsNC = (UINavigationController *)[sb instantiateViewControllerWithIdentifier:@"RTBObjectsNC"];
-    
+    RTBObjectsTVC *objectsTVC = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     Class klass = NSClassFromString(className);
-
-    RTBObjectsTVC *objectsTVC = (RTBObjectsTVC *)[objectsNC topViewController];
     [objectsTVC setInspectedObject:klass];
-    
+
+    UINavigationController *objectsNC = [[UINavigationController alloc] initWithRootViewController:objectsTVC];
+
     UITabBarController *tabBarController = (UITabBarController *)_window.rootViewController;
     [tabBarController presentViewController:objectsNC animated:YES completion:^{
         //

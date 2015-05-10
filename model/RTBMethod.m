@@ -13,6 +13,9 @@
 @interface RTBMethod ()
 @property (nonatomic) Method method;
 @property (nonatomic) BOOL isClassMethod;
+
+@property (nonatomic, strong) NSNumber *cachedHasArguments;
+@property (nonatomic, strong) NSArray *cachedArgumentsTypesDecoded;
 @end
 
 @implementation RTBMethod
@@ -22,6 +25,13 @@
     m.method = method;
     m.isClassMethod = isClassMethod;
     return m;
+}
+
+- (BOOL)hasArguments {
+    if(_cachedHasArguments == nil) {
+        self.cachedHasArguments = [NSNumber numberWithBool:[[self argumentsTypesDecoded] count] > 2]; // id, SEL, ...
+    }
+    return [_cachedHasArguments boolValue];
 }
 
 - (NSString *)returnTypeEncoded {
@@ -41,23 +51,28 @@
 
 - (NSArray *)argumentsTypesDecoded {
     
-    unsigned int numberOfArguments = method_getNumberOfArguments(_method);
+    if(_cachedArgumentsTypesDecoded == nil) {
     
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    for(unsigned int i = 0; i < numberOfArguments; i++) {
-        char *argType = method_copyArgumentType(_method, i);
-        NSAssert(argType != NULL, @"");
-        NSString *encodedType = [NSString stringWithCString:argType encoding:NSASCIIStringEncoding];
-        free(argType);
+        unsigned int numberOfArguments = method_getNumberOfArguments(_method);
         
-        NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:YES];
-        [ma addObject:decodedType];
+        NSMutableArray *ma = [NSMutableArray array];
+        
+        for(unsigned int i = 0; i < numberOfArguments; i++) {
+            char *argType = method_copyArgumentType(_method, i);
+            NSAssert(argType != NULL, @"");
+            NSString *encodedType = [NSString stringWithCString:argType encoding:NSASCIIStringEncoding];
+            free(argType);
+            
+            NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:YES];
+            [ma addObject:decodedType];
+        }
+        self.cachedArgumentsTypesDecoded = ma;
     }
-    return ma;
+    
+    return _cachedArgumentsTypesDecoded;
 }
 
-- (NSString *)headerDescription {
+- (NSString *)headerDescriptionWithNewlineAfterArgs:(BOOL)newlineAfterArgs {
     char* returnTypeCString = method_copyReturnType(_method);
     NSString *returnTypeEncoded = [NSString stringWithCString:returnTypeCString encoding:NSASCIIStringEncoding];
     free(returnTypeCString);
@@ -68,6 +83,7 @@
     return [RTBRuntimeHeader descriptionForMethodName:methodName
                                            returnType:returnType
                                         argumentTypes:argumentTypes
+                                     newlineAfterArgs:newlineAfterArgs
                                         isClassMethod:_isClassMethod];
 }
 
