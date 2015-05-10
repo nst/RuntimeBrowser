@@ -61,8 +61,6 @@
 		03F830D71AEAF9C900425494 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/RuntimeBrowser.xib; sourceTree = "<group>"; };
 		03F830D91AEAFA3500425494 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RuntimeBrowser/Images.xcassets; sourceTree = "<group>"; };
 		03F830DB1AEBD0AF00425494 /* protocol.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = protocol.tiff; sourceTree = "<group>"; };
-		03FA8B721AE8FE0400D55C16 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
-		03FA8B731AE8FE0400D55C16 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -164,8 +162,6 @@
 		29B97314FDCFA39411CA2CEA /* RuntimeBrowser */ = {
 			isa = PBXGroup;
 			children = (
-				03FA8B721AE8FE0400D55C16 /* AAA.h */,
-				03FA8B731AE8FE0400D55C16 /* AAA.m */,
 				030F150A12DEE5D8000180B1 /* Model */,
 				0379BB7D179D0B4000F4B8BF /* UI */,
 				080E96DDFE201D6D7F000001 /* Classes */,
