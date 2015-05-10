@@ -213,8 +213,6 @@
 		03B0E3631AED353900A9DAC3 /* RTBClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBClass.m; path = ../model/RTBClass.m; sourceTree = "<group>"; };
 		03B0E3641AED353900A9DAC3 /* RTBProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBProtocol.h; path = ../model/RTBProtocol.h; sourceTree = "<group>"; };
 		03B0E3651AED353900A9DAC3 /* RTBProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBProtocol.m; path = ../model/RTBProtocol.m; sourceTree = "<group>"; };
-		03C96CB31AFCEC87007F47F2 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
-		03C96CB41AFCEC87007F47F2 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Keywords.plist; sourceTree = "<group>"; };
 		03FA8B751AEE3D2500D55C16 /* RTBProtocolsTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBProtocolsTVC.h; sourceTree = "<group>"; };
 		03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBProtocolsTVC.m; sourceTree = "<group>"; };
@@ -375,8 +373,6 @@
 			isa = PBXGroup;
 			children = (
 				039CD1C91AE8F94C001922CB /* RTBTypeDecoder.h */,
-				03C96CB31AFCEC87007F47F2 /* AAA.h */,
-				03C96CB41AFCEC87007F47F2 /* AAA.m */,
 				039CD1CA1AE8F94C001922CB /* RTBTypeDecoder.m */,
 				039CD1CB1AE8F94C001922CB /* RTBRuntimeHeader.h */,
 				039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */,
