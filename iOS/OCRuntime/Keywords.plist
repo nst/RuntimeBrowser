@@ -30,6 +30,7 @@
 	<string>oneway</string>
 	<string>struct</string>
 	<string>setter</string>
+	<string>retain</string>
 	<string>return</string>
 	<string>switch</string>
 	<string>UInt16</string>
