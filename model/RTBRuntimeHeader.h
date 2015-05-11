@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RTBProtocol.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -33,9 +34,8 @@
 + (NSString *)headerForClass:(Class)aClass
 displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
-+ (NSString *)headerForProtocolName:(NSString *)protocolName;
++ (NSString *)headerForProtocol:(RTBProtocol *)protocol;
 
-+ (NSArray *)sortedProtocolsAdoptedByProtocol:(NSString *)protocol;
 + (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods;
 
 + (NSString *)descriptionForMethodName:(NSString *)methodName

@@ -169,7 +169,8 @@
     NSString *fileName = [headerPath lastPathComponent];
     NSString *protocolName = [fileName stringByDeletingPathExtension];
     
-    NSString *header = [RTBRuntimeHeader headerForProtocolName:protocolName];
+    RTBProtocol *p = [RTBProtocol protocolStubWithProtocolName:protocolName];
+    NSString *header = [RTBRuntimeHeader headerForProtocol:p];
     
     NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
     
@@ -456,11 +457,11 @@
     [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
 }
 
-- (void)showHeaderForProtocolName:(NSString *)protocolName {
+- (void)showHeaderForProtocol:(RTBProtocol *)protocol {
     
     UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
     RTBClassDisplayVC *classDisplayVC = (RTBClassDisplayVC *)[sb instantiateViewControllerWithIdentifier:@"RTBClassDisplayVC"];
-    classDisplayVC.protocolName = protocolName;
+    classDisplayVC.protocolName = [protocol protocolName];
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
     navigationController.modalPresentationStyle = UIModalPresentationOverCurrentContext;

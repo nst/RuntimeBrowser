@@ -113,8 +113,6 @@
     [queue addOperation:op];
 }
 
-
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -128,7 +126,6 @@
     return [[[d allValues] lastObject] count];
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     RTBProtocolCell *cell = (RTBProtocolCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBProtocolCell"];
 
@@ -140,7 +137,7 @@
     NSArray *protocols = [[d allValues] lastObject];
     
     RTBProtocol *p = [protocols objectAtIndex:indexPath.row];
-    cell.protocolName = p.protocolName;
+    cell.protocolObject = p;
     cell.accessoryType = UITableViewCellAccessoryNone;
 
     return cell;

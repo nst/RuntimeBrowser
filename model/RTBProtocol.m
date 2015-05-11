@@ -8,6 +8,7 @@
 
 #import "RTBProtocol.h"
 #import "RTBClass.h"
+#import <objc/runtime.h>
 
 @implementation RTBProtocol
 
@@ -22,6 +23,26 @@
     ps.protocolName = protocolName;
     ps.conformingClassesStubsSet = [NSMutableSet set];
     return ps;
+}
+
+- (NSArray *)sortedAdoptedProtocols {
+    Protocol *p = NSProtocolFromString(_protocolName);
+    if(p == nil) return nil;
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int outCount = 0;
+    __unsafe_unretained Protocol **protocolList = protocol_copyProtocolList(p, &outCount);
+    for(int i = 0; i < outCount; i++) {
+        Protocol *adoptedProtocol = protocolList[i];
+        NSString *adoptedProtocolName = [NSString stringWithCString:protocol_getName(adoptedProtocol) encoding:NSUTF8StringEncoding];
+        [ma addObject:adoptedProtocolName];
+    }
+    free(protocolList);
+    
+    [ma sortedArrayUsingSelector:@selector(compare:)];
+    
+    return ma;
 }
 
 #pragma mark BrowserNode protocol

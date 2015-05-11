@@ -15,4 +15,6 @@
 
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName;
 
+- (NSArray *)sortedAdoptedProtocols;
+
 @end

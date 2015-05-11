@@ -582,7 +582,7 @@
         [_headerTextView setString:@""];
         
         RTBProtocol *protocolStub = (RTBProtocol *)item;
-        NSString *header = [RTBRuntimeHeader headerForProtocolName:protocolStub.protocolName];
+        NSString *header = [RTBRuntimeHeader headerForProtocol:protocolStub];
         
         NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
         [[_headerTextView textStorage] setAttributedString:attributedString];
