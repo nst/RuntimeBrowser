@@ -94,6 +94,8 @@
 /* Begin PBXFileReference section */
 		0308D73E1AFA3BB2000CEC87 /* RTBMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBMethod.h; path = ../model/RTBMethod.h; sourceTree = "<group>"; };
 		0308D73F1AFA3BB2000CEC87 /* RTBMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RTBMethod.m; path = ../model/RTBMethod.m; sourceTree = "<group>"; };
+		0308D7441AFB76EA000CEC87 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAA.h; sourceTree = "<group>"; };
+		0308D7451AFB76EA000CEC87 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAA.m; sourceTree = "<group>"; };
 		0309584A17B5433F00221D0E /* DDData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDData.h; sourceTree = "<group>"; };
 		0309584B17B5433F00221D0E /* DDData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDData.m; sourceTree = "<group>"; };
 		0309584C17B5433F00221D0E /* DDNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDNumber.h; sourceTree = "<group>"; };
@@ -373,6 +375,8 @@
 			isa = PBXGroup;
 			children = (
 				039CD1C91AE8F94C001922CB /* RTBTypeDecoder.h */,
+				0308D7441AFB76EA000CEC87 /* AAA.h */,
+				0308D7451AFB76EA000CEC87 /* AAA.m */,
 				039CD1CA1AE8F94C001922CB /* RTBTypeDecoder.m */,
 				039CD1CB1AE8F94C001922CB /* RTBRuntimeHeader.h */,
 				039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */,
