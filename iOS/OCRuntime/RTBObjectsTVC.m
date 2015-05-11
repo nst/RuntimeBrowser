@@ -11,6 +11,8 @@
 #import "RTBRuntimeHeader.h"
 #import "UIAlertView+Blocks.h"
 #import "RTBMethod.h"
+#import "RTBRuntime.h"
+#import "RTBClass.h"
 
 @interface RTBObjectsTVC ()
 
@@ -49,8 +51,10 @@
 
     Class c = [_object class];
     
+    RTBClass *classObject = [[RTBRuntime sharedInstance] classStubForClassName:NSStringFromClass(c)];
+    
     do {
-        NSArray *methods = [RTBRuntimeHeader sortedMethodsForClass:c isClassMethod:objectIsAClass];
+        NSArray *methods = [classObject sortedMethodsIsClassMethod:objectIsAClass];
         NSDictionary *d = @{ @"ClassName":NSStringFromClass(c), @"Methods":methods };
         [_methodsSections addObject:d];
         c = class_getSuperclass(c);

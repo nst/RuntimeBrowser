@@ -18,12 +18,7 @@
 
 @interface RTBRuntimeHeader : NSObject
 
-+ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod;
-
 + (NSString *)decodedTypeForEncodedString:(NSString *)s;
-
-+ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass
-                   displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
 + (NSString *)descriptionForPropertyWithName:(NSString *)name
                                   attributes:(NSString *)attributes

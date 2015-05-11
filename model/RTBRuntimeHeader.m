@@ -19,63 +19,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return [RTBTypeDecoder decodeType:s flat:YES];
 }
 
-+ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod {
-    
-    Class class = aClass;
-    
-    if(isClassMethod) {
-        class = objc_getMetaClass(class_getName(aClass));
-    }
-    
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    unsigned int methodListCount = 0;
-    Method *methodList = class_copyMethodList(class, &methodListCount);
-    
-    for (NSUInteger i = 0; i < methodListCount; i++) {
-        Method method = methodList[i];
-        
-        RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
-        
-        [ma addObject:m];
-    }
-    
-    free(methodList);
-    
-    [ma sortUsingSelector:@selector(compare:)];
-    
-    return ma;
-}
-
-+ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
-    
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    unsigned int propertiesCount = 0;
-    objc_property_t *propertyList = class_copyPropertyList(aClass, &propertiesCount);
-    
-    for (unsigned int i = 0; i < propertiesCount; i++) {
-        objc_property_t property = propertyList[i];
-        
-        NSString *name = [NSString stringWithCString:property_getName(property) encoding:NSASCIIStringEncoding];
-        NSString *attributes = [NSString stringWithCString:property_getAttributes(property) encoding:NSASCIIStringEncoding];
-        
-        NSString *description = [[self class] descriptionForPropertyWithName:name attributes:attributes displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-        
-        NSDictionary *d = @{@"name":name, @"description":description};
-        
-        [ma addObject:d];
-    }
-    
-    free(propertyList);
-    
-    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-        return [obj1[@"name"] compare:obj2[@"name"]];
-    }];
-    
-    return ma;
-}
-
 + (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
@@ -272,7 +215,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     [header appendString:@"\n\n"];
     
     // properties
-    NSArray *propertiesDictionaries = [self sortedPropertiesDictionariesForClass:aClass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
+    NSArray *propertiesDictionaries = [class sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:displayPropertiesDefaultValues];
     for(NSDictionary *d in propertiesDictionaries) {
         [header appendFormat:@"%@\n", d[@"description"]];
     }
@@ -281,7 +224,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     
     // class methods
-    NSArray *sortedClassMethods = [self sortedMethodsForClass:aClass isClassMethod:YES];
+    NSArray *sortedClassMethods = [class sortedMethodsIsClassMethod:YES];
     for(RTBMethod *m in sortedClassMethods) {
         [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
     }
@@ -291,7 +234,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     // instance methods
     // class methods
-    NSArray *sortedInstanceMethods = [self sortedMethodsForClass:aClass isClassMethod:NO];
+    NSArray *sortedInstanceMethods = [class sortedMethodsIsClassMethod:NO];
     for(RTBMethod *m in sortedInstanceMethods) {
         [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
     }
