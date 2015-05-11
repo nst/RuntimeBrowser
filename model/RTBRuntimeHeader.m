@@ -323,7 +323,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     NSArray *requiredClassMethods = [protocol sortedMethodsRequired:YES instanceMethods:NO];
     NSArray *requiredInstanceMethods = [protocol sortedMethodsRequired:YES instanceMethods:YES];
     NSArray *optionalClassMethods = [protocol sortedMethodsRequired:NO instanceMethods:NO];
-    NSArray *optionalInstanceMethods = [protocol sortedMethodsRequired:YES instanceMethods:YES];
+    NSArray *optionalInstanceMethods = [protocol sortedMethodsRequired:NO instanceMethods:YES];
     
     if([requiredClassMethods count] + [requiredInstanceMethods count] > 0) {
         [header appendString:@"@required\n\n"];
