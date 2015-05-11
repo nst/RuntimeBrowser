@@ -25,8 +25,6 @@
 + (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass
                    displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
-+ (NSArray *)sortedIvarDictionariesForClass:(Class)aClass;
-
 + (NSString *)descriptionForPropertyWithName:(NSString *)name
                                   attributes:(NSString *)attributes
               displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;

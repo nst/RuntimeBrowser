@@ -319,6 +319,39 @@
     return NO;
 }
 
+- (NSArray *)sortedIvarDictionaries {
+    
+    Class class = NSClassFromString(stubClassname);
+    NSAssert(class, @"no class named %@", stubClassname);
+
+    unsigned int ivarListCount;
+    Ivar *ivarList = class_copyIvarList(class, &ivarListCount);
+    
+    NSMutableArray *ivarDictionaries = [NSMutableArray array];
+    
+    for (unsigned int i = 0; i < ivarListCount; ++i ) {
+        Ivar ivar = ivarList[i];
+        
+        NSString *encodedType = [NSString stringWithFormat:@"%s", ivar_getTypeEncoding(ivar)];
+        NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:NO];
+        
+        // TODO: compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
+        NSString *name = [NSString stringWithFormat:@"%s", ivar_getName(ivar)];
+        
+        NSString *s = [NSString stringWithFormat:@"    %@%@;", decodedType, name];
+        
+        [ivarDictionaries addObject:@{@"name":name, @"description":s}];
+        
+    }
+    free(ivarList);
+    
+    [ivarDictionaries sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+        return [obj1[@"name"] compare:obj2[@"name"]];
+    }];
+    
+    return ivarDictionaries;
+}
+
 #pragma mark BrowserNode protocol
 
 - (NSArray *)children {
