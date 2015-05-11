@@ -29,17 +29,19 @@
                                   attributes:(NSString *)attributes
               displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
-+ (NSString *)headerForClass:(Class)aClass
-displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
++ (NSString *)headerForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
 + (NSString *)headerForProtocol:(RTBProtocol *)protocol;
-
-+ (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods;
 
 + (NSString *)descriptionForMethodName:(NSString *)methodName
                             returnType:(NSString *)returnType
                          argumentTypes:(NSArray *)argumentsTypes
                       newlineAfterArgs:(BOOL)newlineAfterArgs
                          isClassMethod:(BOOL)isClassMethod;
+
++ (NSString *)descriptionForProtocol:(Protocol *)protocol
+                            selector:(SEL)selector
+                    isRequiredMethod:(BOOL)isRequiredMethod
+                    isInstanceMethod:(BOOL)isInstanceMethod;
 
 @end

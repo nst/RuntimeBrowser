@@ -9,6 +9,7 @@
 #import "RTBProtocol.h"
 #import "RTBClass.h"
 #import <objc/runtime.h>
+#import "RTBRuntimeHeader.h"
 
 @implementation RTBProtocol
 
@@ -41,6 +42,34 @@
     free(protocolList);
     
     [ma sortedArrayUsingSelector:@selector(compare:)];
+    
+    return ma;
+}
+
+- (NSArray *)sortedMethodsRequired:(BOOL)required instanceMethods:(BOOL)instanceMethods {
+    Protocol *p = NSProtocolFromString([self protocolName]);
+    if(p == nil) return nil;
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int outCount = 0;
+    struct objc_method_description *methods = protocol_copyMethodDescriptionList(p, required, instanceMethods, &outCount);
+    for(int i = 0; i < outCount; i++) {
+        struct objc_method_description method = methods[i];
+        
+        NSString *name = NSStringFromSelector(method.name);
+        NSString *description = [RTBRuntimeHeader descriptionForProtocol:p selector:method.name isRequiredMethod:required isInstanceMethod:instanceMethods];
+        
+        NSDictionary *d = @{@"name":name, @"description":description};
+        
+        [ma addObject:d];
+    }
+    
+    free(methods);
+    
+    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
+        return [d1[@"name"] compare:d2[@"name"]];
+    }];
     
     return ma;
 }
