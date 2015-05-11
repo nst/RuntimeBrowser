@@ -163,7 +163,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
         
         [ms appendString:part];
-
+        
         if(hasArgs) {
             NSString *s = [NSString stringWithFormat:@":(%@)arg%@", argumentsTypes[i+2], @(i+1)];
             
@@ -179,7 +179,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
             
             [ms appendString:(isLastPart ? @";" : @" ")];
         }
-
+        
         [ma addObject:ms];
         ms = [NSMutableString string];
     }];
@@ -187,7 +187,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if([[ma lastObject] hasSuffix:@";"] == NO) {
         [[ma lastObject] appendString:@";"];
     }
-
+    
     NSString *joinerString = @"";
     
     if(newlineAfterArgs) {
@@ -263,12 +263,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return ivarDictionaries;
 }
 
-+ (NSSet *)ivarSetForClass:(Class)aClass {
-    NSArray *a = [self sortedIvarDictionariesForClass:aClass];
-    NSArray *descriptions = [a valueForKey:@"description"];
-    return [NSMutableSet setWithArray:descriptions];
-}
-
 + (NSString *)headerForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     if(aClass == nil) return nil;
     
@@ -290,7 +284,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     RTBClass *class = [RTBClass classStubWithClass:aClass];
     
     // protocols
-    NSArray *protocols = [class sortedProtocolsTokens];
+    NSArray *protocols = [class sortedProtocolsNames];
     if([protocols count] > 0) {
         NSString *protocolsString = [protocols componentsJoinedByString:@", "];
         [header appendFormat:@" <%@>", protocolsString];

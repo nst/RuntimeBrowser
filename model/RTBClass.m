@@ -34,8 +34,8 @@
  */
 
 #import "RTBClass.h"
-//#import "ClassDisplayDeprecated.h"
 #import "RTBRuntimeHeader.h"
+#import "RTBTypeDecoder.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -50,6 +50,7 @@
 @property (nonatomic, retain) NSString *imagePath;
 @property (nonatomic) BOOL shouldSortSubclasses;
 @property (nonatomic) BOOL subclassesAreSorted;
+@property (nonatomic, retain) NSSet *cachedMethodsNamePartsLowercase;
 - (RTBClass *)initWithClass:(Class)klass;
 @end
 
@@ -71,7 +72,7 @@
 - (BOOL)writeAtPath:(NSString *)path {
     
     NSURL *pathURL = [NSURL fileURLWithPath:path];
-
+    
     Class klass = NSClassFromString(stubClassname);
     NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
     
@@ -84,7 +85,7 @@
     return success;
 }
 
-- (NSMutableSet *)ivarTokens {
+- (NSMutableSet *)iVarNames {
     Class klass = NSClassFromString(stubClassname);
     
     NSMutableSet *ms = [NSMutableSet set];
@@ -103,12 +104,10 @@
     
     free(ivarList);
     
-    [ms removeObject:@""];
-    
     return ms;
 }
 
-- (NSMutableSet *)methodsTokensForClass:(Class)klass {
++ (NSSet *)methodsNamePartsLowercaseForClass:(Class)klass {
     NSMutableSet *ms = [NSMutableSet set];
     
     unsigned int methodListCount;
@@ -118,10 +117,9 @@
     for (i = 0; i < methodListCount; i++) {
         Method currMethod = (methodList[i]);
         NSString *mName = [NSString stringWithCString:sel_getName(method_getName(currMethod)) encoding:NSASCIIStringEncoding];
-        NSArray *mNameParts = [mName componentsSeparatedByString:@":"];
-        for(NSString *mNamePart in mNameParts) {
-            [ms addObject:[mNamePart lowercaseString]];
-        }
+        NSString *mNameLowercase = [mName lowercaseString];
+        NSArray *mNameLowercaseParts = [mNameLowercase componentsSeparatedByString:@":"];
+        [ms addObjectsFromArray:mNameLowercaseParts];
     }
     
     free(methodList);
@@ -129,28 +127,34 @@
     return ms;
 }
 
-- (NSMutableSet *)methodsTokens {
-    Class klass = NSClassFromString(stubClassname);
-    Class metaClass = objc_getMetaClass(class_getName(klass));
+- (NSSet *)methodsNamePartsLowercase {
     
-    NSMutableSet *ms = [NSMutableSet set];
+    if(_cachedMethodsNamePartsLowercase == nil) {
+        
+        Class klass = NSClassFromString(stubClassname);
+        Class metaClass = objc_getMetaClass(class_getName(klass));
+        
+        NSMutableSet *ms = [NSMutableSet set];
+        
+        [ms addObjectsFromArray:[[[self class] methodsNamePartsLowercaseForClass:klass] allObjects]];
+        [ms addObjectsFromArray:[[[self class] methodsNamePartsLowercaseForClass:metaClass] allObjects]];
+        
+        [ms removeObject:@""];
+        
+        self.cachedMethodsNamePartsLowercase = ms;
+    }
     
-    [ms addObjectsFromArray:[[self methodsTokensForClass:klass] allObjects]];
-    [ms addObjectsFromArray:[[self methodsTokensForClass:metaClass] allObjects]];
-    
-    [ms removeObject:@""];
-    
-    return ms;
+    return _cachedMethodsNamePartsLowercase;
 }
 
-- (NSMutableSet *)protocolsTokens {
-
+- (NSMutableSet *)protocolsNames {
+    
     Class class = NSClassFromString(stubClassname);
     if(class == nil) {
         NSLog(@"-- no class named %@", stubClassname);
         return nil;
     }
-
+    
     NSMutableSet *ms = [NSMutableSet set];
     
     unsigned int protocolListCount;
@@ -168,14 +172,45 @@
     return ms;
 }
 
-- (NSArray *)sortedProtocolsTokens {
-    NSArray *a = [[self protocolsTokens] allObjects];
+- (NSArray *)sortedProtocolsNames {
+    NSArray *a = [[self protocolsNames] allObjects];
     
     return [a sortedArrayUsingSelector:@selector(compare:)];
 }
 
-- (NSMutableSet *)protocolsTokensLowercase {
-    NSSet *tokens = [self protocolsTokens];
+- (NSSet *)iVarDecodedTypes {
+    
+    Class class = NSClassFromString(stubClassname);
+    if(class == nil) {
+        NSLog(@"-- no class named %@", stubClassname);
+        return nil;
+    }
+    
+    NSMutableSet *encodedTypesSet = [NSMutableSet set]; // use this to avoid decoding types that were already decoded
+    NSMutableSet *decodedTypesSet = [NSMutableSet set];
+    
+    unsigned int ivarListCount;
+    Ivar *ivarList = class_copyIvarList(class, &ivarListCount);
+    
+    for (unsigned int i = 0; i < ivarListCount; ++i ) {
+        Ivar ivar = ivarList[i];
+        
+        NSString *encodedType = [NSString stringWithFormat:@"%s", ivar_getTypeEncoding(ivar)];
+        
+        if([encodedTypesSet containsObject:encodedType]) continue;
+        
+        NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:NO];
+        [decodedTypesSet addObject:decodedType];
+        
+        [encodedTypesSet addObject:encodedType];
+    }
+    free(ivarList);
+    
+    return decodedTypesSet;
+}
+
+- (NSMutableSet *)protocolsNamesLowercase {
+    NSSet *tokens = [self protocolsNames];
     NSMutableSet *lowercaseTokens = [NSMutableSet set];
     for(NSString *token in tokens) {
         [lowercaseTokens addObject:[token lowercaseString]];
@@ -183,18 +218,18 @@
     return lowercaseTokens;
 }
 
-- (NSMutableSet *)protocolsTokensWithSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
+- (NSMutableSet *)protocolsNamesWithSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
     
     Class class = NSClassFromString(stubClassname);
     NSAssert(class, @"no class named %@", stubClassname);
     
-    NSMutableSet *ms = [self protocolsTokens];
+    NSMutableSet *ms = [self protocolsNames];
     
     if (includeSuperclassesProtocols) {
         Class c;
         for(c = class; class_getSuperclass(c) != c; c = class_getSuperclass(c)) {
             RTBClass *superCS = [RTBClass classStubWithClass:c];
-            NSMutableSet *ms2 = [superCS protocolsTokens];
+            NSMutableSet *ms2 = [superCS protocolsNames];
             [ms unionSet:ms2];
         }
     }
@@ -257,28 +292,26 @@
         return YES;
     }
     
-    for(NSString *token in [self ivarTokens]) {
-        if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
+    for(NSString *s in [self iVarNames]) {
+        if([[s lowercaseString] rangeOfString:ss].location != NSNotFound) {
             return YES;
         }
     }
     
-    for(NSString *token in [self methodsTokens]) {
-        if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
+    for(NSString *s in [self methodsNamePartsLowercase]) {
+        if([s rangeOfString:ss].location != NSNotFound) {
             return YES;
         }
     }
     
-    for(NSString *token in [self protocolsTokens]) {
-        if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
+    for(NSString *s in [self protocolsNamesLowercase]) {
+        if([s rangeOfString:ss].location != NSNotFound) {
             return YES;
         }
     }
     
-    NSSet *tokens = [RTBRuntimeHeader ivarSetForClass:NSClassFromString(stubClassname)];
-    
-    for(NSString *token in tokens) {
-        if([[token lowercaseString] rangeOfString:ss].location != NSNotFound) {
+    for(NSString *s in [self iVarDecodedTypes]) {
+        if([[s lowercaseString] rangeOfString:ss].location != NSNotFound) {
             return YES;
         }
     }

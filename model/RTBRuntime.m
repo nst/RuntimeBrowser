@@ -126,7 +126,7 @@ static RTBRuntime *sharedInstance;
 	
     /**/
     
-    NSArray *protocolNames = [cs sortedProtocolsTokens];
+    NSArray *protocolNames = [cs sortedProtocolsNames];
     for(NSString *protocolName in protocolNames) {
         RTBProtocol *ps = _allProtocols[protocolName];
         if(ps == nil) {

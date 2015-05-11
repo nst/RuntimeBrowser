@@ -51,10 +51,11 @@ The purpose of ClassStub is to have a way of accessing ALL of a class's currentl
 - (NSString *)stubClassname;
 - (NSString *)imagePath;
 
-- (NSMutableSet *)ivarTokens;
-- (NSMutableSet *)methodsTokens;
-- (NSMutableSet *)protocolsTokens;
-- (NSArray *)sortedProtocolsTokens;
+- (NSSet *)iVarNames;
+- (NSSet *)iVarDecodedTypes;
+- (NSSet *)methodsNamePartsLowercase;
+- (NSMutableSet *)protocolsNames;
+- (NSArray *)sortedProtocolsNames;
 
 - (BOOL)containsSearchString:(NSString *)searchString;
 
