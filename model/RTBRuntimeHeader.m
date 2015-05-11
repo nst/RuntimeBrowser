@@ -9,6 +9,7 @@
 #import "RTBRuntimeHeader.h"
 #import "RTBTypeDecoder.h"
 #import "RTBMethod.h"
+#import "RTBClass.h"
 
 OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL isRequiredMethod, BOOL isInstanceMethod) __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
 
@@ -232,25 +233,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
                             isClassMethod:(isInstanceMethod == NO)];
 }
 
-+ (NSArray *)sortedProtocolsForClass:(Class)aClass {
-    NSMutableArray *protocols = [NSMutableArray array];
-    
-    unsigned int protocolListCount = 0;
-    __unsafe_unretained Protocol **protocolList = class_copyProtocolList(aClass, &protocolListCount);
-    for(unsigned int i = 0; i < protocolListCount; i++) {
-        NSString *name = [NSString stringWithCString:protocol_getName(protocolList[i]) encoding:NSUTF8StringEncoding];
-        [protocols addObject:name];
-    }
-    
-    free(protocolList);
-    
-    [protocols sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
-    
-    return protocols;
-}
-
 + (NSArray *)sortedIvarDictionariesForClass:(Class)aClass {
     
     unsigned int ivarListCount;
@@ -305,8 +287,10 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if (superClass)
         [header appendFormat: @": %s", class_getName(superClass)];
     
+    RTBClass *class = [RTBClass classStubWithClass:aClass];
+    
     // protocols
-    NSArray *protocols = [[self class] sortedProtocolsForClass:aClass];
+    NSArray *protocols = [class sortedProtocolsTokens];
     if([protocols count] > 0) {
         NSString *protocolsString = [protocols componentsJoinedByString:@", "];
         [header appendFormat:@" <%@>", protocolsString];

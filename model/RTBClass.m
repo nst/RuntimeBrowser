@@ -143,17 +143,24 @@
     return ms;
 }
 
-+ (NSMutableSet *)protocolsTokensForClass:(Class)c {
+- (NSMutableSet *)protocolsTokens {
+
+    Class class = NSClassFromString(stubClassname);
+    if(class == nil) {
+        NSLog(@"-- no class named %@", stubClassname);
+        return nil;
+    }
+
     NSMutableSet *ms = [NSMutableSet set];
     
     unsigned int protocolListCount;
-    __unsafe_unretained Protocol **protocolList = class_copyProtocolList(c, &protocolListCount);
+    __unsafe_unretained Protocol **protocolList = class_copyProtocolList(class, &protocolListCount);
     if (protocolList != NULL && (protocolListCount > 0)) {
         NSUInteger i;
         for(i = 0; i < protocolListCount; i++) {
             Protocol *p = protocolList[i];
             const char* protocolName = protocol_getName(p);
-            if(protocolName) [ms addObject:[[NSString stringWithCString:protocolName encoding:NSUTF8StringEncoding] lowercaseString]];
+            if(protocolName) [ms addObject:[NSString stringWithCString:protocolName encoding:NSUTF8StringEncoding]];
         }
     }
     free(protocolList);
@@ -161,25 +168,38 @@
     return ms;
 }
 
-+ (NSMutableSet *)protocolsTokensForClass:(Class)klass includeSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
+- (NSArray *)sortedProtocolsTokens {
+    NSArray *a = [[self protocolsTokens] allObjects];
     
-    NSMutableSet *ms = [self protocolsTokensForClass:klass];
+    return [a sortedArrayUsingSelector:@selector(compare:)];
+}
+
+- (NSMutableSet *)protocolsTokensLowercase {
+    NSSet *tokens = [self protocolsTokens];
+    NSMutableSet *lowercaseTokens = [NSMutableSet set];
+    for(NSString *token in tokens) {
+        [lowercaseTokens addObject:[token lowercaseString]];
+    }
+    return lowercaseTokens;
+}
+
+- (NSMutableSet *)protocolsTokensWithSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
+    
+    Class class = NSClassFromString(stubClassname);
+    NSAssert(class, @"no class named %@", stubClassname);
+    
+    NSMutableSet *ms = [self protocolsTokens];
     
     if (includeSuperclassesProtocols) {
         Class c;
-        for(c = klass; class_getSuperclass(c) != c; c = class_getSuperclass(c)) {
-            NSMutableSet *ms2 = [self protocolsTokensForClass:c];
+        for(c = class; class_getSuperclass(c) != c; c = class_getSuperclass(c)) {
+            RTBClass *superCS = [RTBClass classStubWithClass:c];
+            NSMutableSet *ms2 = [superCS protocolsTokens];
             [ms unionSet:ms2];
         }
     }
     
     return ms;
-}
-
-- (NSMutableSet *)protocolsTokens {
-    Class klass = NSClassFromString(stubClassname);
-    
-    return [[self class] protocolsTokensForClass:klass includeSuperclassesProtocols:YES]; // TODO: put includeSuperclassesProtocols in user defaults
 }
 
 - (RTBClass *)initWithClass:(Class)klass {

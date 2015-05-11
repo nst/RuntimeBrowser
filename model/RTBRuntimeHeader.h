@@ -21,8 +21,6 @@
 
 + (NSString *)decodedTypeForEncodedString:(NSString *)s;
 
-+ (NSArray *)sortedProtocolsForClass:(Class)aClass;
-
 + (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass
                    displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 

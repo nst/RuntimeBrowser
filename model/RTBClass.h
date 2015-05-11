@@ -54,6 +54,7 @@ The purpose of ClassStub is to have a way of accessing ALL of a class's currentl
 - (NSMutableSet *)ivarTokens;
 - (NSMutableSet *)methodsTokens;
 - (NSMutableSet *)protocolsTokens;
+- (NSArray *)sortedProtocolsTokens;
 
 - (BOOL)containsSearchString:(NSString *)searchString;
 
