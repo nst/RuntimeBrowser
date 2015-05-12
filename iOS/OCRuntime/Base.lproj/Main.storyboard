@@ -332,7 +332,6 @@ We have found this to be a useful development tool. Please note, however, that e
         <!--ObjectsTVC-->
         <scene sceneID="oco-JZ-uVg">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="OXi-kl-QcF" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController storyboardIdentifier="RTBObjectsTVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="xsq-ac-6ka" customClass="RTBObjectsTVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="DLD-Sc-T7u">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
@@ -368,6 +367,7 @@ We have found this to be a useful development tool. Please note, however, that e
                         </barButtonItem>
                     </navigationItem>
                 </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OXi-kl-QcF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1151" y="1735"/>
         </scene>

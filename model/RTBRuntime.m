@@ -57,7 +57,7 @@ static RTBRuntime *sharedInstance;
 		sharedInstance.rootClasses = [NSMutableArray array];
 		sharedInstance.allClassStubsByName = [NSMutableDictionary dictionary];
 		sharedInstance.allClassStubsByImagePath = [NSMutableDictionary dictionary];
-        sharedInstance.allProtocols = [NSMutableDictionary dictionary];
+        sharedInstance.allProtocolsByName = [NSMutableDictionary dictionary];
 	}
 	
 	return sharedInstance;
@@ -128,11 +128,13 @@ static RTBRuntime *sharedInstance;
     
     NSArray *protocolNames = [cs sortedProtocolsNames];
     for(NSString *protocolName in protocolNames) {
-        RTBProtocol *ps = _allProtocols[protocolName];
-        if(ps == nil) {
-            _allProtocols[protocolName] = [RTBProtocol protocolStubWithProtocolName:protocolName];
+        RTBProtocol *p = _allProtocolsByName[protocolName];
+        if(p == nil) {
+            p = [RTBProtocol protocolStubWithProtocolName:protocolName];
+            _allProtocolsByName[protocolName] = p;
         }
-        [ps.conformingClassesStubsSet addObject:cs];
+        [p.conformingClassesStubsSet addObject:cs];
+        NSLog(@"P %@ -> C %@", p.protocolName, cs.stubClassname);
     }
     
     return cs;
@@ -166,11 +168,11 @@ static RTBRuntime *sharedInstance;
 
 - (NSArray *)sortedProtocolStubs {
     
-    if([_allProtocols count] == 0) {
+    if([_allProtocolsByName count] == 0) {
         [self readAllRuntimeClasses];
     }
     
-    return [[_allProtocols allValues] sortedArrayUsingSelector:@selector(compare:)];
+    return [[_allProtocolsByName allValues] sortedArrayUsingSelector:@selector(compare:)];
 }
 
 - (void)readAllRuntimeClasses {
@@ -219,7 +221,7 @@ We autorelease and reset the nil the global, static containers that
 	self.rootClasses = [NSMutableArray array];
 	self.allClassStubsByName = [NSMutableDictionary dictionary];
 	self.allClassStubsByImagePath = [NSMutableDictionary dictionary];
-    self.allProtocols = [NSMutableDictionary dictionary];
+    self.allProtocolsByName = [NSMutableDictionary dictionary];
 	
 	[self readAllRuntimeClasses];
 }

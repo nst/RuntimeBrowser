@@ -42,7 +42,7 @@
 @property (nonatomic, retain) NSMutableArray *rootClasses;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByName;
 @property (nonatomic, retain) NSMutableDictionary *allClassStubsByImagePath;
-@property (nonatomic, retain) NSMutableDictionary *allProtocols;
+@property (nonatomic, retain) NSMutableDictionary *allProtocolsByName;
 
 + (RTBRuntime *)sharedInstance;
 

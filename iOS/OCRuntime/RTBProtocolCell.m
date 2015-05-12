@@ -18,7 +18,7 @@
 - (void)setProtocolObject:(RTBProtocol *)p {
     _protocolObject = p;
     _label.text = [p protocolName];
-
+    self.accessoryType = [p hasChildren] ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 }
 
 - (IBAction)showHeaders:(id)sender {

@@ -34,8 +34,7 @@
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
 
-            NSString *s = strongSelf.frameworkName ? strongSelf.frameworkName : @"All Classes";
-			strongSelf.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", s, [strongSelf.classStubs count]];
+			strongSelf.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", strongSelf.titleForNavigationItem, [strongSelf.classStubs count]];
 		}];
 		
 		NSMutableArray *ma = [[NSMutableArray alloc] init];
@@ -97,9 +96,12 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	
-//	self.title = @"List";
-	self.navigationItem.title = _frameworkName ? _frameworkName : @"All Classes";
-	
+	self.title = @"List";
+    
+    if(self.titleForNavigationItem == nil) {
+        self.titleForNavigationItem = @"All Classes";
+    }
+    
 	//[self setupIndexedClassStubs];
 
 	[super viewDidLoad];
@@ -112,9 +114,10 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-		
-	// show all if not showing a framework
-	if(_frameworkName == nil) {
+
+    self.navigationItem.title = self.titleForNavigationItem;
+
+	if(_classStubs == nil) {
 		self.classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
 	}
     
@@ -122,9 +125,6 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-	if(_frameworkName == nil) {
-		self.navigationItem.title = @"All Classes";
-	}
 
 	[self setupIndexedClassStubs];
 
@@ -155,14 +155,11 @@
 
     RTBClassCell *cell = (RTBClassCell *)[tableView dequeueReusableCellWithIdentifier:@"RTBClassCell"];
 	
-	// Set up the cell
-	if(_frameworkName == nil) {
-		if(indexPath.section >= [_classStubsDictionaries count]) {
-			cell.textLabel.text = @"";
-			cell.accessoryType = UITableViewCellAccessoryNone;
-			return cell;
-		}
-	}
+    if(indexPath.section >= [_classStubsDictionaries count]) {
+        cell.textLabel.text = @"";
+        cell.accessoryType = UITableViewCellAccessoryNone;
+        return cell;
+    }
 	
 	NSDictionary *d = [_classStubsDictionaries objectAtIndex:indexPath.section];
 	NSArray *theClassStubs = [[d allValues] lastObject];

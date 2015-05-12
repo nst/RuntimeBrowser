@@ -10,6 +10,7 @@
 #import "RTBProtocol.h"
 #import "RTBProtocolCell.h"
 #import "RTBRuntime.h"
+#import "RTBListTVC.h"
 
 @interface RTBProtocolsTVC ()
 
@@ -138,11 +139,27 @@
     
     RTBProtocol *p = [protocols objectAtIndex:indexPath.row];
     cell.protocolObject = p;
-    cell.accessoryType = UITableViewCellAccessoryNone;
-
+    
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    NSDictionary *d = [_protocolStubsDictionaries objectAtIndex:indexPath.section];
+    NSArray *protocols = [[d allValues] lastObject];
+    RTBProtocol *p = [protocols objectAtIndex:indexPath.row];
+    
+    NSArray *children = [p children];
+    
+    if([children count] == 0) return;
+
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    RTBListTVC *listTVC = (RTBListTVC *)[sb instantiateViewControllerWithIdentifier:@"RTBListTVC"];
+    listTVC.titleForNavigationItem = p.protocolName;
+    listTVC.classStubs = children;
+    
+    [self.navigationController pushViewController:listTVC animated:YES];
+}
 
 /*
 // Override to support conditional editing of the table view.

@@ -15,7 +15,16 @@
 
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName;
 
-- (NSArray *)sortedAdoptedProtocols;
+- (NSArray *)sortedAdoptedProtocolsNames;
 - (NSArray *)sortedMethodsRequired:(BOOL)required instanceMethods:(BOOL)instanceMethods;
+
+// BrowserNode protocol
+
+- (NSArray *)children; // same as subclassesStubs
+- (NSString *)nodeName;// same as stubClassname
+- (NSString *)nodeInfo;
+- (BOOL)canBeSavedAsHeader;
+
+- (BOOL)hasChildren;
 
 @end

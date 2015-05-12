@@ -105,7 +105,7 @@ static const NSUInteger kPrivateFrameworks = 1;
     if(allStubsInImage == nil)
         allStubsInImage = [NSArray array];
     listTVC.classStubs = [allStubsInImage sortedArrayUsingSelector:@selector(compare:)];
-    listTVC.frameworkName = name;
+    listTVC.titleForNavigationItem = name;
     
     [self.navigationController pushViewController:listTVC animated:YES];
 }

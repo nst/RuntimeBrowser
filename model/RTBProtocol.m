@@ -20,13 +20,13 @@
 + (instancetype)protocolStubWithProtocolName:(NSString *)protocolName {
     NSAssert([protocolName isKindOfClass:[NSString class]], @"");
     
-    RTBProtocol *ps = [[RTBProtocol alloc] init];
-    ps.protocolName = protocolName;
-    ps.conformingClassesStubsSet = [NSMutableSet set];
-    return ps;
+    RTBProtocol *p = [[RTBProtocol alloc] init];
+    p.protocolName = protocolName;
+    p.conformingClassesStubsSet = [NSMutableSet set];
+    return p;
 }
 
-- (NSArray *)sortedAdoptedProtocols {
+- (NSArray *)sortedAdoptedProtocolsNames {
     Protocol *p = NSProtocolFromString(_protocolName);
     if(p == nil) return nil;
     
@@ -72,6 +72,10 @@
     }];
     
     return ma;
+}
+
+- (BOOL)hasChildren {
+    return [_conformingClassesStubsSet count] > 0;
 }
 
 #pragma mark BrowserNode protocol

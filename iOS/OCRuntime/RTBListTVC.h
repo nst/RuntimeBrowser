@@ -12,9 +12,9 @@
 
 @interface RTBListTVC : UITableViewController <UITableViewDataSource, UITableViewDelegate>
 
-@property (nonatomic, retain) RTBClassDisplayVC *classDisplayVC;
-@property (nonatomic, retain) NSMutableArray *classStubsDictionaries; // [{'A':classStubs}, {'B':classStubs}]
-@property (nonatomic, retain) NSArray *classStubs;
-@property (nonatomic, retain) NSString *frameworkName; // nil to display all classes
+@property (nonatomic, strong) RTBClassDisplayVC *classDisplayVC;
+@property (nonatomic, strong) NSMutableArray *classStubsDictionaries; // [{'A':classStubs}, {'B':classStubs}]
+@property (nonatomic, strong) NSArray *classStubs;
+@property (nonatomic, strong) NSString *titleForNavigationItem;
 
 @end
