@@ -206,8 +206,13 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     // protocols
     NSArray *protocols = [class sortedProtocolsNames];
     if([protocols count] > 0) {
+        
+        if(superClass) {
+            [header appendString:@" "];
+        }
+        
         NSString *protocolsString = [protocols componentsJoinedByString:@", "];
-        [header appendFormat:@" <%@>", protocolsString];
+        [header appendFormat:@"<%@>", protocolsString];
     }
     
     // ivars
