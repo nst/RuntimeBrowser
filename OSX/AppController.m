@@ -42,6 +42,10 @@
 #import "RTBRuntimeHeader.h"
 #import "RTBProtocol.h"
 
+@interface AppController ()
+@property (nonatomic, strong) NSMutableDictionary *cachedClassStubsMatchingForSearchStringLowercase;
+@end
+
 @implementation AppController
 
 @synthesize saveDirURL;
@@ -112,6 +116,9 @@
             NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
             [_classBrowser setTitle:rootTitle ofColumn:0];
         }
+        
+        // empty search cache
+        self.cachedClassStubsMatchingForSearchStringLowercase = nil;
     }
 }
 
@@ -222,7 +229,7 @@
         
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperationWithBlock:^{
-
+            
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
             
@@ -347,9 +354,48 @@
     [self changeViewTypeTo:[sender tag]];
 }
 
-- (IBAction)search:(id)sender {
+- (void)foundMatchingClass:(RTBClass *)classStub forSearchString:(NSString *)searchString {
     
-    // TODO: add support for protocols
+    NSString *searchStringLowercase = [searchString lowercaseString];
+    
+    if(_cachedClassStubsMatchingForSearchStringLowercase == nil) {
+        self.cachedClassStubsMatchingForSearchStringLowercase = [NSMutableDictionary dictionary];
+    }
+    
+    if(_cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase] == nil) {
+        _cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase] = [NSMutableSet set];
+    }
+    
+    [_cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase] addObject:classStub];
+    
+    /**/
+    
+    if([self.searchResults containsObject:classStub]) return;
+    
+    [self.searchResults addObject:classStub];
+    
+    self.searchResultsNode.children = self.searchResults;
+    
+    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes, searching...", searchString, (unsigned long)[self.searchResults count]];
+    [self.classBrowser setTitle:rootTitle ofColumn:0];
+    
+    [self.classBrowser loadColumnZero];
+    
+}
+
+- (void)didFinishSearchingSearchString:(NSString *)searchString {
+    if([searchString isEqualToString:[self.searchField stringValue]] == NO) {
+        NSLog(@"-- discard all results for %@", searchString);
+        return;
+    }
+    
+    NSLog(@"-- finished searching for %@, %lul results", searchString, (unsigned long)[self.searchResults count]);
+    
+    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes", searchString, (unsigned long)[self.searchResults count]];
+    [self.classBrowser setTitle:rootTitle ofColumn:0];
+}
+
+- (IBAction)search:(id)sender {
     
     BOOL isInSearchMode = [self isInSearchMode];
     
@@ -372,6 +418,29 @@
     
     NSArray *classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
     
+    // lookup in search caches
+    
+    NSString *searchStringLowercase = [searchString lowercaseString];
+    
+    if(_cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase]) {
+        
+        NSSet *set = _cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase];
+        
+        NSMutableArray *ma = [[set allObjects] mutableCopy];
+        
+        [ma sortUsingSelector:@selector(compare:)];
+        
+        self.searchResults = ma;
+        
+        self.searchResultsNode.children = self.searchResults;
+        
+        [self.classBrowser loadColumnZero];
+        
+        [self didFinishSearchingSearchString:searchString];
+        
+        return;
+    }
+    
     self.searchQueue = [[NSOperationQueue alloc] init];
     
     //    NSUInteger maxConcurrentOperationCount = [[NSProcessInfo processInfo] processorCount] + 1;
@@ -384,13 +453,13 @@
     
     __weak typeof(self) weakSelf = self;
     
-    for (id classStub in classStubs) {
+    for (RTBClass *classStub in classStubs) {
         
         [op addExecutionBlock:^{
             
             __strong NSBlockOperation *strongOp = weakOp;
             if(strongOp == nil) return;
-
+            
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
             
@@ -401,31 +470,22 @@
             
             BOOL found = [classStub containsSearchString:searchString];
             
-            if(found) {
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    
-                    __strong typeof(weakSelf) strongSelf = weakSelf;
-                    if(strongSelf == nil) return;
-                    
-                    if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
-                        //rNSLog(@"-- discard results for %@", searchString);
-                        [strongOp cancel];
-                        return;
-                    }
-                    
-                    if([strongSelf.searchResults containsObject:classStub]) return;
-                    
-                    [strongSelf.searchResults addObject:classStub];
-                    
-                    strongSelf.searchResultsNode.children = strongSelf.searchResults;
-                    
-                    NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes, searching...", searchString, (unsigned long)[strongSelf.searchResults count]];
-                    [strongSelf.classBrowser setTitle:rootTitle ofColumn:0];
-                    
-                    [strongSelf.classBrowser loadColumnZero];
-                }];
-            }
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if(strongSelf == nil) return;
+                
+                if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
+                    //rNSLog(@"-- discard results for %@", searchString);
+                    [strongOp cancel];
+                    return;
+                }
+                
+                if(found) {
+                    [strongSelf foundMatchingClass:classStub forSearchString:searchString];
+                }
+                
+            }];
         }];
         
     }
@@ -435,16 +495,8 @@
             
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
-
-            if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
-                NSLog(@"-- discard all results for %@", searchString);
-                return;
-            }
             
-            NSLog(@"-- finished searching for %@, %lul results", searchString, (unsigned long)[strongSelf.searchResults count]);
-            
-            NSString *rootTitle = [NSString stringWithFormat:@"\"%@\": %lu classes", searchString, (unsigned long)[strongSelf.searchResults count]];
-            [strongSelf.classBrowser setTitle:rootTitle ofColumn:0];
+            [strongSelf didFinishSearchingSearchString:searchString];
             
         }];
     }];
