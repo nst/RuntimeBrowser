@@ -19,63 +19,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return [RTBTypeDecoder decodeType:s flat:YES];
 }
 
-+ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod {
-    
-    Class class = aClass;
-    
-    if(isClassMethod) {
-        class = objc_getMetaClass(class_getName(aClass));
-    }
-    
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    unsigned int methodListCount = 0;
-    Method *methodList = class_copyMethodList(class, &methodListCount);
-    
-    for (NSUInteger i = 0; i < methodListCount; i++) {
-        Method method = methodList[i];
-        
-        RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
-        
-        [ma addObject:m];
-    }
-    
-    free(methodList);
-    
-    [ma sortUsingSelector:@selector(compare:)];
-    
-    return ma;
-}
-
-+ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
-    
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    unsigned int propertiesCount = 0;
-    objc_property_t *propertyList = class_copyPropertyList(aClass, &propertiesCount);
-    
-    for (unsigned int i = 0; i < propertiesCount; i++) {
-        objc_property_t property = propertyList[i];
-        
-        NSString *name = [NSString stringWithCString:property_getName(property) encoding:NSASCIIStringEncoding];
-        NSString *attributes = [NSString stringWithCString:property_getAttributes(property) encoding:NSASCIIStringEncoding];
-        
-        NSString *description = [[self class] descriptionForPropertyWithName:name attributes:attributes displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-        
-        NSDictionary *d = @{@"name":name, @"description":description};
-        
-        [ma addObject:d];
-    }
-    
-    free(propertyList);
-    
-    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-        return [obj1[@"name"] compare:obj2[@"name"]];
-    }];
-    
-    return ma;
-}
-
 + (NSString *)descriptionForPropertyWithName:(NSString *)name attributes:(NSString *)attributes displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
@@ -233,36 +176,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
                             isClassMethod:(isInstanceMethod == NO)];
 }
 
-+ (NSArray *)sortedIvarDictionariesForClass:(Class)aClass {
-    
-    unsigned int ivarListCount;
-    Ivar *ivarList = class_copyIvarList(aClass, &ivarListCount);
-    
-    NSMutableArray *ivarDictionaries = [NSMutableArray array];
-    
-    for (unsigned int i = 0; i < ivarListCount; ++i ) {
-        Ivar ivar = ivarList[i];
-        
-        NSString *encodedType = [NSString stringWithFormat:@"%s", ivar_getTypeEncoding(ivar)];
-        NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:NO];
-        
-        // TODO: compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
-        NSString *name = [NSString stringWithFormat:@"%s", ivar_getName(ivar)];
-        
-        NSString *s = [NSString stringWithFormat:@"    %@%@;", decodedType, name];
-        
-        [ivarDictionaries addObject:@{@"name":name, @"description":s}];
-        
-    }
-    free(ivarList);
-    
-    [ivarDictionaries sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-        return [obj1[@"name"] compare:obj2[@"name"]];
-    }];
-    
-    return ivarDictionaries;
-}
-
 + (NSString *)headerForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     if(aClass == nil) return nil;
     
@@ -291,7 +204,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     
     // ivars
-    NSArray *sortedIvarDictionaries = [self sortedIvarDictionariesForClass:aClass];
+    NSArray *sortedIvarDictionaries = [class sortedIvarDictionaries];
     if([sortedIvarDictionaries count] > 0){
         [header appendString:@" {\n"];
         for(NSDictionary *d in sortedIvarDictionaries) {
@@ -302,7 +215,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     [header appendString:@"\n\n"];
     
     // properties
-    NSArray *propertiesDictionaries = [self sortedPropertiesDictionariesForClass:aClass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
+    NSArray *propertiesDictionaries = [class sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:displayPropertiesDefaultValues];
     for(NSDictionary *d in propertiesDictionaries) {
         [header appendFormat:@"%@\n", d[@"description"]];
     }
@@ -311,7 +224,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     
     // class methods
-    NSArray *sortedClassMethods = [self sortedMethodsForClass:aClass isClassMethod:YES];
+    NSArray *sortedClassMethods = [class sortedMethodsIsClassMethod:YES];
     for(RTBMethod *m in sortedClassMethods) {
         [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
     }
@@ -321,7 +234,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     // instance methods
     // class methods
-    NSArray *sortedInstanceMethods = [self sortedMethodsForClass:aClass isClassMethod:NO];
+    NSArray *sortedInstanceMethods = [class sortedMethodsIsClassMethod:NO];
     for(RTBMethod *m in sortedInstanceMethods) {
         [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
     }
@@ -334,73 +247,26 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     return header;
 }
 
-+ (NSArray *)sortedProtocolsAdoptedByProtocol:(NSString *)protocol {
-    Protocol *p = NSProtocolFromString(protocol);
-    if(p == nil) return nil;
-    
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    unsigned int outCount = 0;
-    __unsafe_unretained Protocol **protocolList = protocol_copyProtocolList(p, &outCount);
-    for(int i = 0; i < outCount; i++) {
-        Protocol *adoptedProtocol = protocolList[i];
-        NSString *adoptedProtocolName = [NSString stringWithCString:protocol_getName(adoptedProtocol) encoding:NSUTF8StringEncoding];
-        [ma addObject:adoptedProtocolName];
-    }
-    free(protocolList);
-    
-    [ma sortedArrayUsingSelector:@selector(compare:)];
-    
-    return ma;
-}
-
-+ (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods {
-    Protocol *p = NSProtocolFromString(protocol);
-    if(p == nil) return nil;
-    
-    NSMutableArray *ma = [NSMutableArray array];
-    
-    unsigned int outCount = 0;
-    struct objc_method_description *methods = protocol_copyMethodDescriptionList(p, required, instanceMethods, &outCount);
-    for(int i = 0; i < outCount; i++) {
-        struct objc_method_description method = methods[i];
++ (NSString *)headerForProtocol:(RTBProtocol *)protocol {
         
-        NSString *name = NSStringFromSelector(method.name);
-        NSString *description = [[self class] descriptionForProtocol:p selector:method.name isRequiredMethod:required isInstanceMethod:instanceMethods];
-        
-        NSDictionary *d = @{@"name":name, @"description":description};
-        
-        [ma addObject:d];
-    }
-    
-    free(methods);
-    
-    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
-        return [d1[@"name"] compare:d2[@"name"]];
-    }];
-    
-    return ma;
-}
-
-+ (NSString *)headerForProtocolName:(NSString *)protocolName {
     NSMutableString *header = [NSMutableString string];
     
     [header appendString:@"/* Generated by RuntimeBrowser.\n */\n\n"];
     
-    [header appendFormat:@"@protocol %@", protocolName];
+    [header appendFormat:@"@protocol %@", [protocol protocolName]];
     
     // adopted protocols
-    NSArray *adoptedProtocols = [self sortedProtocolsAdoptedByProtocol:protocolName];
+    NSArray *adoptedProtocols = [protocol sortedAdoptedProtocols];
     if([adoptedProtocols count]) {
         NSString *adoptedProtocolsString = [adoptedProtocols componentsJoinedByString:@", "];
         [header appendFormat:@" <%@>", adoptedProtocolsString];
     }
     [header appendString:@"\n\n"];
     
-    NSArray *requiredClassMethods = [self sortedMethodsInProtocol:protocolName required:YES instanceMethods:NO];
-    NSArray *requiredInstanceMethods = [self sortedMethodsInProtocol:protocolName required:YES instanceMethods:YES];
-    NSArray *optionalClassMethods = [self sortedMethodsInProtocol:protocolName required:NO instanceMethods:NO];
-    NSArray *optionalInstanceMethods = [self sortedMethodsInProtocol:protocolName required:NO instanceMethods:YES];
+    NSArray *requiredClassMethods = [protocol sortedMethodsRequired:YES instanceMethods:NO];
+    NSArray *requiredInstanceMethods = [protocol sortedMethodsRequired:YES instanceMethods:YES];
+    NSArray *optionalClassMethods = [protocol sortedMethodsRequired:NO instanceMethods:NO];
+    NSArray *optionalInstanceMethods = [protocol sortedMethodsRequired:NO instanceMethods:YES];
     
     if([requiredClassMethods count] + [requiredInstanceMethods count] > 0) {
         [header appendString:@"@required\n\n"];

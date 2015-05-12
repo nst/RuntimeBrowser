@@ -34,8 +34,8 @@
 */
 
 #import <Foundation/Foundation.h>
-
-@class RTBClass;
+#import "RTBClass.h"
+#import "RTBProtocol.h"
 
 @interface RTBRuntime : NSObject
 

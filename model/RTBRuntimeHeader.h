@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RTBProtocol.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -17,31 +18,25 @@
 
 @interface RTBRuntimeHeader : NSObject
 
-+ (NSArray *)sortedMethodsForClass:(Class)aClass isClassMethod:(BOOL)isClassMethod;
-
 + (NSString *)decodedTypeForEncodedString:(NSString *)s;
-
-+ (NSArray *)sortedPropertiesDictionariesForClass:(Class)aClass
-                   displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
-
-+ (NSArray *)sortedIvarDictionariesForClass:(Class)aClass;
 
 + (NSString *)descriptionForPropertyWithName:(NSString *)name
                                   attributes:(NSString *)attributes
               displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
-+ (NSString *)headerForClass:(Class)aClass
-displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
++ (NSString *)headerForClass:(Class)aClass displayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
-+ (NSString *)headerForProtocolName:(NSString *)protocolName;
-
-+ (NSArray *)sortedProtocolsAdoptedByProtocol:(NSString *)protocol;
-+ (NSArray *)sortedMethodsInProtocol:(NSString *)protocol required:(BOOL)required instanceMethods:(BOOL)instanceMethods;
++ (NSString *)headerForProtocol:(RTBProtocol *)protocol;
 
 + (NSString *)descriptionForMethodName:(NSString *)methodName
                             returnType:(NSString *)returnType
                          argumentTypes:(NSArray *)argumentsTypes
                       newlineAfterArgs:(BOOL)newlineAfterArgs
                          isClassMethod:(BOOL)isClassMethod;
+
++ (NSString *)descriptionForProtocol:(Protocol *)protocol
+                            selector:(SEL)selector
+                    isRequiredMethod:(BOOL)isRequiredMethod
+                    isInstanceMethod:(BOOL)isInstanceMethod;
 
 @end

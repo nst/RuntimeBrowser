@@ -15,12 +15,10 @@
 
 @implementation RTBProtocolCell
 
-- (void)setProtocolName:(NSString *)s {
-    _label.text = s;
-}
+- (void)setProtocolObject:(RTBProtocol *)p {
+    _protocolObject = p;
+    _label.text = [p protocolName];
 
-- (NSString *)protocolName {
-    return _label.text;
 }
 
 - (IBAction)showHeaders:(id)sender {
@@ -29,7 +27,7 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-	[appDelegate performSelector:@selector(showHeaderForProtocolName:) withObject:_label.text];
+	[appDelegate performSelector:@selector(showHeaderForProtocol:) withObject:_protocolObject];
 #pragma clang diagnostic pop
 }
 

@@ -8,6 +8,8 @@
 
 #import "RTBProtocol.h"
 #import "RTBClass.h"
+#import <objc/runtime.h>
+#import "RTBRuntimeHeader.h"
 
 @implementation RTBProtocol
 
@@ -22,6 +24,54 @@
     ps.protocolName = protocolName;
     ps.conformingClassesStubsSet = [NSMutableSet set];
     return ps;
+}
+
+- (NSArray *)sortedAdoptedProtocols {
+    Protocol *p = NSProtocolFromString(_protocolName);
+    if(p == nil) return nil;
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int outCount = 0;
+    __unsafe_unretained Protocol **protocolList = protocol_copyProtocolList(p, &outCount);
+    for(int i = 0; i < outCount; i++) {
+        Protocol *adoptedProtocol = protocolList[i];
+        NSString *adoptedProtocolName = [NSString stringWithCString:protocol_getName(adoptedProtocol) encoding:NSUTF8StringEncoding];
+        [ma addObject:adoptedProtocolName];
+    }
+    free(protocolList);
+    
+    [ma sortedArrayUsingSelector:@selector(compare:)];
+    
+    return ma;
+}
+
+- (NSArray *)sortedMethodsRequired:(BOOL)required instanceMethods:(BOOL)instanceMethods {
+    Protocol *p = NSProtocolFromString([self protocolName]);
+    if(p == nil) return nil;
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int outCount = 0;
+    struct objc_method_description *methods = protocol_copyMethodDescriptionList(p, required, instanceMethods, &outCount);
+    for(int i = 0; i < outCount; i++) {
+        struct objc_method_description method = methods[i];
+        
+        NSString *name = NSStringFromSelector(method.name);
+        NSString *description = [RTBRuntimeHeader descriptionForProtocol:p selector:method.name isRequiredMethod:required isInstanceMethod:instanceMethods];
+        
+        NSDictionary *d = @{@"name":name, @"description":description};
+        
+        [ma addObject:d];
+    }
+    
+    free(methods);
+    
+    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *d1, NSDictionary *d2) {
+        return [d1[@"name"] compare:d2[@"name"]];
+    }];
+    
+    return ma;
 }
 
 #pragma mark BrowserNode protocol

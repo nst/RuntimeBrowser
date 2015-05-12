@@ -71,7 +71,8 @@
     if(_className) {
         header = [RTBRuntimeHeader headerForClass:NSClassFromString(self.className) displayPropertiesDefaultValues:YES];
     } else if (_protocolName) {
-        header = [RTBRuntimeHeader headerForProtocolName:_protocolName];
+        RTBProtocol *p = [RTBProtocol protocolStubWithProtocolName:_protocolName];
+        header = [RTBRuntimeHeader headerForProtocol:p];
     }
     
     NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];

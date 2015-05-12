@@ -36,6 +36,7 @@
 #import "RTBClass.h"
 #import "RTBRuntimeHeader.h"
 #import "RTBTypeDecoder.h"
+#import "RTBMethod.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -317,6 +318,102 @@
     }
     
     return NO;
+}
+
+- (NSArray *)sortedIvarDictionaries {
+    
+    Class class = NSClassFromString(stubClassname);
+    NSAssert(class, @"no class named %@", stubClassname);
+
+    unsigned int ivarListCount;
+    Ivar *ivarList = class_copyIvarList(class, &ivarListCount);
+    
+    NSMutableArray *ivarDictionaries = [NSMutableArray array];
+    
+    for (unsigned int i = 0; i < ivarListCount; ++i ) {
+        Ivar ivar = ivarList[i];
+        
+        NSString *encodedType = [NSString stringWithFormat:@"%s", ivar_getTypeEncoding(ivar)];
+        NSString *decodedType = [RTBTypeDecoder decodeType:encodedType flat:NO];
+        
+        // TODO: compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
+        NSString *name = [NSString stringWithFormat:@"%s", ivar_getName(ivar)];
+        
+        NSString *s = [NSString stringWithFormat:@"    %@%@;", decodedType, name];
+        
+        [ivarDictionaries addObject:@{@"name":name, @"description":s}];
+        
+    }
+    free(ivarList);
+    
+    [ivarDictionaries sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+        return [obj1[@"name"] compare:obj2[@"name"]];
+    }];
+    
+    return ivarDictionaries;
+}
+
+- (NSArray *)sortedMethodsIsClassMethod:(BOOL)isClassMethod {
+    
+    Class aClass = NSClassFromString(stubClassname);
+    NSAssert(aClass, @"no class named %@", stubClassname);
+
+    Class class = aClass;
+    
+    if(isClassMethod) {
+        class = objc_getMetaClass(class_getName(aClass));
+    }
+    
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int methodListCount = 0;
+    Method *methodList = class_copyMethodList(class, &methodListCount);
+    
+    for (NSUInteger i = 0; i < methodListCount; i++) {
+        Method method = methodList[i];
+        
+        RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
+        
+        [ma addObject:m];
+    }
+    
+    free(methodList);
+    
+    [ma sortUsingSelector:@selector(compare:)];
+    
+    return ma;
+}
+
+- (NSArray *)sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
+    
+    Class aClass = NSClassFromString(stubClassname);
+    NSAssert(aClass, @"no class named %@", stubClassname);
+
+    NSMutableArray *ma = [NSMutableArray array];
+    
+    unsigned int propertiesCount = 0;
+    objc_property_t *propertyList = class_copyPropertyList(aClass, &propertiesCount);
+    
+    for (unsigned int i = 0; i < propertiesCount; i++) {
+        objc_property_t property = propertyList[i];
+        
+        NSString *name = [NSString stringWithCString:property_getName(property) encoding:NSASCIIStringEncoding];
+        NSString *attributes = [NSString stringWithCString:property_getAttributes(property) encoding:NSASCIIStringEncoding];
+        
+        NSString *description = [RTBRuntimeHeader descriptionForPropertyWithName:name attributes:attributes displayPropertiesDefaultValues:displayPropertiesDefaultValues];
+        
+        NSDictionary *d = @{@"name":name, @"description":description};
+        
+        [ma addObject:d];
+    }
+    
+    free(propertyList);
+    
+    [ma sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+        return [obj1[@"name"] compare:obj2[@"name"]];
+    }];
+    
+    return ma;
 }
 
 #pragma mark BrowserNode protocol

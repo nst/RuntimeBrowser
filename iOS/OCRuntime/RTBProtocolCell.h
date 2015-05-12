@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "RTBProtocol.h"
 
 @interface RTBProtocolCell : UITableViewCell
 
-@property (nonatomic, retain) NSString *protocolName;
+@property (nonatomic, retain) RTBProtocol *protocolObject;
 
 - (IBAction)showHeaders:(id)sender;
 
