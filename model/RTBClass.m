@@ -158,7 +158,7 @@
     
     NSMutableSet *ms = [NSMutableSet set];
     
-    unsigned int protocolListCount;
+    unsigned int protocolListCount = 0;
     __unsafe_unretained Protocol **protocolList = class_copyProtocolList(class, &protocolListCount);
     if (protocolList != NULL && (protocolListCount > 0)) {
         NSUInteger i;

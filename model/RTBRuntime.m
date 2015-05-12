@@ -69,6 +69,18 @@ static RTBRuntime *sharedInstance;
     return [_allClassStubsByName valueForKey:classname];
 }
 
+- (void)addProtocolsAdoptedByProtocol:(RTBProtocol *)p {
+    for(NSString *adoptedProtocolName in [p sortedAdoptedProtocolsNames]) {
+        RTBProtocol *ap = _allProtocolsByName[adoptedProtocolName];
+        if(ap == nil) {
+            ap = [RTBProtocol protocolStubWithProtocolName:adoptedProtocolName];
+            _allProtocolsByName[adoptedProtocolName] = ap;
+            
+            [self addProtocolsAdoptedByProtocol:ap];
+        }
+    }
+}
+
 - (RTBClass *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
 	
     //self.allProtocols = [NSMutableDictionary dictionary];
@@ -132,9 +144,11 @@ static RTBRuntime *sharedInstance;
         if(p == nil) {
             p = [RTBProtocol protocolStubWithProtocolName:protocolName];
             _allProtocolsByName[protocolName] = p;
+
+            [self addProtocolsAdoptedByProtocol:p];
         }
+
         [p.conformingClassesStubsSet addObject:cs];
-        NSLog(@"P %@ -> C %@", p.protocolName, cs.stubClassname);
     }
     
     return cs;
