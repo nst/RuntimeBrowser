@@ -383,7 +383,7 @@
     
 }
 
-- (void)didFinishSearchingSearchString:(NSString *)searchString {
+- (void)didFinishSearchingForString:(NSString *)searchString {
     if([searchString isEqualToString:[self.searchField stringValue]] == NO) {
         NSLog(@"-- discard all results for %@", searchString);
         return;
@@ -436,7 +436,7 @@
         
         [self.classBrowser loadColumnZero];
         
-        [self didFinishSearchingSearchString:searchString];
+        [self didFinishSearchingForString:searchString];
         
         return;
     }
@@ -496,7 +496,7 @@
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
             
-            [strongSelf didFinishSearchingSearchString:searchString];
+            [strongSelf didFinishSearchingForString:searchString];
             
         }];
     }];
