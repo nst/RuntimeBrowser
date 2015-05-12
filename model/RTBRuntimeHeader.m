@@ -67,9 +67,10 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     if([attributesArray count] > 0) {
         NSString *attributesDescription = [NSString stringWithFormat:@"(%@)", [attributesArray componentsJoinedByString:@", "]];
         [ms appendString:attributesDescription];
+        [ms appendFormat:@" "];
     }
     
-    [ms appendFormat:@" %@ %@;", type, name];
+    [ms appendFormat:@"%@ %@;", type, name];
     
     if(comment)
         [ms appendFormat:@" %@", comment];
