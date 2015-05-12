@@ -70,7 +70,13 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         [ms appendFormat:@" "];
     }
     
-    [ms appendFormat:@"%@ %@;", type, name];
+    [ms appendString:type];
+    
+    if([type hasSuffix:@"*"] == NO) {
+        [ms appendString:@" "];
+    }
+   
+    [ms appendFormat:@"%@;", name];
     
     if(comment)
         [ms appendFormat:@" %@", comment];
