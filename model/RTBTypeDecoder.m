@@ -63,6 +63,10 @@ static NSString *MODIFIER_LABEL = @"modifier";
 
 static NSString *IVAR_TAB = @"    ";
 
+// caution, these caches will be accessed by several thread in the same time when using the embedded web server
+static NSMutableDictionary *cachedDecodedTypesForEncodedTypes = nil;
+static NSMutableDictionary *cachedDecodedTypesForEncodedTypesFlat = nil;
+
 #define isTypeSpecifier(fc) (fc=='r'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='!')
 
 NSString * rtb_argTypeSpecifierForEncoding(char fc) {
@@ -106,14 +110,25 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     return ivT;
 }
 
-+ (NSArray *)decodeTypes:(NSString *)encodedType flat:(BOOL)flat {
++ (NSArray *)decodeTypes:(NSString *)encodedTypes flat:(BOOL)flat {
+
+    if(cachedDecodedTypesForEncodedTypes == nil) {
+        cachedDecodedTypesForEncodedTypes = [NSMutableDictionary dictionary];
+    }
     
-    //NSLog(@"-- %@", encodedType);
+    if(cachedDecodedTypesForEncodedTypesFlat == nil) {
+        cachedDecodedTypesForEncodedTypesFlat = [NSMutableDictionary dictionary];
+    }
     
+    NSMutableDictionary *cacheDictionary = flat ? cachedDecodedTypesForEncodedTypesFlat : cachedDecodedTypesForEncodedTypes;
+    
+    NSArray *cachedDecodedTypes = cacheDictionary[encodedTypes];
+    if(cachedDecodedTypes) return cachedDecodedTypes;
+        
     RTBTypeDecoder *typeDecoder = [[self alloc] init];
     typeDecoder.showCommentForBlocks = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"];
     
-    [typeDecoder setIvT:[encodedType cStringUsingEncoding:NSUTF8StringEncoding]];
+    [typeDecoder setIvT:[encodedTypes cStringUsingEncoding:NSUTF8StringEncoding]];
     
     NSMutableArray *ma = [NSMutableArray array];
     
@@ -135,16 +150,22 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
         [ma addObject:d[TYPE_LABEL]];
     }
     
+    cacheDictionary[encodedTypes] = ma;
+    
     return ma;
 }
 
 + (NSString *)decodeType:(NSString *)encodedType flat:(BOOL)flat {
+    
     NSArray *types = [self decodeTypes:encodedType flat:flat];
     if([types count] == 0) {
         NSLog(@"-- no types found in encodedType: %@", encodedType);
+        types = @[@"void"];
     }
     NSAssert([types count] > 0, nil);
-    return types[0];
+    NSString *decodedType = types[0];
+    
+    return decodedType;
 }
 
 //OK

@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "HTTPResponse.h"
+#import "GCDWebServer.h"
 
-@class HTTPServer;
 @class RTBRuntime;
 
 @interface RTBAppDelegate : UIResponder <UIApplicationDelegate>
@@ -17,9 +16,9 @@
 @property (strong, nonatomic) UIWindow *window;
 
 @property (strong, nonatomic) RTBRuntime *allClasses;
-@property (strong, nonatomic) HTTPServer *httpServer;
+@property (strong, nonatomic) GCDWebServer *webServer;
 
-- (NSObject<HTTPResponse> *)responseForPath:(NSString *)path;
+- (GCDWebServerResponse *)responseForPath:(NSString *)path;
 - (NSString *)myIPAddress;
 - (UInt16)serverPort;
 

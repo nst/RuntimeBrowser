@@ -8,7 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface AAA : NSObject
+@protocol AAAProtocol <NSObject>
+
+- (void)x:(id <NSCoding>)x;
+
+@end
+
+@interface AAA : NSObject <AAAProtocol>
 
 - (NSString *)a:(NSString *)argA b:(NSString *)argB;
 - (NSString *)sayHello;

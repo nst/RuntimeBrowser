@@ -15,13 +15,12 @@ static NSString *RIGHT_ACTION_ASS_KEY = @"com.robsaunders.otherbuttonaction";
 
 @implementation UIAlertView (Blocks)
 
-
--(id)initWithTitle:(NSString *)     title
-           message:(NSString *)     message
-   leftButtonTitle:(NSString *)     leftButtonTitle
-  leftButtonAction:(void (^)(void)) leftButtonAction
-  rightButtonTitle:(NSString*)      rightButtonTitle
- rightButtonAction:(void (^)(NSString *output)) rightButtonAction
+- (id)rtb_initWithTitle:(NSString *)     title
+            message:(NSString *)     message
+    leftButtonTitle:(NSString *)     leftButtonTitle
+   leftButtonAction:(void (^)(void)) leftButtonAction
+   rightButtonTitle:(NSString*)      rightButtonTitle
+  rightButtonAction:(void (^)(NSString *output)) rightButtonAction
 {
     if((self = [self initWithTitle:title
                            message:message
@@ -63,14 +62,14 @@ static NSString *RIGHT_ACTION_ASS_KEY = @"com.robsaunders.otherbuttonaction";
 
 
 // This is a convenience wrapper for the constructor above
-+ (void) rtb_displayAlertWithTitle:(NSString *)title
-                       message:(NSString *)message
-               leftButtonTitle:(NSString *)leftButtonTitle
-              leftButtonAction:(void (^)(void))leftButtonAction
-              rightButtonTitle:(NSString*)rightButtonTitle
-             rightButtonAction:(void (^)(NSString *output))rightButtonAction
++ (void)rtb_displayAlertWithTitle:(NSString *)title
+                          message:(NSString *)message
+                  leftButtonTitle:(NSString *)leftButtonTitle
+                 leftButtonAction:(void (^)(void))leftButtonAction
+                 rightButtonTitle:(NSString*)rightButtonTitle
+                rightButtonAction:(void (^)(NSString *output))rightButtonAction
 {
-    UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title
+    UIAlertView* alertView = [[UIAlertView alloc] rtb_initWithTitle:title
                                                         message:message
                                                 leftButtonTitle:leftButtonTitle
                                                leftButtonAction:leftButtonAction
@@ -108,7 +107,7 @@ static NSString *RIGHT_ACTION_ASS_KEY = @"com.robsaunders.otherbuttonaction";
     objc_setAssociatedObject(self, RIGHT_ACTION_ASS_KEY, nil, OBJC_ASSOCIATION_COPY);
     
     // We can now release ourselfs, since we retained it eariler.
-    [self release]; 
+    [self release];
 }
 
 @end
