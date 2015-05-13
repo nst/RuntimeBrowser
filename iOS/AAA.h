@@ -19,6 +19,8 @@
 @property (retain) NSString *_retain;
 @property (atomic, retain) NSMutableArray *_atomic_retain;
 
++ (NSString *)myClassMethod;
+
 - (NSString *)a:(NSString *)argA b:(NSString *)argB;
 - (NSString *)sayHello;
 

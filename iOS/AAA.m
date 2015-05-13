@@ -10,6 +10,10 @@
 
 @implementation AAA
 
++ (NSString *)myClassMethod {
+    return @"x";
+}
+
 - (NSString *)a:(NSString *)argA b:(NSString *)argB {
     return [NSString stringWithFormat:@"%@-%@", argA, argB];
 }
