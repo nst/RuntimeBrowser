@@ -16,6 +16,9 @@
 
 @interface AAA : NSObject <AAAProtocol>
 
+@property (retain) NSString *_retain;
+@property (atomic, retain) NSMutableArray *_atomic_retain;
+
 - (NSString *)a:(NSString *)argA b:(NSString *)argB;
 - (NSString *)sayHello;
 

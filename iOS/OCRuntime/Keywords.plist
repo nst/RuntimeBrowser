@@ -39,6 +39,7 @@
 	<string>extern</string>
 	<string>getter</string>
 	<string>bycopy</string>
+	<string>atomic</string>
 	<string>int8_t</string>
 	<string>super</string>
 	<string>short</string>

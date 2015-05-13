@@ -154,7 +154,7 @@
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
     
-    NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:YES];
+    NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:NO];
     
     return [GCDWebServerDataResponse responseWithText:header];
 }

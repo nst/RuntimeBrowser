@@ -45,13 +45,13 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         else if (c == 'D') {} // The property is dynamic (@dynamic)
         else if (c == 'W') {} // The property is a weak reference (__weak)
         else if (c == 'P') {} // The property is eligible for garbage collection
-        else if (c == 'N') {} // memory - The property is non-atomic (nonatomic)
+        else if (c == 'N') atomicity = @"nonatomic"; // memory - The property is non-atomic (nonatomic)
         else if (c == 'V') {} // oneway
         else comment = [NSString stringWithFormat:@"/* unknown property attribute: %@ */", attribute];
     }
     
     if(displayPropertiesDefaultValues) {
-        if(!atomicity) atomicity = @"nonatomic";
+        if(!atomicity) atomicity = @"atomic";
         if(!rw) rw = @"readwrite";
     }
     
