@@ -11,12 +11,13 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
+#import "GCDWebServer.h"
+#import "GCDWebServerDataResponse.h"
+
 #import "RTBClassDisplayVC.h"
 #import "RTBRuntimeHeader.h"
 #import "RTBClass.h"
 #import "RTBProtocol.h"
-#import "HTTPServer.h"
-#import "HTTPDataResponse.h"
 #import "RTBMyIP.h"
 #import "RTBRuntime.h"
 #import "RTBObjectsTVC.h"
@@ -77,9 +78,9 @@
     RTBObjectsTVC *objectsTVC = [[RTBObjectsTVC alloc] initWithStyle:UITableViewStylePlain];
     Class klass = NSClassFromString(className);
     [objectsTVC setInspectedObject:klass];
-
+    
     UINavigationController *objectsNC = [[UINavigationController alloc] initWithRootViewController:objectsTVC];
-
+    
     UITabBarController *tabBarController = (UITabBarController *)_window.rootViewController;
     [tabBarController presentViewController:objectsNC animated:YES completion:^{
         //
@@ -98,7 +99,7 @@
     return myIP;
 }
 
-- (NSObject<HTTPResponse> *)responseForList {
+- (GCDWebServerDataResponse *)responseForList {
     NSMutableString *ms = [NSMutableString string];
     
     NSArray *classes = [_allClasses sortedClassStubs];
@@ -110,12 +111,10 @@
     
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - List View"];
     
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithHTML:html];
 }
 
-- (NSObject<HTTPResponse> *)responseForProtocols {
+- (GCDWebServerDataResponse *)responseForProtocols {
     NSMutableString *ms = [NSMutableString string];
     
     NSArray *protocols = [_allClasses sortedProtocolStubs];
@@ -126,9 +125,7 @@
     
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Protocols"];
     
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithHTML:html];
 }
 
 + (NSString *)basePath {
@@ -153,30 +150,26 @@
     return basePath;
 }
 
-- (NSObject<HTTPResponse> *)responseForClassHeaderPath:(NSString *)headerPath {
+- (GCDWebServerDataResponse *)responseForClassHeaderPath:(NSString *)headerPath {
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
     
     NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:YES];
     
-    NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithText:header];
 }
 
-- (NSObject<HTTPResponse> *)responseForProtocolHeaderPath:(NSString *)headerPath {
+- (GCDWebServerDataResponse *)responseForProtocolHeaderPath:(NSString *)headerPath {
     NSString *fileName = [headerPath lastPathComponent];
     NSString *protocolName = [fileName stringByDeletingPathExtension];
     
     RTBProtocol *p = [RTBProtocol protocolStubWithProtocolName:protocolName];
     NSString *header = [RTBRuntimeHeader headerForProtocol:p];
     
-    NSData *data = [header dataUsingEncoding:NSISOLatin1StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithText:header];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeWithFrameworksName:(NSString *)name directory:(NSString *)dir {
+- (GCDWebServerDataResponse *)responseForTreeWithFrameworksName:(NSString *)name directory:(NSString *)dir {
     
     if([[name pathExtension] isEqualToString:@"framework"] == NO) return nil;
     
@@ -184,7 +177,7 @@
     
     NSString *end = [[name lastPathComponent] stringByDeletingPathExtension];
     NSString *imagePath = [[dir stringByAppendingPathComponent:name] stringByAppendingPathComponent:end];
-
+    
     if([allClassesByImagesPath objectForKey:imagePath] == NO) {
         [[RTBRuntime sharedInstance] emptyCachesAndReadAllRuntimeClasses];
         allClassesByImagesPath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
@@ -208,12 +201,10 @@
     
     NSString *html = [self htmlPageWithContents:ms title:[name lastPathComponent]];
     
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithHTML:html];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeWithDylibWithName:(NSString *)name {
+- (GCDWebServerResponse *)responseForTreeWithDylibWithName:(NSString *)name {
     
     if([[name pathExtension] isEqualToString:@"dylib"] == NO) return nil;
     
@@ -227,9 +218,9 @@
             *stop = YES;
         }
     }];
-
+    
     /**/
-
+    
     NSMutableString *ms = [NSMutableString string];
     [ms appendFormat:@"%@\n%@ dylibs\n\n", name, @([classes count])];
     
@@ -243,14 +234,12 @@
     
     NSString *html = [self htmlPageWithContents:ms title:[name lastPathComponent]];
     
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithHTML:html];
 }
 
-- (NSObject<HTTPResponse> *)responseForTreeWithPath:(NSString *)path {
+- (GCDWebServerResponse *)responseForTreeWithPath:(NSString *)path {
     
-    NSObject <HTTPResponse> *response = [self responseForTreeWithFrameworksName:path directory:@"/System/Library/"];
+    GCDWebServerResponse *response = [self responseForTreeWithFrameworksName:path directory:@"/System/Library/"];
     if(response) return response;
     
     response = [self responseForTreeWithDylibWithName:path];
@@ -265,15 +254,13 @@
         
         NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser - Tree View"];
         
-        NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-        
-        return [[HTTPDataResponse alloc] initWithData:data];
+        return [GCDWebServerDataResponse responseWithHTML:html];
     }
     
     NSMutableString *ms = [NSMutableString string];
     
     if([@[@"/Frameworks/", @"/PrivateFrameworks/"] containsObject:path]) {
-
+        
         NSDictionary *classStubsByImagePath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
         
         NSMutableArray *files = [NSMutableArray array];
@@ -283,7 +270,7 @@
             if([imagePath hasPrefix:prefix] == NO) {
                 return;
             }
-
+            
             if([[imagePath pathExtension] isEqualToString:@"dylib"]) {
                 // eg. /System/Library/Frameworks/AVFoundation.framework/libAVFAudio.dylib
                 return;
@@ -293,17 +280,17 @@
             if([pathComponents count] < 2) return;
             NSString *frameworkName = [pathComponents objectAtIndex:[pathComponents count]-2];
             if([[frameworkName pathExtension] isEqualToString:@"framework"] == NO) return;
-
+            
             [files addObject:frameworkName];
         }];
         [files sortUsingSelector:@selector(compare:)];
-
+        
         [ms appendFormat:@"%@\n%@ frameworks loaded\n\n", path, @([files count])];
         
         for(NSString *fileName in files) {
             [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", path, fileName, fileName];
         }
-
+        
     } else if([path isEqualToString:@"/lib/"]) {
         
         NSDictionary *classStubsByImagePath = [[RTBRuntime sharedInstance] allClassStubsByImagePath];
@@ -314,9 +301,9 @@
             [files addObject:[imagePath lastPathComponent]];
         }];
         [files sortUsingSelector:@selector(compare:)];
-
+        
         [ms appendFormat:@"%@\n%@ dylibs\n\n", path, @([files count])];
-
+        
         for(NSString *fileName in files) {
             [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", path, fileName, fileName];
         }
@@ -337,9 +324,7 @@
     }
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Tree View"];
     
-    NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-    
-    return [[HTTPDataResponse alloc] initWithData:data];
+    return [GCDWebServerDataResponse responseWithHTML:html];
 }
 
 - (NSString *)htmlHeader {
@@ -357,7 +342,7 @@
     return [@[header, contents, [self htmlFooter]] componentsJoinedByString:@"\n"];
 }
 
-- (NSObject<HTTPResponse> *)responseForPath:(NSString *)path {
+- (GCDWebServerResponse *)responseForPath:(NSString *)path {
     
     BOOL isProtocol = [path hasPrefix:@"/protocols/"] || [path hasPrefix:@"/tree/protocols/"];
     BOOL isHeaderFile = [path hasSuffix:@".h"];
@@ -376,8 +361,8 @@
         NSString *subPath = [path substringFromIndex:[@"/tree" length]];
         return [self responseForTreeWithPath:subPath];
     } else if([path hasPrefix:@"/protocols"]) {
-            return [self responseForProtocols];
-    } else {
+        return [self responseForProtocols];
+    } else if ([path isEqualToString:@"/"]) {
         NSString *s = [NSString stringWithFormat:
                        @" You can browse the loaded <a href=\"/classes/\">classes</a> and <a href=\"/protocols/\">protocols</a>, or browse everything presented in <a href=\"/tree/\">tree</a>.\n\n"
                        " To retrieve the headers as on <a href=\"https://github.com/nst/iOS-Runtime-Headers\">https://github.com/nst/iOS-Runtime-Headers</a>:\n\n"
@@ -386,14 +371,14 @@
         
         NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser"];
         
-        NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
-        
-        return [[HTTPDataResponse alloc] initWithData:data];
+        return [GCDWebServerDataResponse responseWithHTML:html];
     }
+    
+    return nil;
 }
 
 - (void)stopWebServer {
-    [_httpServer stop];
+    [_webServer stop];
 }
 
 - (void)startWebServer {
@@ -401,27 +386,40 @@
     BOOL isConnectedThroughWifi = [ips objectForKey:@"en0"] != nil;
     
     if(isConnectedThroughWifi || TARGET_IPHONE_SIMULATOR) {
-        self.httpServer = [[HTTPServer alloc] init];
-        [_httpServer setType:@"_http._tcp."];
-        [_httpServer setPort:10000];
         
-        NSError *error;
-        BOOL success = [_httpServer start:&error];
+        [GCDWebServer setLogLevel:2];
+        
+        self.webServer = [[GCDWebServer alloc] init];
+        
+        __weak typeof(self) weakSelf = self;
+        
+        [_webServer addDefaultHandlerForMethod:@"GET"
+                                  requestClass:[GCDWebServerRequest class]
+                                  processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+                                      
+                                      __strong typeof(weakSelf) strongSelf = weakSelf;
+                                      if(strongSelf == nil) return nil;
+                                      
+                                      return [strongSelf responseForPath:request.path];
+                                      
+                                  }];
+        
+        BOOL success = [_webServer startWithPort:10000 bonjourName:@"RuntimeBrowser"];
         
         if(success == NO) {
             NSLog(@"Error starting HTTP Server.");
             
-            if(error) {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error starting HTTP Server"
-                                                                message:[error localizedDescription]
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"OK"
-                                                      otherButtonTitles:nil];
-                [alert show];
-            }
-            [_httpServer stop];
-            self.httpServer = nil;
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error starting HTTP Server"
+                                                            message:@""
+                                                           delegate:nil
+                                                  cancelButtonTitle:@"OK"
+                                                  otherButtonTitles:nil];
+            [alert show];
+            
+            [self.webServer stop];
+            self.webServer = nil;
         } else {
+            NSLog(@"Visit %@ in your web browser", _webServer.serverURL);
             [UIApplication sharedApplication].idleTimerDisabled = YES; // prevent sleep
         }
     } else {
@@ -438,7 +436,7 @@
     
     self.window.tintColor = [UIColor purpleColor];
     self.window.backgroundColor = [UIColor whiteColor];
-
+    
     NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
     NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
@@ -455,7 +453,7 @@
 }
 
 - (UInt16)serverPort {
-    return [_httpServer port];
+    return [_webServer port];
 }
 
 - (void)showHeaderForClassName:(NSString *)className {
@@ -466,7 +464,7 @@
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
     navigationController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-
+    
     self.window.rootViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
 }
@@ -479,7 +477,7 @@
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:classDisplayVC];
     navigationController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-
+    
     self.window.rootViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self.window.rootViewController presentViewController:navigationController animated:YES completion:nil];
 }
@@ -491,7 +489,7 @@
 //}
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    [_httpServer stop];
+    [_webServer stop];
 }
 
 @end

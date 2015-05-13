@@ -8,7 +8,7 @@
 
 #import "RTBInfoVC.h"
 #import "RTBAppDelegate.h"
-#import "HTTPServer.h"
+#import "GCDWebServer.h"
 
 @interface RTBInfoVC ()
 
@@ -29,7 +29,7 @@
 - (void)updateWebServerStatus {
 	RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
 	NSString *serverURL = [NSString stringWithFormat:@"http://%@:%d/", [appDelegate myIPAddress], [appDelegate serverPort]];
-	_webServerStatusLabel.text = [[appDelegate httpServer] isRunning] ? serverURL : @"";
+	_webServerStatusLabel.text = [[appDelegate webServer] isRunning] ? serverURL : @"";
 }
 
 - (void)viewWillAppear:(BOOL)animated {
