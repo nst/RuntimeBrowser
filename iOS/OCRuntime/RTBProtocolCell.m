@@ -18,7 +18,7 @@
 - (void)setProtocolObject:(RTBProtocol *)p {
     _protocolObject = p;
     _label.text = [p protocolName];
-    _label.font = [UIFont fontWithName:@"HelveticaNeue-Italic" size:17];
+    _label.font = [UIFont fontWithName:@"HelveticaNeue-LightItalic" size:18];
     self.accessoryType = [p hasChildren] ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 }
 
