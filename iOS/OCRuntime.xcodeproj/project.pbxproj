@@ -31,7 +31,6 @@
 		033574BA1B0354F1004A3CB6 /* GCDWebServerStreamedResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 033574AD1B0354F1004A3CB6 /* GCDWebServerStreamedResponse.m */; };
 		033574BE1B035ABF004A3CB6 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033574BD1B035ABF004A3CB6 /* CFNetwork.framework */; };
 		033574C01B035ACD004A3CB6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 033574BF1B035ACD004A3CB6 /* libz.dylib */; };
-		033574C11B0363F0004A3CB6 /* AAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D7451AFB76EA000CEC87 /* AAA.m */; };
 		0360F4FE17969BBE00F58672 /* RTBSearchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0360F4FD17969BBE00F58672 /* RTBSearchVC.m */; };
 		0360F50817969FDA00F58672 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F50717969FDA00F58672 /* header.png */; };
 		0360F50A1796A1F100F58672 /* framework.png in Resources */ = {isa = PBXBuildFile; fileRef = 0360F5091796A1F100F58672 /* framework.png */; };
@@ -566,7 +565,6 @@
 				033574AF1B0354F1004A3CB6 /* GCDWebServerConnection.m in Sources */,
 				036C40361AF25A8E00477DE1 /* RTBProtocolCell.m in Sources */,
 				033574B11B0354F1004A3CB6 /* GCDWebServerRequest.m in Sources */,
-				033574C11B0363F0004A3CB6 /* AAA.m in Sources */,
 				033574AE1B0354F1004A3CB6 /* GCDWebServer.m in Sources */,
 				033574B01B0354F1004A3CB6 /* GCDWebServerFunctions.m in Sources */,
 			);
