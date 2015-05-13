@@ -105,9 +105,8 @@
     [ms appendFormat:@"%@ classes loaded\n\n", @([classes count])];
     for(RTBClass *cs in classes) {
         //if([cs.stubClassname compare:@"S"] == NSOrderedAscending) continue;
-        [ms appendFormat:@"<A HREF=\"/list/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
+        [ms appendFormat:@"<A HREF=\"/classes/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
     }
-    
     
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - List View"];
     
@@ -261,7 +260,8 @@
         
         NSString *s = @"<a href=\"/tree/Frameworks/\">/Frameworks/</a>\n"
         "<a href=\"/tree/PrivateFrameworks/\">/PrivateFrameworks/</a>\n"
-        "<a href=\"/tree/lib/\">/lib/</a>\n";
+        "<a href=\"/tree/lib/\">/lib/</a>\n"
+        "<a href=\"/tree/protocols/\">/protocols/</a>\n";
         
         NSString *html = [self htmlPageWithContents:s title:@"iOS Runtime Browser - Tree View"];
         
@@ -320,8 +320,21 @@
         for(NSString *fileName in files) {
             [ms appendFormat:@"<a href=\"/tree%@%@\">%@/</a>\n", path, fileName, fileName];
         }
+    } else if([path isEqualToString:@"/protocols/"]) {
+        
+        NSMutableArray *sortedProtocolStubs = [[[RTBRuntime sharedInstance] sortedProtocolStubs] mutableCopy];
+        
+        NSMutableArray *files = [NSMutableArray array];
+        [sortedProtocolStubs enumerateObjectsUsingBlock:^(RTBProtocol *p, NSUInteger idx, BOOL *stop) {
+            [files addObject:[p protocolName]];
+        }];
+        
+        [ms appendFormat:@"%@\n%@ protocols\n\n", path, @([files count])];
+        
+        for(NSString *fileName in files) {
+            [ms appendFormat:@"<a href=\"/tree%@%@.h\">%@.h</a>\n", path, fileName, fileName];
+        }
     }
-    
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - Tree View"];
     
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
@@ -346,7 +359,7 @@
 
 - (NSObject<HTTPResponse> *)responseForPath:(NSString *)path {
     
-    BOOL isProtocol = [path hasPrefix:@"/protocols/"];
+    BOOL isProtocol = [path hasPrefix:@"/protocols/"] || [path hasPrefix:@"/tree/protocols/"];
     BOOL isHeaderFile = [path hasSuffix:@".h"];
     
     if(isHeaderFile) {
@@ -357,7 +370,7 @@
         }
     }
     
-    if([path hasPrefix:@"/list"]) {
+    if([path hasPrefix:@"/classes"]) {
         return [self responseForList];
     } else if ([path hasPrefix:@"/tree"]) {
         NSString *subPath = [path substringFromIndex:[@"/tree" length]];
@@ -366,7 +379,7 @@
             return [self responseForProtocols];
     } else {
         NSString *s = [NSString stringWithFormat:
-                       @" You can browse the loaded classes either by <a href=\"/list/\">list</a> or by <a href=\"/tree/\">tree</a>, as well as <a href=\"/protocols/\">protocols</a>.\n\n"
+                       @" You can browse the loaded <a href=\"/classes/\">classes</a> and <a href=\"/protocols/\">protocols</a>, or browse everything presented in <a href=\"/tree/\">tree</a>.\n\n"
                        " To retrieve the headers as on <a href=\"https://github.com/nst/iOS-Runtime-Headers\">https://github.com/nst/iOS-Runtime-Headers</a>:\n\n"
                        "     1. iOS OCRuntime > Frameworks tab > Load All\n"
                        "     2. $ wget -r http://%@:10000/tree/\n", [self myIPAddress]];
@@ -424,7 +437,8 @@
     /**/
     
     self.window.tintColor = [UIColor purpleColor];
-    
+    self.window.backgroundColor = [UIColor whiteColor];
+
     NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
     NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
