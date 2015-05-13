@@ -115,7 +115,11 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         [ms appendString:part];
         
         if(hasArgs) {
-            NSString *s = [NSString stringWithFormat:@":(%@)arg%@", argumentsTypes[i+2], @(i+1)];
+            NSString *argType = argumentsTypes[i+2];
+            if([argType hasPrefix:@"<"] && [argType hasSuffix:@"> *"]) { // eg. "<MyProtocol> *" -> "id <MyProtocol>"
+                argType = [NSString stringWithFormat:@"id %@", [argType substringToIndex:[argType length] - 2]];
+            }
+            NSString *s = [NSString stringWithFormat:@":(%@)arg%@", argType, @(i+1)];
             
             if(paddingIndex == 0) {
                 paddingIndex = [ms length];
