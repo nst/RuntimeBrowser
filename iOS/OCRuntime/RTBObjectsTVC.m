@@ -51,9 +51,8 @@
 
     Class c = [_object class];
     
-    RTBClass *classObject = [[RTBRuntime sharedInstance] classStubForClassName:NSStringFromClass(c)];
-    
     do {
+        RTBClass *classObject = [[RTBRuntime sharedInstance] classStubForClassName:NSStringFromClass(c)];
         NSArray *methods = [classObject sortedMethodsIsClassMethod:objectIsAClass];
         NSDictionary *d = @{ @"ClassName":NSStringFromClass(c), @"Methods":methods };
         [_methodsSections addObject:d];
