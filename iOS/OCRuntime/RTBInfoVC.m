@@ -22,9 +22,9 @@
 
 @implementation RTBInfoVC
 
-- (void)dismissModalView:(id)sender {
-	[self dismissViewControllerAnimated:YES completion:nil];
-}
+//- (void)dismissModalView:(id)sender {
+//	[self dismissViewControllerAnimated:YES completion:nil];
+//}
 
 - (void)updateWebServerStatus {
 	RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -46,7 +46,7 @@
     [super viewDidLoad];
     
     self.title = NSLocalizedString(@"About", nil);
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissModalView:)];
+//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissModalView:)];
 }
 
 - (IBAction)openWebSiteAction:(id)sender {

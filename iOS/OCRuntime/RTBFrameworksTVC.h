@@ -22,6 +22,4 @@
 
 - (IBAction)loadAllFrameworks:(id)sender;
 
-- (IBAction)showInfo:(id)sender;
-
 @end

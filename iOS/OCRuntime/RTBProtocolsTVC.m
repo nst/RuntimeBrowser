@@ -13,7 +13,7 @@
 #import "RTBListTVC.h"
 
 @interface RTBProtocolsTVC ()
-
+@property (nonatomic, strong) NSString *filterStringLowercase;
 @end
 
 @implementation RTBProtocolsTVC
@@ -42,76 +42,46 @@
 }
 
 - (void)setupIndexedClassStubs {
+
+    self.navigationItem.title = [NSString stringWithFormat:@"All Protocols (%d)", [self.protocolStubs count]];
+
+    NSMutableArray *ma = [[NSMutableArray alloc] init];
     
-    __weak typeof(self) weakSelf = self;
+    unichar firstLetter = 0;
+    unichar currentLetter = 0;
+    NSMutableArray *currentLetterProtocolStubs = [[NSMutableArray alloc] init];
     
-    NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
+    for(RTBProtocol *p in self.protocolStubs) {
         
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if(strongSelf == nil) return;
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if(strongSelf == nil) return;
-            
-            strongSelf.navigationItem.title = [NSString stringWithFormat:@"All Protocols (%d)", [strongSelf.protocolStubs count]];
-        }];
-        
-        NSMutableArray *ma = [[NSMutableArray alloc] init];
-        
-        unichar firstLetter = 0;
-        unichar currentLetter = 0;
-        NSMutableArray *currentLetterProtocolStubs = [[NSMutableArray alloc] init];
-        
-        for(RTBProtocol *p in strongSelf.protocolStubs) {
-            if([p.protocolName length] < 1) continue;
-            
-            firstLetter = [p.protocolName characterAtIndex:0];
-            
-            if(currentLetter == 0) {
-                currentLetter = firstLetter;
-            }
-            
-            BOOL letterChange = firstLetter != currentLetter;
-            
-            if(letterChange) {
-                NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterProtocolStubs
-                                                              forKey:[NSString stringWithFormat:@"%c", currentLetter]];
-                [ma addObject:d];
-                currentLetterProtocolStubs = [[NSMutableArray alloc] init];
-                currentLetter = firstLetter;
-            }
-            
-            [currentLetterProtocolStubs addObject:p];
-            
-            if(p == [strongSelf.protocolStubs lastObject]) {
-                NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterProtocolStubs
-                                                              forKey:[NSString stringWithFormat:@"%c", currentLetter]];
-                [ma addObject:d];
-            }
+        if(_filterStringLowercase != nil && [[p.protocolName lowercaseString] containsString:_filterStringLowercase] == NO) {
+            continue;
         }
         
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if(strongSelf == nil) return;
-            
-            strongSelf.protocolStubsDictionaries = ma;
-        }];
+        firstLetter = [p.protocolName characterAtIndex:0];
         
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if(strongSelf == nil) return;
-            
-            [strongSelf.tableView reloadData];
-        }];
+        if(currentLetter == 0) {
+            currentLetter = firstLetter;
+        }
         
-    }];
+        BOOL letterChange = firstLetter != currentLetter;
+        
+        if(letterChange) {
+            NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterProtocolStubs
+                                                          forKey:[NSString stringWithFormat:@"%c", currentLetter]];
+            [ma addObject:d];
+            currentLetterProtocolStubs = [[NSMutableArray alloc] init];
+            currentLetter = firstLetter;
+        }
+        
+        [currentLetterProtocolStubs addObject:p];
+    }
+
+    NSDictionary *d = [NSDictionary dictionaryWithObject:currentLetterProtocolStubs
+                                                  forKey:[NSString stringWithFormat:@"%c", currentLetter]];
+    [ma addObject:d];
     
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-    [queue addOperation:op];
+    self.protocolStubsDictionaries = ma;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
@@ -143,11 +113,16 @@
     return cell;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-
+- (RTBProtocol *)protocolStubAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *d = [_protocolStubsDictionaries objectAtIndex:indexPath.section];
     NSArray *protocols = [[d allValues] lastObject];
     RTBProtocol *p = [protocols objectAtIndex:indexPath.row];
+    return p;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    RTBProtocol *p = [self protocolStubAtIndexPath:indexPath];
     
     NSArray *children = [p children];
     
@@ -159,6 +134,30 @@
     listTVC.classStubs = children;
     
     [self.navigationController pushViewController:listTVC animated:YES];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    // The header for the section is the region name -- get this from the dictionary at the section index
+    if(section >= [_protocolStubsDictionaries count]) return @"";
+    
+    NSDictionary *d = [_protocolStubsDictionaries objectAtIndex:section];
+    
+    NSString *letter = [[d allKeys] lastObject];
+    NSUInteger i = [[[d allValues] lastObject] count];
+    return [NSString stringWithFormat:@"%@ (%@)", letter, @(i)];
+}
+
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+
+    NSMutableArray *ma = [[NSMutableArray alloc] init];
+    
+    for(NSDictionary *d in _protocolStubsDictionaries) {
+        [ma addObject:[[d allKeys] lastObject]];
+    }
+    
+    [ma sortedArrayUsingSelector:@selector(compare:)];
+    
+    return ma;
 }
 
 /*
@@ -204,5 +203,18 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+
+#pragma mark UISearchBarDelegate
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText { // called when text changes (including clear)
+    self.filterStringLowercase = [searchText length] ? [searchText lowercaseString] : nil;
+    [self setupIndexedClassStubs];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    self.filterStringLowercase = nil;
+    [self setupIndexedClassStubs];
+}
 
 @end

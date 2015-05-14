@@ -74,6 +74,11 @@
     return ma;
 }
 
+- (NSString *)description {
+    NSString *superDescription = [super description];
+    return [NSString stringWithFormat:@"%@ - %@", superDescription, _protocolName];
+}
+
 - (BOOL)hasChildren {
     return [_conformingClassesStubsSet count] > 0;
 }
