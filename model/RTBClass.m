@@ -46,7 +46,7 @@
 #endif
 
 @interface RTBClass()
-@property (nonatomic, retain) NSString *stubClassname;
+@property (nonatomic, retain) NSString *classObjectName;
 @property (nonatomic, retain) NSMutableArray *subclassesStubs;
 @property (nonatomic, retain) NSString *imagePath;
 @property (nonatomic) BOOL shouldSortSubclasses;
@@ -57,7 +57,7 @@
 
 @implementation RTBClass
 
-@synthesize stubClassname;
+@synthesize classObjectName;
 @synthesize imagePath;
 @synthesize subclassesStubs;
 
@@ -74,7 +74,7 @@
     
     NSURL *pathURL = [NSURL fileURLWithPath:path];
     
-    Class klass = NSClassFromString(stubClassname);
+    Class klass = NSClassFromString(classObjectName);
     NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
     
     NSError *error = nil;
@@ -87,7 +87,7 @@
 }
 
 - (NSMutableSet *)iVarNames {
-    Class klass = NSClassFromString(stubClassname);
+    Class klass = NSClassFromString(classObjectName);
     
     NSMutableSet *ms = [NSMutableSet set];
     
@@ -132,7 +132,7 @@
     
     if(_cachedMethodsNamePartsLowercase == nil) {
         
-        Class klass = NSClassFromString(stubClassname);
+        Class klass = NSClassFromString(classObjectName);
         Class metaClass = objc_getMetaClass(class_getName(klass));
         
         NSMutableSet *ms = [NSMutableSet set];
@@ -150,9 +150,9 @@
 
 - (NSMutableSet *)protocolsNames {
     
-    Class class = NSClassFromString(stubClassname);
+    Class class = NSClassFromString(classObjectName);
     if(class == nil) {
-        NSLog(@"-- no class named %@", stubClassname);
+        NSLog(@"-- no class named %@", classObjectName);
         return nil;
     }
     
@@ -181,9 +181,9 @@
 
 - (NSSet *)iVarDecodedTypes {
     
-    Class class = NSClassFromString(stubClassname);
+    Class class = NSClassFromString(classObjectName);
     if(class == nil) {
-        NSLog(@"-- no class named %@", stubClassname);
+        NSLog(@"-- no class named %@", classObjectName);
         return nil;
     }
     
@@ -221,8 +221,8 @@
 
 - (NSMutableSet *)protocolsNamesWithSuperclassesProtocols:(BOOL)includeSuperclassesProtocols {
     
-    Class class = NSClassFromString(stubClassname);
-    NSAssert(class, @"no class named %@", stubClassname);
+    Class class = NSClassFromString(classObjectName);
+    NSAssert(class, @"no class named %@", classObjectName);
     
     NSMutableSet *ms = [self protocolsNames];
     
@@ -243,7 +243,7 @@
     
     NSString *className = NSStringFromClass(klass);
     
-    [self setStubClassname:className];
+    [self setClassObjectName:className];
     
     const char* imageNameC = class_getImageName(klass);
     
@@ -277,11 +277,11 @@
 }
 
 - (NSString *)description {
-    return stubClassname;
+    return classObjectName;
 }
 
 - (NSComparisonResult)compare:(RTBClass *)otherCS {
-    return [stubClassname compare:[otherCS stubClassname]];
+    return [classObjectName compare:[otherCS classObjectName]];
 }
 
 - (BOOL)containsSearchString:(NSString *)searchString {
@@ -289,7 +289,7 @@
     
     NSString *ss = [searchString lowercaseString];
     
-    if([[stubClassname lowercaseString] rangeOfString:ss].location != NSNotFound) {
+    if([[classObjectName lowercaseString] rangeOfString:ss].location != NSNotFound) {
         return YES;
     }
     
@@ -322,8 +322,8 @@
 
 - (NSArray *)sortedIvarDictionaries {
     
-    Class class = NSClassFromString(stubClassname);
-    NSAssert(class, @"no class named %@", stubClassname);
+    Class class = NSClassFromString(classObjectName);
+    NSAssert(class, @"no class named %@", classObjectName);
 
     unsigned int ivarListCount;
     Ivar *ivarList = class_copyIvarList(class, &ivarListCount);
@@ -355,8 +355,8 @@
 
 - (NSArray *)sortedMethodsIsClassMethod:(BOOL)isClassMethod {
     
-    Class aClass = NSClassFromString(stubClassname);
-    NSAssert(aClass, @"no class named %@", stubClassname);
+    Class aClass = NSClassFromString(classObjectName);
+    NSAssert(aClass, @"no class named %@", classObjectName);
 
     Class class = aClass;
     
@@ -386,8 +386,8 @@
 
 - (NSArray *)sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
     
-    Class aClass = NSClassFromString(stubClassname);
-    NSAssert(aClass, @"no class named %@", stubClassname);
+    Class aClass = NSClassFromString(classObjectName);
+    NSAssert(aClass, @"no class named %@", classObjectName);
 
     NSMutableArray *ma = [NSMutableArray array];
     
@@ -423,7 +423,7 @@
 }
 
 - (NSString *)nodeName {
-    return stubClassname;
+    return classObjectName;
 }
 
 - (NSString *)nodeInfo {

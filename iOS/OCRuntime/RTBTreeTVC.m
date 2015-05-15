@@ -72,9 +72,8 @@
     
 	// Set up the cell
 	RTBClass *cs = [_classStubs objectAtIndex:indexPath.row];
-//    cell.imageView.image = [UIImage imageNamed:@"header.png"];
-//    cell.button.imageView.image = [UIImage imageNamed:@"header.png"];
-    cell.className = cs.stubClassname;
+#warning TODO: cs.class = ..
+    cell.className = cs.classObjectName;
 	cell.accessoryType = [[cs subclassesStubs] count] > 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 	
 	return cell;
@@ -89,7 +88,7 @@
     RTBTreeTVC *tvc = (RTBTreeTVC *)[sb instantiateViewControllerWithIdentifier:@"RTBTreeTVC"];
     tvc.isSubLevel = YES;
 	tvc.classStubs = [cs subclassesStubs];
-	tvc.title = cs.stubClassname;
+	tvc.title = cs.classObjectName;
 	[self.navigationController pushViewController:tvc animated:YES];
 }
 

@@ -8,11 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@class RTBClassDisplayVC;
-
 @interface RTBListTVC : UITableViewController <UITableViewDataSource, UITableViewDelegate>
 
-@property (nonatomic, strong) RTBClassDisplayVC *classDisplayVC;
 @property (nonatomic, strong) NSMutableArray *classStubsDictionaries; // [{'A':classStubs}, {'B':classStubs}]
 @property (nonatomic, strong) NSArray *classStubs;
 @property (nonatomic, strong) NSString *titleForNavigationItem;

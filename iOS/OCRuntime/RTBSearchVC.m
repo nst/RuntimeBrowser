@@ -73,7 +73,7 @@
     
 	// Set up the cell
 	RTBClass *cs = [_foundClasses objectAtIndex:indexPath.row];
-	cell.className = cs.stubClassname;
+	cell.className = cs.classObjectName;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
     return cell;

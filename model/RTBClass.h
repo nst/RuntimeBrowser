@@ -48,7 +48,7 @@ The purpose of ClassStub is to have a way of accessing ALL of a class's currentl
 
 - (void)addSubclassStub:(RTBClass *)klassStub;
 
-- (NSString *)stubClassname;
+- (NSString *)classObjectName;
 - (NSString *)imagePath;
 
 - (NSSet *)iVarNames;

@@ -9,7 +9,6 @@
 #import "RTBListTVC.h"
 #import "RTBRuntime.h"
 #import "RTBClassCell.h"
-#import "RTBClassDisplayVC.h"
 #import "RTBClass.h"
 
 @interface RTBListTVC ()
@@ -28,7 +27,6 @@
     
     self.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", self.titleForNavigationItem, [self.classStubs count]];
     
-    
     NSMutableArray *ma = [[NSMutableArray alloc] init];
     
     unichar firstLetter = 0;
@@ -37,11 +35,11 @@
     
     for(RTBClass *cs in self.classStubs) {
         
-        if(_filterStringLowercase && [[cs.stubClassname lowercaseString] containsString:_filterStringLowercase] == NO) {
+        if(_filterStringLowercase && [[cs.classObjectName lowercaseString] containsString:_filterStringLowercase] == NO) {
             continue;
         }
 
-        firstLetter = [cs.stubClassname characterAtIndex:0];
+        firstLetter = [cs.classObjectName characterAtIndex:0];
         
         if(currentLetter == 0) {
             currentLetter = firstLetter;
@@ -81,7 +79,6 @@
 }
 
 - (void)viewDidUnload {
-    self.classDisplayVC = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super viewDidUnload];
 }
@@ -138,7 +135,7 @@
     NSArray *theClassStubs = [[d allValues] lastObject];
     
     RTBClass *cs = [theClassStubs objectAtIndex:indexPath.row];
-    cell.className = cs.stubClassname;
+    cell.className = cs.classObjectName;
     cell.accessoryType = UITableViewCellAccessoryNone;
     
     return cell;

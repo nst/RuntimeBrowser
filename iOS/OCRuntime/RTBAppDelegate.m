@@ -106,7 +106,7 @@
     [ms appendFormat:@"%@ classes loaded\n\n", @([classes count])];
     for(RTBClass *cs in classes) {
         //if([cs.stubClassname compare:@"S"] == NSOrderedAscending) continue;
-        [ms appendFormat:@"<A HREF=\"/classes/%@.h\">%@.h</A>\n", cs.stubClassname, cs.stubClassname];
+        [ms appendFormat:@"<A HREF=\"/classes/%@.h\">%@.h</A>\n", cs.classObjectName, cs.classObjectName];
     }
     
     NSString *html = [self htmlPageWithContents:ms title:@"iOS Runtime Browser - List View"];
