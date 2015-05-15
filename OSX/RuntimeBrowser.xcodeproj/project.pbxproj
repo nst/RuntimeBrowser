@@ -49,6 +49,10 @@
 		0331C1F81AE59C0B002A641E /* RTBRuntimeHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBRuntimeHeader.h; sourceTree = "<group>"; };
 		0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBRuntimeHeader.m; sourceTree = "<group>"; };
 		03338589131D9738002654D3 /* RuntimeBrowser.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = RuntimeBrowser.icns; sourceTree = "<group>"; };
+		033C39A41B068639004A3E41 /* AAA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAA.h; path = ../iOS/AAA.h; sourceTree = "<group>"; };
+		033C39A51B068639004A3E41 /* AAA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AAA.m; path = ../iOS/AAA.m; sourceTree = "<group>"; };
+		033C39A61B068639004A3E41 /* BBB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BBB.h; path = ../iOS/BBB.h; sourceTree = "<group>"; };
+		033C39A71B068639004A3E41 /* BBB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BBB.m; path = ../iOS/BBB.m; sourceTree = "<group>"; };
 		03561DB30E4BA18A002FEBCD /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		0379BB7E179D0B4000F4B8BF /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
 		0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyntaxColoring.m"; sourceTree = "<group>"; };
@@ -92,6 +96,10 @@
 		030F150A12DEE5D8000180B1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				033C39A41B068639004A3E41 /* AAA.h */,
+				033C39A51B068639004A3E41 /* AAA.m */,
+				033C39A61B068639004A3E41 /* BBB.h */,
+				033C39A71B068639004A3E41 /* BBB.m */,
 				0331C1F61AE59C0B002A641E /* RTBTypeDecoder.h */,
 				0331C1F71AE59C0B002A641E /* RTBTypeDecoder.m */,
 				0331C1F81AE59C0B002A641E /* RTBRuntimeHeader.h */,
