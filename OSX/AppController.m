@@ -453,42 +453,40 @@
     
     __weak typeof(self) weakSelf = self;
     
-    for (RTBClass *classStub in classStubs) {
+    [op addExecutionBlock:^{
         
-        [op addExecutionBlock:^{
-            
-            __strong NSBlockOperation *strongOp = weakOp;
-            if(strongOp == nil) return;
-            
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if(strongSelf == nil) return;
-            
-            if([strongOp isCancelled]) {
-                //NSLog(@"-- op isCancelled");
-                return;
-            }
+        __strong NSBlockOperation *strongOp = weakOp;
+        if(strongOp == nil) return;
+        
+        if([strongOp isCancelled]) {
+            return;
+        }
+        
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if(strongSelf == nil) return;
+        
+        for (RTBClass *classStub in classStubs) {
             
             BOOL found = [classStub containsSearchString:searchString];
             
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(found) {
                 
-                __strong typeof(weakSelf) strongSelf = weakSelf;
-                if(strongSelf == nil) return;
-                
-                if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
-                    //rNSLog(@"-- discard results for %@", searchString);
-                    [strongOp cancel];
-                    return;
-                }
-                
-                if(found) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    
+                    __strong typeof(weakSelf) strongSelf = weakSelf;
+                    if(strongSelf == nil) return;
+                    
+                    if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
+                        //rNSLog(@"-- discard results for %@", searchString);
+                        [strongOp cancel];
+                        return;
+                    }
+                    
                     [strongSelf foundMatchingClass:classStub forSearchString:searchString];
-                }
-                
-            }];
-        }];
-        
-    }
+                }];
+            }
+        }
+    }];
     
     [op setCompletionBlock:^{
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{

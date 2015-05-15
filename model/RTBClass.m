@@ -285,7 +285,6 @@
 }
 
 - (BOOL)containsSearchString:(NSString *)searchString {
-    // TODO: cache searchStrings known to be in the class
     
     NSString *ss = [searchString lowercaseString];
     

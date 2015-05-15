@@ -63,9 +63,9 @@ static NSString *MODIFIER_LABEL = @"modifier";
 
 static NSString *IVAR_TAB = @"    ";
 
-// caution, these caches will be accessed by several thread in the same time when using the embedded web server
-static NSMutableDictionary *cachedDecodedTypesForEncodedTypes = nil;
-static NSMutableDictionary *cachedDecodedTypesForEncodedTypesFlat = nil;
+// caution, these caches will be accessed by several thread in the same time when using the embedded web server or search from OS X RuntimeBrowser
+//static NSMutableDictionary *cachedDecodedTypesForEncodedTypes = nil;
+//static NSMutableDictionary *cachedDecodedTypesForEncodedTypesFlat = nil;
 
 #define isTypeSpecifier(fc) (fc=='r'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='!')
 
@@ -112,19 +112,19 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
 
 + (NSArray *)decodeTypes:(NSString *)encodedTypes flat:(BOOL)flat {
 
-    if(cachedDecodedTypesForEncodedTypes == nil) {
-        cachedDecodedTypesForEncodedTypes = [NSMutableDictionary dictionary];
-    }
+//    if(cachedDecodedTypesForEncodedTypes == nil) {
+//        cachedDecodedTypesForEncodedTypes = [NSMutableDictionary dictionary];
+//    }
+//    
+//    if(cachedDecodedTypesForEncodedTypesFlat == nil) {
+//        cachedDecodedTypesForEncodedTypesFlat = [NSMutableDictionary dictionary];
+//    }
+//    
+//    NSMutableDictionary *cacheDictionary = flat ? cachedDecodedTypesForEncodedTypesFlat : cachedDecodedTypesForEncodedTypes;
+//    
+//    NSArray *cachedDecodedTypes = cacheDictionary[encodedTypes];
+//    if(cachedDecodedTypes) return cachedDecodedTypes;
     
-    if(cachedDecodedTypesForEncodedTypesFlat == nil) {
-        cachedDecodedTypesForEncodedTypesFlat = [NSMutableDictionary dictionary];
-    }
-    
-    NSMutableDictionary *cacheDictionary = flat ? cachedDecodedTypesForEncodedTypesFlat : cachedDecodedTypesForEncodedTypes;
-    
-    NSArray *cachedDecodedTypes = cacheDictionary[encodedTypes];
-    if(cachedDecodedTypes) return cachedDecodedTypes;
-        
     RTBTypeDecoder *typeDecoder = [[self alloc] init];
     typeDecoder.showCommentForBlocks = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"];
     
@@ -150,7 +150,7 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
         [ma addObject:d[TYPE_LABEL]];
     }
     
-    cacheDictionary[encodedTypes] = ma;
+//    cacheDictionary[encodedTypes] = ma;
     
     return ma;
 }
