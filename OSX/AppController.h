@@ -79,7 +79,6 @@ typedef enum {
 @property (nonatomic, strong) IBOutlet NSSegmentedControl *segmentedControl;
 @property (nonatomic, strong) IBOutlet NSSearchField *searchField;
 @property (nonatomic, strong) NSWindow *mainWindow;
-//@property (nonatomic, retain) NSString *openDir;
 @property (nonatomic, strong) NSURL *saveDirURL;
 @property (nonatomic, strong) NSArray *keywords;
 @property (nonatomic, strong) RTBRuntime *allClasses;

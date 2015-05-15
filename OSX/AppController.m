@@ -781,7 +781,7 @@
         if([item isKindOfClass:[RTBClass class]]) {
             RTBClass *cs = (RTBClass *)item;
             
-            NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
+            NSString *filename = [[cs classObjectName] stringByAppendingPathExtension:@"h"];
             NSString *path = [directoryPath stringByAppendingPathComponent:filename];
             
             [cs writeAtPath:path];
@@ -804,7 +804,7 @@
             
             for(RTBClass *cs in [bn children]) {
                 
-                NSString *filename = [[cs stubClassname] stringByAppendingPathExtension:@"h"];
+                NSString *filename = [[cs classObjectName] stringByAppendingPathExtension:@"h"];
                 NSString *path = [directoryPath stringByAppendingPathComponent:filename];
                 
                 [cs writeAtPath:path];
