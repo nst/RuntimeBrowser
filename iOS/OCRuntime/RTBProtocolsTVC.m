@@ -208,12 +208,17 @@
 #pragma mark UISearchBarDelegate
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText { // called when text changes (including clear)
-    self.filterStringLowercase = [searchText length] ? [searchText lowercaseString] : nil;
-    [self setupIndexedClassStubs];
-}
-
-- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-    self.filterStringLowercase = nil;
+    
+    if([searchText length] > 0) {
+        self.filterStringLowercase = searchText;
+    } else {
+        self.filterStringLowercase = nil;
+        
+        [searchBar performSelector:@selector(resignFirstResponder)
+                        withObject:nil
+                        afterDelay:0];
+    }
+    
     [self setupIndexedClassStubs];
 }
 
