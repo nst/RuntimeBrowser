@@ -82,8 +82,6 @@ static RTBRuntime *sharedInstance;
 }
 
 - (RTBClass *)getOrCreateClassStubsRecursivelyForClass:(Class)klass {
-	
-    //self.allProtocols = [NSMutableDictionary dictionary];
     
 	//Lookup the ClassStub for klass or create one if none exists and add it to +allClassStuds.
     NSString *klassName = NSStringFromClass(klass);
@@ -99,11 +97,17 @@ static RTBRuntime *sharedInstance;
 		NSLog(@"-- cannot create classStub for %@, ignore it", klassName);
 		return nil;
 	}
-	
+
+    NSString *path = [cs imagePath];
+    
+    // users may want to ignore OCRuntime classes
+    BOOL showOCRuntimeClasses = [[NSUserDefaults standardUserDefaults] boolForKey:@"ShowOCRuntimeClasses"];
+    if(showOCRuntimeClasses == NO && [path hasSuffix:@"OCRuntime.app/OCRuntime"]) {
+        //NSLog(@"-- ignore %@", cs.classObjectName);
+        return nil;
+    }
+
 	_allClassStubsByName[klassName] = cs; // Add it to our uniquing dictionary.
-	
-	/* fill stubsForImage */
-	NSString *path = [cs imagePath];
     
 #if TARGET_IPHONE_SIMULATOR
     // remove path prefix, eg.
@@ -119,6 +123,8 @@ static RTBRuntime *sharedInstance;
         }
     }
 #endif
+    
+    // ShowOCRuntimeClasses
     
 	if(path) {
 		NSMutableArray *stubsForImage = [_allClassStubsByImagePath valueForKey:path];

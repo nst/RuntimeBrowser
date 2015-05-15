@@ -443,7 +443,7 @@
     
     self.allClasses = [RTBRuntime sharedInstance];
     
-    BOOL startWebServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"EnableWebServer"];
+    BOOL startWebServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBEnableWebServer"];
     
     if(startWebServer) {
         [self startWebServer];

@@ -14,7 +14,6 @@
 
 @property (nonatomic, retain) IBOutlet UILabel *webServerStatusLabel;
 
-@property (nonatomic, retain) IBOutlet UISwitch *showPreludeInHeadersSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *showOCRuntimeClassesSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *toggleWebServerSwitch;
 
@@ -35,9 +34,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [_showPreludeInHeadersSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"ShowPreludeInHeaders"] boolValue]];
-    [_showOCRuntimeClassesSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"ShowOCRuntimeClasses"] boolValue]];
-    [_toggleWebServerSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"EnableWebServer"] boolValue]];
+    [_showOCRuntimeClassesSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"RTBShowOCRuntimeClasses"] boolValue]];
+    [_toggleWebServerSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"RTBEnableWebServer"] boolValue]];
 
     [self updateWebServerStatus];
 }
@@ -59,16 +57,12 @@
 	self.webServerStatusLabel = nil;
 }
 
-- (IBAction)showPreludeInHeadersAction:(id)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"ShowPreludeInHeaders"];
-}
-
 - (IBAction)showOCRuntimeClassesAction:(id)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"ShowOCRuntimeClasses"];
+    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"RTBShowOCRuntimeClasses"];
 }
 
 - (IBAction)toggleWebServerAction:(id)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"EnableWebServer"];
+    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"RTBEnableWebServer"];
 
     RTBAppDelegate *appDelegate = (RTBAppDelegate *)[[UIApplication sharedApplication] delegate];
 
