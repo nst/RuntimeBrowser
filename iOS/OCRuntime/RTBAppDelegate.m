@@ -154,7 +154,8 @@
     NSString *fileName = [headerPath lastPathComponent];
     NSString *className = [fileName stringByDeletingPathExtension];
     
-    NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:NO];
+    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
+    NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     
     return [GCDWebServerDataResponse responseWithText:header];
 }
@@ -430,10 +431,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"RTBLegacyMode"]; // be explicit..
-    
-    /**/
-    
     self.window.tintColor = [UIColor purpleColor];
     self.window.backgroundColor = [UIColor whiteColor];
     
@@ -442,6 +439,8 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
     
     self.allClasses = [RTBRuntime sharedInstance];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"RTBDisplayPropertiesDefaultValues"];
     
     BOOL startWebServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBEnableWebServer"];
     

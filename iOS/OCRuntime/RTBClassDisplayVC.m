@@ -69,7 +69,8 @@
     NSString *header = nil;
     
     if(_className) {
-        header = [RTBRuntimeHeader headerForClass:NSClassFromString(self.className) displayPropertiesDefaultValues:NO];
+        BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
+        header = [RTBRuntimeHeader headerForClass:NSClassFromString(self.className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     } else if (_protocolName) {
         RTBProtocol *p = [RTBProtocol protocolStubWithProtocolName:_protocolName];
         header = [RTBRuntimeHeader headerForProtocol:p];

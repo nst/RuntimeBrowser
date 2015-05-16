@@ -111,7 +111,7 @@
         [_label setStringValue:@"Select a Class"];
         [_headerTextView setString:@""];
         
-        RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+        RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
         if(viewType == RBBrowserViewTypeImages) {
             NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
             [_classBrowser setTitle:rootTitle ofColumn:0];
@@ -292,7 +292,7 @@
 }
 
 - (BOOL)shouldShowDisclosureIndicatorOnClasses {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
     return viewType == RBBrowserViewTypeTree;
 }
 
@@ -301,7 +301,7 @@
 }
 
 - (void)changeViewTypeTo:(RBBrowserViewType)viewType {
-    [[NSUserDefaults standardUserDefaults] setInteger:viewType forKey:@"ViewType"];
+    [[NSUserDefaults standardUserDefaults] setInteger:viewType forKey:@"RTBViewType"];
     
     NSUInteger nbOfColumns = 1;
     if(viewType == RBBrowserViewTypeImages) nbOfColumns = 2;
@@ -603,7 +603,7 @@
     
     [_headerTextView setFont:[NSFont userFixedPitchFontOfSize:11.0]]; // TODO -- make size and font a default
     
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
     [self changeViewTypeTo:viewType];
 }
 
@@ -694,7 +694,7 @@
 #pragma mark NSBrowserDelegate
 
 - (BrowserNode *)rootItemForBrowser:(NSBrowser *)browser {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
     
     NSString *searchString = [_searchField stringValue];
     if([searchString length] > 0) {
@@ -709,7 +709,7 @@
 }
 
 - (NSInteger)browser:(NSBrowser *)browser numberOfChildrenOfItem:(id)item {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
     if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBClass class]]) return 0;
     
     return [[item children] count];
@@ -720,7 +720,7 @@
 }
 
 - (BOOL)browser:(NSBrowser *)browser isLeafItem:(id)item {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"ViewType"];
+    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
     
     if(viewType == RBBrowserViewTypeList) return YES;
     if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;

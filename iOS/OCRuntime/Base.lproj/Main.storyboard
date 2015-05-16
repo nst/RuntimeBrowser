@@ -273,12 +273,26 @@ We have found this to be a useful development tool. Please note, however, that e
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="cgc-YJ-XbT">
+                                <rect key="frame" x="251" y="297" width="51" height="31"/>
+                                <connections>
+                                    <action selector="addBlockCommentsAction:" destination="z37-Zv-0FS" eventType="valueChanged" id="OI6-yr-FwR"/>
+                                    <action selector="showOCRuntimeClassesAction:" destination="z37-Zv-0FS" eventType="valueChanged" id="y91-0Z-dUg"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Add Comments for Blocks" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6AX-AQ-Dp7">
+                                <rect key="frame" x="30" y="302" width="213" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="dN9-UO-ZoB" firstAttribute="leading" secondItem="tkK-cB-p3M" secondAttribute="trailing" constant="8" symbolic="YES" id="1JB-pI-Bs8"/>
+                            <constraint firstItem="cgc-YJ-XbT" firstAttribute="leading" secondItem="6AX-AQ-Dp7" secondAttribute="trailing" constant="8" symbolic="YES" id="7Bj-jN-o62"/>
                             <constraint firstItem="dN9-UO-ZoB" firstAttribute="leading" secondItem="WZJ-DL-319" secondAttribute="leading" id="7Ci-JJ-Kqf"/>
                             <constraint firstItem="Dk9-Xb-psz" firstAttribute="top" secondItem="j7q-Et-3km" secondAttribute="bottom" constant="8" symbolic="YES" id="9xA-YI-cZT"/>
+                            <constraint firstItem="6AX-AQ-Dp7" firstAttribute="centerY" secondItem="cgc-YJ-XbT" secondAttribute="centerY" id="A2f-KW-f8g"/>
                             <constraint firstItem="j7q-Et-3km" firstAttribute="top" secondItem="e0G-4p-y2g" secondAttribute="top" constant="20" symbolic="YES" id="BnS-Sy-dkC"/>
                             <constraint firstAttribute="bottom" secondItem="Vr7-hh-3aa" secondAttribute="bottom" constant="20" symbolic="YES" id="DlG-y2-LID"/>
                             <constraint firstItem="j7q-Et-3km" firstAttribute="leading" secondItem="e0G-4p-y2g" secondAttribute="leading" constant="20" symbolic="YES" id="Ien-si-KiA"/>
@@ -301,6 +315,7 @@ We have found this to be a useful development tool. Please note, however, that e
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
+                        <outlet property="addCommentForBlocksSwitch" destination="cgc-YJ-XbT" id="Pr2-pP-9vE"/>
                         <outlet property="showOCRuntimeClassesSwitch" destination="dN9-UO-ZoB" id="Wlc-cm-Gco"/>
                         <outlet property="toggleWebServerSwitch" destination="WZJ-DL-319" id="Ldp-fI-Nvs"/>
                         <outlet property="webServerStatusLabel" destination="Vr7-hh-3aa" id="9M7-1I-gGJ"/>

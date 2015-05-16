@@ -75,7 +75,8 @@
     NSURL *pathURL = [NSURL fileURLWithPath:path];
     
     Class klass = NSClassFromString(classObjectName);
-    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:YES];
+    BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
+    NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     
     NSError *error = nil;
     BOOL success = [header writeToURL:pathURL atomically:NO encoding:NSUTF8StringEncoding error:&error];

@@ -15,6 +15,7 @@
 @property (nonatomic, retain) IBOutlet UILabel *webServerStatusLabel;
 
 @property (nonatomic, retain) IBOutlet UISwitch *showOCRuntimeClassesSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *addCommentForBlocksSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *toggleWebServerSwitch;
 
 @end
@@ -35,6 +36,7 @@
     [super viewWillAppear:animated];
     
     [_showOCRuntimeClassesSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"RTBShowOCRuntimeClasses"] boolValue]];
+    [_addCommentForBlocksSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"RTBAddCommentsForBlocks"] boolValue]];
     [_toggleWebServerSwitch setOn:[[[NSUserDefaults standardUserDefaults] valueForKey:@"RTBEnableWebServer"] boolValue]];
 
     [self updateWebServerStatus];
@@ -59,6 +61,10 @@
 
 - (IBAction)showOCRuntimeClassesAction:(id)sender {
     [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"RTBShowOCRuntimeClasses"];
+}
+
+- (IBAction)addBlockCommentsAction:(id)sender {
+    [[NSUserDefaults standardUserDefaults] setBool:((UISwitch *)sender).isOn forKey:@"RTBAddCommentsForBlocks"];
 }
 
 - (IBAction)toggleWebServerAction:(id)sender {

@@ -101,7 +101,7 @@ static RTBRuntime *sharedInstance;
     NSString *path = [cs imagePath];
     
     // users may want to ignore OCRuntime classes
-    BOOL showOCRuntimeClasses = [[NSUserDefaults standardUserDefaults] boolForKey:@"ShowOCRuntimeClasses"];
+    BOOL showOCRuntimeClasses = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBShowOCRuntimeClasses"];
     if(showOCRuntimeClasses == NO && [path hasSuffix:@"OCRuntime.app/OCRuntime"]) {
         //NSLog(@"-- ignore %@", cs.classObjectName);
         return nil;
