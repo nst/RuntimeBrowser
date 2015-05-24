@@ -240,19 +240,35 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     
     // class methods
-    NSArray *sortedClassMethods = [class sortedMethodsIsClassMethod:YES];
-    for(RTBMethod *m in sortedClassMethods) {
-        [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+    NSArray *sortedClassMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:YES];
+    for(NSDictionary *d in sortedClassMethods) {
+        NSString *filePath = d[@"filePath"];
+        NSString *categoryName = d[@"categoryName"];
+        NSArray *methods = d[@"methods"];
+        
+        [header appendFormat:@"\n/* %@ (%@)\n   %@ */\n\n", NSStringFromClass(aClass), categoryName, filePath];
+        
+        for(RTBMethod *m in methods) {
+            [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+        }
     }
     if([sortedClassMethods count] > 0) {
         [header appendString:@"\n"];
     }
     
     // instance methods
-    // class methods
-    NSArray *sortedInstanceMethods = [class sortedMethodsIsClassMethod:NO];
-    for(RTBMethod *m in sortedInstanceMethods) {
-        [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+    NSArray *sortedInstanceMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:NO];
+    
+    for(NSDictionary *d in sortedInstanceMethods) {
+        NSString *filePath = d[@"filePath"];
+        NSString *categoryName = d[@"categoryName"];
+        NSArray *methods = d[@"methods"];
+        
+        [header appendFormat:@"\n/* %@ (%@)\n   %@ */\n\n", NSStringFromClass(aClass), categoryName, filePath];
+        
+        for(RTBMethod *m in methods) {
+            [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+        }
     }
     if([sortedInstanceMethods count] > 0) {
         [header appendString:@"\n"];

@@ -24,4 +24,8 @@
 - (SEL)selector;
 - (BOOL)hasArguments;
 
+- (NSString *)filePath;
+- (NSString *)symbolName;
+- (NSString *)categoryName;
+
 @end

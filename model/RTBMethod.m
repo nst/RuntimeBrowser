@@ -9,6 +9,7 @@
 #import "RTBMethod.h"
 #import "RTBTypeDecoder.h"
 #import "RTBRuntimeHeader.h"
+#include "dlfcn.h"
 
 @interface RTBMethod ()
 @property (nonatomic) Method method;
@@ -16,6 +17,7 @@
 
 @property (nonatomic, strong) NSNumber *cachedHasArguments;
 @property (nonatomic, strong) NSArray *cachedArgumentsTypesDecoded;
+@property (nonatomic, strong) NSDictionary *cachedDyldInfoDictionary;
 @end
 
 @implementation RTBMethod
@@ -25,6 +27,68 @@
     m.method = method;
     m.isClassMethod = isClassMethod;
     return m;
+}
+
+- (NSString *)description {
+    NSString *superDescription = [super description];
+    
+    return [NSString stringWithFormat:@"%@ %@", superDescription, [self selectorString]];
+}
+
+- (NSDictionary *)dyldInfo {
+    
+    IMP imp = method_getImplementation(_method);
+
+    Dl_info info;
+    int rc = dladdr(imp, &info);
+    
+    if (!rc)  {
+        return nil;
+    }
+    
+//    printf("-- function %s\n", info.dli_sname);
+//    printf("-- program %s\n", info.dli_fname);
+//    printf("-- fbase %p\n", info.dli_fbase);
+//    printf("-- saddr %p\n", info.dli_saddr);
+    
+    NSString *filePath = [NSString stringWithFormat:@"%s", info.dli_fname];
+    NSString *symbolName = [NSString stringWithFormat:@"%s", info.dli_sname];
+    
+    NSUInteger startIndex = [symbolName rangeOfString:@"("].location;
+    NSUInteger stopIndex = [symbolName rangeOfString:@")"].location;
+    
+    NSString *categoryName = nil;
+    
+    if(startIndex != NSNotFound && stopIndex != NSNotFound && startIndex < stopIndex) {
+        categoryName = [symbolName substringWithRange:NSMakeRange(startIndex+1, (stopIndex - startIndex)-1)];
+    }
+    
+    NSMutableDictionary *md = [NSMutableDictionary dictionaryWithCapacity:2];
+    if(filePath) md[@"filePath"] = filePath;
+    if(symbolName) md[@"symbolName"] = symbolName;
+    if(categoryName) md[@"categoryName"] = categoryName;
+    return md;
+}
+
+- (NSString *)categoryName {
+    if(_cachedDyldInfoDictionary == nil) {
+        self.cachedDyldInfoDictionary = [self dyldInfo];
+    }
+    return _cachedDyldInfoDictionary[@"categoryName"];
+}
+
+- (NSString *)symbolName {
+    if(_cachedDyldInfoDictionary == nil) {
+        self.cachedDyldInfoDictionary = [self dyldInfo];
+    }
+    return _cachedDyldInfoDictionary[@"symbolName"];
+}
+
+- (NSString *)filePath {
+    if(_cachedDyldInfoDictionary == nil) {
+        self.cachedDyldInfoDictionary = [self dyldInfo];
+    }
+    return _cachedDyldInfoDictionary[@"filePath"];
 }
 
 - (BOOL)hasArguments {

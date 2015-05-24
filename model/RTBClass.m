@@ -37,6 +37,7 @@
 #import "RTBRuntimeHeader.h"
 #import "RTBTypeDecoder.h"
 #import "RTBMethod.h"
+#import "dlfcn.h"
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -353,11 +354,46 @@
     return ivarDictionaries;
 }
 
+- (NSDictionary *)dyldInfo {
+    
+    Class aClass = NSClassFromString(classObjectName);
+    
+    Dl_info info;
+    int rc = dladdr((__bridge const void *)aClass, &info);
+    
+    if (!rc)  {
+        return nil;
+    }
+    
+    //    printf("-- function %s\n", info.dli_sname);
+    //    printf("-- program %s\n", info.dli_fname);
+    //    printf("-- fbase %p\n", info.dli_fbase);
+    //    printf("-- saddr %p\n", info.dli_saddr);
+    
+    NSString *filePath = [NSString stringWithFormat:@"%s", info.dli_fname];
+    NSString *symbolName = [NSString stringWithFormat:@"%s", info.dli_sname];
+    
+    NSUInteger startIndex = [symbolName rangeOfString:@"("].location;
+    NSUInteger stopIndex = [symbolName rangeOfString:@")"].location;
+
+    NSString *categoryName = nil;
+
+    if(startIndex != NSNotFound && stopIndex != NSNotFound && startIndex < stopIndex) {
+        categoryName = [symbolName substringWithRange:NSMakeRange(startIndex+1, (stopIndex - startIndex)-1)];
+    }
+    
+    NSMutableDictionary *md = [NSMutableDictionary dictionaryWithCapacity:2];
+    if(filePath) md[@"filePath"] = filePath;
+    if(symbolName) md[@"symbolName"] = symbolName;
+    if(categoryName) md[@"categoryName"] = categoryName;
+    return md;
+}
+
 - (NSArray *)sortedMethodsIsClassMethod:(BOOL)isClassMethod {
     
     Class aClass = NSClassFromString(classObjectName);
     NSAssert(aClass, @"no class named %@", classObjectName);
-
+    
     Class class = aClass;
     
     if(isClassMethod) {
@@ -373,7 +409,7 @@
         Method method = methodList[i];
         
         RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
-        
+                
         [ma addObject:m];
     }
     
@@ -382,6 +418,73 @@
     [ma sortUsingSelector:@selector(compare:)];
     
     return ma;
+}
+
+- (NSArray *)sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:(BOOL)isClassMethod {
+    
+    Class aClass = NSClassFromString(classObjectName);
+    NSAssert(aClass, @"no class named %@", classObjectName);
+    
+    NSDictionary *d = [self dyldInfo];
+    
+    NSString *classFilePath = d[@"filePath"];
+
+    Class class = aClass;
+    
+    if(isClassMethod) {
+        class = objc_getMetaClass(class_getName(aClass));
+    }
+    
+    NSMutableDictionary *groupsByImage = [NSMutableDictionary dictionary];
+    
+    unsigned int methodListCount = 0;
+    Method *methodList = class_copyMethodList(class, &methodListCount);
+    
+    for (NSUInteger i = 0; i < methodListCount; i++) {
+        Method method = methodList[i];
+        
+        RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
+        
+        NSString *filePath = [m filePath];
+        NSString *categoryName = [m categoryName];
+
+        if(categoryName == nil) categoryName = @"";
+
+        if(groupsByImage[filePath] == nil) {
+            groupsByImage[filePath] = [NSMutableDictionary dictionary];
+        }
+
+        if(groupsByImage[filePath][categoryName] == nil) {
+            groupsByImage[filePath][categoryName] = [NSMutableArray array];
+        }
+        
+        [groupsByImage[filePath][categoryName] addObject:m];
+    }
+    
+    free(methodList);
+
+    /**/
+    
+    NSMutableArray *groupsOfGroupsByImageAndThenCategory = [NSMutableArray array];
+    
+    NSMutableArray *sortedImages = [[[groupsByImage allKeys] sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
+    
+    // start with methods from the same image as the class
+    [sortedImages removeObject:classFilePath];
+    [sortedImages insertObject:classFilePath atIndex:0];
+    
+    for(NSString *filePath in sortedImages) {
+        NSDictionary *groupsByImageForCurrentFilePath = groupsByImage[filePath];
+        NSArray *groupsByImageSortedKeys = [[groupsByImageForCurrentFilePath allKeys] sortedArrayUsingSelector:@selector(compare:)];
+        
+        for(NSString *categoryName in groupsByImageSortedKeys) {
+            NSArray *methodsInCategory = groupsByImageForCurrentFilePath[categoryName];
+            NSArray *sortedMethodsInCategory = [methodsInCategory sortedArrayUsingSelector:@selector(compare:)];
+            [groupsOfGroupsByImageAndThenCategory addObject:@{@"filePath":filePath, @"categoryName":categoryName, @"methods":sortedMethodsInCategory}];
+        }
+    }
+    
+    return groupsOfGroupsByImageAndThenCategory;
 }
 
 - (NSArray *)sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues {
