@@ -447,7 +447,7 @@
         
         NSString *filePath = [m filePath];
         NSString *categoryName = [m categoryName];
-
+        
         if(categoryName == nil) categoryName = @"";
 
         if(groupsByImage[filePath] == nil) {
@@ -477,11 +477,16 @@
         NSDictionary *groupsByImageForCurrentFilePath = groupsByImage[filePath];
         NSArray *groupsByImageSortedKeys = [[groupsByImageForCurrentFilePath allKeys] sortedArrayUsingSelector:@selector(compare:)];
         
+        NSMutableArray *methodsByCategory = [NSMutableArray array];
+        
         for(NSString *categoryName in groupsByImageSortedKeys) {
             NSArray *methodsInCategory = groupsByImageForCurrentFilePath[categoryName];
             NSArray *sortedMethodsInCategory = [methodsInCategory sortedArrayUsingSelector:@selector(compare:)];
-            [groupsOfGroupsByImageAndThenCategory addObject:@{@"filePath":filePath, @"categoryName":categoryName, @"methods":sortedMethodsInCategory}];
+            
+            [methodsByCategory addObject:@{@"categoryName":categoryName, @"methods":sortedMethodsInCategory}];
         }
+        
+        [groupsOfGroupsByImageAndThenCategory addObject:@{@"filePath":filePath, @"methodsByCategories":methodsByCategory}];
     }
     
     return groupsOfGroupsByImageAndThenCategory;

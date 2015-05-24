@@ -52,7 +52,12 @@
 //    printf("-- saddr %p\n", info.dli_saddr);
     
     NSString *filePath = [NSString stringWithFormat:@"%s", info.dli_fname];
+    
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+    NSString *symbolName = @""; // info.dli_sname is unreliable on the device, most of time "<redacted>"
+#else
     NSString *symbolName = [NSString stringWithFormat:@"%s", info.dli_sname];
+#endif
     
     NSUInteger startIndex = [symbolName rangeOfString:@"("].location;
     NSUInteger stopIndex = [symbolName rangeOfString:@")"].location;

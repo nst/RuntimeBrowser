@@ -243,14 +243,20 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     NSArray *sortedClassMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:YES];
     for(NSDictionary *d in sortedClassMethods) {
         NSString *filePath = d[@"filePath"];
-        NSString *categoryName = d[@"categoryName"];
-        NSArray *methods = d[@"methods"];
-        
-        [header appendFormat:@"\n/* %@ (%@)\n   %@ */\n\n", NSStringFromClass(aClass), categoryName, filePath];
-        
-        for(RTBMethod *m in methods) {
-            [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+
+        [header appendFormat:@"\n/* %@ */\n", filePath];
+
+        for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
+            NSString *categoryName = methodsByCategories[@"categoryName"];
+            NSArray *methods = methodsByCategories[@"methods"];
+            
+            [header appendFormat:@"\n/* %@ (%@) */\n\n", NSStringFromClass(aClass), categoryName];
+            
+            for(RTBMethod *m in methods) {
+                [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+            }
         }
+        
     }
     if([sortedClassMethods count] > 0) {
         [header appendString:@"\n"];
@@ -261,15 +267,22 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     for(NSDictionary *d in sortedInstanceMethods) {
         NSString *filePath = d[@"filePath"];
-        NSString *categoryName = d[@"categoryName"];
-        NSArray *methods = d[@"methods"];
         
-        [header appendFormat:@"\n/* %@ (%@)\n   %@ */\n\n", NSStringFromClass(aClass), categoryName, filePath];
-        
-        for(RTBMethod *m in methods) {
-            [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+        [header appendFormat:@"\n/* %@ */\n", filePath];
+
+        for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
+            NSString *categoryName = methodsByCategories[@"categoryName"];
+            NSArray *methods = methodsByCategories[@"methods"];
+            
+            [header appendFormat:@"\n/* %@ (%@) */\n\n", NSStringFromClass(aClass), categoryName];
+            
+            for(RTBMethod *m in methods) {
+                [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+            }
         }
+        
     }
+
     if([sortedInstanceMethods count] > 0) {
         [header appendString:@"\n"];
     }
