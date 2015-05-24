@@ -244,13 +244,18 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     for(NSDictionary *d in sortedClassMethods) {
         NSString *filePath = d[@"filePath"];
 
+        if([d[@"methodsByCategories"] count] == 0) break;
+        
         [header appendFormat:@"\n/* %@ */\n", filePath];
 
         for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
-            NSString *categoryName = methodsByCategories[@"categoryName"];
             NSArray *methods = methodsByCategories[@"methods"];
             
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+#else
+            NSString *categoryName = methodsByCategories[@"categoryName"];
             [header appendFormat:@"\n/* %@ (%@) */\n\n", NSStringFromClass(aClass), categoryName];
+#endif
             
             for(RTBMethod *m in methods) {
                 [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
@@ -268,13 +273,18 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     for(NSDictionary *d in sortedInstanceMethods) {
         NSString *filePath = d[@"filePath"];
         
+        if([d[@"methodsByCategories"] count] == 0) break;
+
         [header appendFormat:@"\n/* %@ */\n", filePath];
 
         for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
-            NSString *categoryName = methodsByCategories[@"categoryName"];
             NSArray *methods = methodsByCategories[@"methods"];
             
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+#else
+            NSString *categoryName = methodsByCategories[@"categoryName"];
             [header appendFormat:@"\n/* %@ (%@) */\n\n", NSStringFromClass(aClass), categoryName];
+#endif
             
             for(RTBMethod *m in methods) {
                 [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
