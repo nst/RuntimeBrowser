@@ -116,7 +116,7 @@ char **stringArrayFromNSArray(NSArray *a) {
     
     while(*tmp != '\0') {
         
-        // color comments
+        // color multi-line comments
         if(*tmp == '/' && *(tmp+1) == '*') {
             colorStart = tmp-text;
             do {
@@ -125,7 +125,17 @@ char **stringArrayFromNSArray(NSArray *a) {
             colorStop = tmp-text+2;
             [attributedString setTextColor:commentsColor font:font range:NSMakeRange(colorStart, colorStop-colorStart)];
         }
-        
+
+        // color single-line comments
+        if(*tmp == '/' && *(tmp+1) == '/') {
+            colorStart = tmp-text;
+            do {
+                tmp++;
+            } while(*tmp != '\n');
+            colorStop = tmp-text;
+            [attributedString setTextColor:commentsColor font:font range:NSMakeRange(colorStart, colorStop-colorStart)];
+        }
+
         // color directives
         if(*tmp == '@') {
             colorStart = tmp-text;
