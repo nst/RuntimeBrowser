@@ -59,7 +59,7 @@ The purpose of ClassStub is to have a way of accessing ALL of a class's currentl
 - (NSArray *)sortedIvarDictionaries;
 
 - (NSArray *)sortedMethodsIsClassMethod:(BOOL)isClassMethod;
-- (NSArray *)sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:(BOOL)isClassMethod;
+- (NSArray *)sortedMethodsGroupsOfGroupsByImageAndThenCategory;
 - (NSArray *)sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:(BOOL)displayPropertiesDefaultValues;
 
 - (BOOL)containsSearchString:(NSString *)searchString;

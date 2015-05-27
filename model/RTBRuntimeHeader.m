@@ -239,61 +239,49 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         [header appendString:@"\n"];
     }
     
-    // class methods
-    NSArray *sortedClassMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:YES];
-    for(NSDictionary *d in sortedClassMethods) {
+    // class and instance methods
+    NSArray *sortedMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategory];
+    
+    for(NSDictionary *d in sortedMethods) {
         NSString *filePath = d[@"filePath"];
 
         if([d[@"methodsByCategories"] count] == 0) break;
         
-        [header appendFormat:@"\n// %@\n", filePath];
+        [header appendFormat:@"\n// Image: %@\n\n", filePath];
 
-        for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
+        NSArray *allMethodsByCategories = d[@"methodsByCategories"];
+
+        [allMethodsByCategories enumerateObjectsUsingBlock:^(NSDictionary *methodsByCategories, NSUInteger idx, BOOL *stop) {
+
             NSArray *methods = methodsByCategories[@"methods"];
             
-#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-#else
-            NSString *categoryName = methodsByCategories[@"categoryName"];
-            [header appendFormat:@"\n/* %@ (%@) */\n\n", NSStringFromClass(aClass), categoryName];
-#endif
-            
-            for(RTBMethod *m in methods) {
-                [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+            if(idx > 0) {
+                [header appendString:@"\n"];
             }
-        }
-        
-    }
-    if([sortedClassMethods count] > 0) {
-        [header appendString:@"\n"];
-    }
-    
-    // instance methods
-    NSArray *sortedInstanceMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:NO];
-    
-    for(NSDictionary *d in sortedInstanceMethods) {
-        NSString *filePath = d[@"filePath"];
-        
-        if([d[@"methodsByCategories"] count] == 0) break;
-
-        [header appendFormat:@"\n/* %@ */\n", filePath];
-
-        for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
-            NSArray *methods = methodsByCategories[@"methods"];
             
 #if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+            // device, don't show category name because it's unreliable, most often "<redacted>"
 #else
             NSString *categoryName = methodsByCategories[@"categoryName"];
-            [header appendFormat:@"\n/* %@ (%@) */\n\n", NSStringFromClass(aClass), categoryName];
+            [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
 #endif
-            
+
+            unichar previousSign = '\0';
+
             for(RTBMethod *m in methods) {
-                [header appendFormat:@"%@\n", [m headerDescriptionWithNewlineAfterArgs:NO]];
+                NSString *headerDescription = [m headerDescriptionWithNewlineAfterArgs:NO];
+                assert([headerDescription length] > 0);
+                unichar currentSign = [headerDescription characterAtIndex:0];
+                if(previousSign != '\0' && currentSign != previousSign) {
+                    [header appendString:@"\n"];
+                }
+                previousSign = currentSign;
+                [header appendFormat:@"%@\n", headerDescription];
             }
-        }
+        }];
         
     }
-
-    if([sortedInstanceMethods count] > 0) {
+    if([sortedMethods count] > 0) {
         [header appendString:@"\n"];
     }
     

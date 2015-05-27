@@ -165,6 +165,10 @@
 }
 
 - (NSComparisonResult)compare:(RTBMethod *)otherMethod {
+    
+    if(self.isClassMethod && otherMethod.isClassMethod == NO) return NSOrderedAscending;
+    if(self.isClassMethod == NO && otherMethod.isClassMethod) return NSOrderedDescending;
+    
     return [[self selectorString] compare:[otherMethod selectorString]];
 }
 

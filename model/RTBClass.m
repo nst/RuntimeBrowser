@@ -325,7 +325,7 @@
     
     Class class = NSClassFromString(classObjectName);
     NSAssert(class, @"no class named %@", classObjectName);
-
+    
     unsigned int ivarListCount;
     Ivar *ivarList = class_copyIvarList(class, &ivarListCount);
     
@@ -375,9 +375,9 @@
     
     NSUInteger startIndex = [symbolName rangeOfString:@"("].location;
     NSUInteger stopIndex = [symbolName rangeOfString:@")"].location;
-
+    
     NSString *categoryName = nil;
-
+    
     if(startIndex != NSNotFound && stopIndex != NSNotFound && startIndex < stopIndex) {
         categoryName = [symbolName substringWithRange:NSMakeRange(startIndex+1, (stopIndex - startIndex)-1)];
     }
@@ -409,7 +409,7 @@
         Method method = methodList[i];
         
         RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
-                
+        
         [ma addObject:m];
     }
     
@@ -420,7 +420,7 @@
     return ma;
 }
 
-- (NSArray *)sortedMethodsGroupsOfGroupsByImageAndThenCategoryIsClassMethod:(BOOL)isClassMethod {
+- (NSArray *)sortedMethodsGroupsOfGroupsByImageAndThenCategory {
     
     Class aClass = NSClassFromString(classObjectName);
     NSAssert(aClass, @"no class named %@", classObjectName);
@@ -428,43 +428,49 @@
     NSDictionary *d = [self dyldInfo];
     
     NSString *classFilePath = d[@"filePath"];
-
-    Class class = aClass;
-
+    
     NSMutableDictionary *groupsByImage = [NSMutableDictionary dictionary];
 
-    if(isClassMethod) {
-        class = objc_getMetaClass(class_getName(aClass));
-    }
-    
-    unsigned int methodListCount = 0;
-    Method *methodList = class_copyMethodList(class, &methodListCount);
-    
-    for (NSUInteger i = 0; i < methodListCount; i++) {
-        Method method = methodList[i];
-        
-        RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
-        
-        NSString *filePath = [m filePath];
-        NSString *categoryName = [m categoryName];
-        
-        if(categoryName == nil) categoryName = @"";
+    for(NSNumber *n in @[@(1), @(0)]) { // for class and metaClass
 
-        if(groupsByImage[filePath] == nil) {
-            groupsByImage[filePath] = [NSMutableDictionary dictionary];
-        }
+        BOOL isClassMethod = [n boolValue];
 
-        if(groupsByImage[filePath][categoryName] == nil) {
-            groupsByImage[filePath][categoryName] = [NSMutableArray array];
+        Class inspectedClass = aClass;
+
+        if(isClassMethod) {
+            inspectedClass = objc_getMetaClass(class_getName(aClass));
+            assert(inspectedClass);
+            assert(class_isMetaClass(inspectedClass));
+            if(inspectedClass == nil) continue;
         }
         
-        [groupsByImage[filePath][categoryName] addObject:m];
+        unsigned int methodListCount = 0;
+        Method *methodList = class_copyMethodList(inspectedClass, &methodListCount);
+        
+        for (NSUInteger i = 0; i < methodListCount; i++) {
+            Method method = methodList[i];
+            
+            RTBMethod *m = [RTBMethod methodObjectWithMethod:method isClassMethod:isClassMethod];
+            
+            NSString *filePath = [m filePath];
+            NSString *categoryName = [m categoryName];
+            
+            if(categoryName == nil) categoryName = @"";
+            
+            if(groupsByImage[filePath] == nil) {
+                groupsByImage[filePath] = [NSMutableDictionary dictionary];
+            }
+            
+            if(groupsByImage[filePath][categoryName] == nil) {
+                groupsByImage[filePath][categoryName] = [NSMutableArray array];
+            }
+            
+            [groupsByImage[filePath][categoryName] addObject:m];
+        }
+        
+        free(methodList);
     }
-    
-    free(methodList);
 
-    /**/
-    
     NSMutableArray *groupsOfGroupsByImageAndThenCategory = [NSMutableArray array];
     
     NSMutableArray *sortedImages = [[[groupsByImage allKeys] sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
@@ -496,8 +502,8 @@
     
     Class aClass = NSClassFromString(classObjectName);
     NSAssert(aClass, @"no class named %@", classObjectName);
-
-    NSMutableArray *ma = [NSMutableArray array];
+    
+    NSMutableSet *ms = [NSMutableSet set];
     
     unsigned int propertiesCount = 0;
     objc_property_t *propertyList = class_copyPropertyList(aClass, &propertiesCount);
@@ -512,10 +518,12 @@
         
         NSDictionary *d = @{@"name":name, @"description":description};
         
-        [ma addObject:d];
+        [ms addObject:d];
     }
     
     free(propertyList);
+    
+    NSMutableArray *ma = [[ms allObjects] mutableCopy];
     
     [ma sortUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
         return [obj1[@"name"] compare:obj2[@"name"]];
