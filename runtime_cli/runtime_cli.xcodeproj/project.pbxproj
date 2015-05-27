@@ -17,8 +17,11 @@
 		0308D73A1AFA37ED000CEC87 /* RTBProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D7321AFA37E4000CEC87 /* RTBProtocol.m */; };
 		0308D7491B009C73000CEC87 /* RTBMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D7481B009C73000CEC87 /* RTBMethod.m */; };
 		0308D74A1B009C85000CEC87 /* RTBMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D7481B009C73000CEC87 /* RTBMethod.m */; };
+		0308E6201B12353200E3E503 /* RTBTypeDecoder2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308E61F1B12353200E3E503 /* RTBTypeDecoder2Tests.m */; };
 		0331C1FF1AE66368002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
 		0331C2001AE6636B002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
+		038B807A1B110C1800E20E71 /* RTBTypeDecoder2.m in Sources */ = {isa = PBXBuildFile; fileRef = 038B80791B110C1800E20E71 /* RTBTypeDecoder2.m */; };
+		038B807B1B110C1800E20E71 /* RTBTypeDecoder2.m in Sources */ = {isa = PBXBuildFile; fileRef = 038B80791B110C1800E20E71 /* RTBTypeDecoder2.m */; };
 		03CE2D231ACD2FAF00C1519C /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE2D221ACD2FAF00C1519C /* UnitTests.m */; };
 		8DD76F9A0486AA7600D96B5E /* runtime_cli.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* runtime_cli.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
@@ -49,6 +52,7 @@
 		0308D7321AFA37E4000CEC87 /* RTBProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBProtocol.m; sourceTree = "<group>"; };
 		0308D7471B009C73000CEC87 /* RTBMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBMethod.h; sourceTree = "<group>"; };
 		0308D7481B009C73000CEC87 /* RTBMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBMethod.m; sourceTree = "<group>"; };
+		0308E61F1B12353200E3E503 /* RTBTypeDecoder2Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBTypeDecoder2Tests.m; sourceTree = "<group>"; };
 		0331C1FD1AE66368002A641E /* RTBTypeDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBTypeDecoder.h; sourceTree = "<group>"; };
 		0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBTypeDecoder.m; sourceTree = "<group>"; };
 		037EDDB9130C68C800298C79 /* UnitTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "UnitTests-Info.plist"; sourceTree = "<group>"; };
@@ -56,6 +60,8 @@
 		037EDF4E130D0C3B00298C79 /* NSString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSString.h; sourceTree = "<group>"; };
 		037EDF5D130D0CED00298C79 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		037EDF6F130D0D1F00298C79 /* CALayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CALayer.h; sourceTree = "<group>"; };
+		038B80781B110C1800E20E71 /* RTBTypeDecoder2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBTypeDecoder2.h; sourceTree = "<group>"; };
+		038B80791B110C1800E20E71 /* RTBTypeDecoder2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBTypeDecoder2.m; sourceTree = "<group>"; };
 		03CE2D1E1ACD2FAF00C1519C /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		03CE2D211ACD2FAF00C1519C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03CE2D221ACD2FAF00C1519C /* UnitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTests.m; sourceTree = "<group>"; };
@@ -90,6 +96,8 @@
 			children = (
 				0331C1FD1AE66368002A641E /* RTBTypeDecoder.h */,
 				0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */,
+				038B80781B110C1800E20E71 /* RTBTypeDecoder2.h */,
+				038B80791B110C1800E20E71 /* RTBTypeDecoder2.m */,
 				0308D72B1AFA37E4000CEC87 /* RTBRuntimeHeader.h */,
 				0308D72C1AFA37E4000CEC87 /* RTBRuntimeHeader.m */,
 				0308D72D1AFA37E4000CEC87 /* RTBRuntime.h */,
@@ -126,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				03CE2D221ACD2FAF00C1519C /* UnitTests.m */,
+				0308E61F1B12353200E3E503 /* RTBTypeDecoder2Tests.m */,
 				03CE2D201ACD2FAF00C1519C /* Supporting Files */,
 			);
 			path = UnitTests;
@@ -275,6 +284,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0308E6201B12353200E3E503 /* RTBTypeDecoder2Tests.m in Sources */,
+				038B807B1B110C1800E20E71 /* RTBTypeDecoder2.m in Sources */,
 				0308D73A1AFA37ED000CEC87 /* RTBProtocol.m in Sources */,
 				03CE2D231ACD2FAF00C1519C /* UnitTests.m in Sources */,
 				0308D7371AFA37E8000CEC87 /* RTBRuntimeHeader.m in Sources */,
@@ -289,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				038B807A1B110C1800E20E71 /* RTBTypeDecoder2.m in Sources */,
 				0308D7361AFA37E4000CEC87 /* RTBProtocol.m in Sources */,
 				8DD76F9A0486AA7600D96B5E /* runtime_cli.m in Sources */,
 				0308D7331AFA37E4000CEC87 /* RTBRuntimeHeader.m in Sources */,

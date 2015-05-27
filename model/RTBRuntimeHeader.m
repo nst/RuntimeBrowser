@@ -246,7 +246,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
 
         if([d[@"methodsByCategories"] count] == 0) break;
         
-        [header appendFormat:@"\n/* %@ */\n", filePath];
+        [header appendFormat:@"\n// %@\n", filePath];
 
         for(NSDictionary *methodsByCategories in d[@"methodsByCategories"]) {
             NSArray *methods = methodsByCategories[@"methods"];

@@ -430,12 +430,12 @@
     NSString *classFilePath = d[@"filePath"];
 
     Class class = aClass;
-    
+
+    NSMutableDictionary *groupsByImage = [NSMutableDictionary dictionary];
+
     if(isClassMethod) {
         class = objc_getMetaClass(class_getName(aClass));
     }
-    
-    NSMutableDictionary *groupsByImage = [NSMutableDictionary dictionary];
     
     unsigned int methodListCount = 0;
     Method *methodList = class_copyMethodList(class, &methodListCount);

@@ -109,7 +109,7 @@
     XCTAssertEqualObjects([self decodeIvarType:"[10i]"], @"int ", @"");
     XCTAssertEqualObjects([self decodeIvarModifier:"[10i]"], @"[10]", @"");
     
-    NSLog(@"------ %@", [self decodeIvarWithName:@"x" type:"[10i]"]);
+    NSLog(@"------ %@", [self decodeIvarWithName:@"x" type:"{example=@*i}"]);
     
     XCTAssertEqualObjects([self decodeIvarWithName:@"x" type:"[10i]"], @"int x[10];", @"");
     //	STAssertEqualObjects([self decodeIvarWithName:@"x" type:"{?=i[3f]b128i3b131i2c}"], @"struct { int x1; float x2[3]; unsigned int x3 : 128; int x4; /* Warning: Unrecognized filer type: '3' using 'void*' */ void*x5; unsigned int x6 : 131; int x7; void*x8; BOOL x9; } x;' should be equal to 'int x[10];", @"");
@@ -133,7 +133,7 @@
     XCTAssertEqualObjects(types[4], @"NSString *");
 }
 
-- (void)testExtendedEncodingForBlock {
+- (void)_testExtendedEncodingForBlock {
 
     // - (void)aaaWithCompletionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))completionHandler;
     NSString *typeString = @"v24@0:8@?<v@?@\"NSURLResponse\"@\"NSData\"@\"NSError\">16";
@@ -182,5 +182,5 @@
 //    [self assetLinesAreEqual:generatedHeader withString:referenceHeader];
 }
 
-
 @end
+
