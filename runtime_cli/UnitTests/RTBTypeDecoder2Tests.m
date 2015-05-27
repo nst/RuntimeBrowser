@@ -45,7 +45,7 @@
     XCTAssertNil(s2);
     
     NSString *s3 = [RTBTypeDecoder2 nameBeforeEqualInString:@"asd="];
-    XCTAssertNil(s3);
+    XCTAssertNotNil(s3);
 }
 
 - (void)testTypeDecoder2DecodeTypePointer {
@@ -93,6 +93,18 @@
     XCTAssertEqualObjects([RTBTypeDecoder2 descriptionForTypeDictionary:d], @"struct { double x1; id x2; unsigned int* x3; }");
 }
 
+- (void)testTypeDecoder2DecodePointerOnEmptyStructWithName {
+    RTBTypeDecoder2 *td = [[RTBTypeDecoder2 alloc] init];
+    
+    NSDictionary *d = [td decodeType:@"^{__asl_object_s=}"];
+    XCTAssertEqualObjects(d[@"kind"], @"POINTER");
+    
+    NSDictionary *d2 = d[@"encodedType"];
+    XCTAssertEqualObjects(d2[@"name"], @"__asl_object_s");
+//    
+//    XCTAssertEqualObjects([RTBTypeDecoder2 descriptionForTypeDictionary:d], @"struct { __asl_object_s; }");
+}
+
 - (void)testTypeDecoded2DecodeArray {
     RTBTypeDecoder2 *td = [[RTBTypeDecoder2 alloc] init];
     
@@ -103,6 +115,33 @@
     NSLog(@"-%@-", [RTBTypeDecoder2 descriptionForTypeDictionary:d]);
     
     XCTAssertEqualObjects([RTBTypeDecoder2 descriptionForTypeDictionary:d], @"int x[10];");
+}
+
+- (void)testComplicatedType1 {
+    RTBTypeDecoder2 *td = [[RTBTypeDecoder2 alloc] init];
+    
+    NSDictionary *d = [td decodeType:@"{TFCGImage=\"fRef\"{TRef<CGImage *, TRetainReleasePolicy<CGImageRef> >=\"fRef\"^{CGImage}}}"]; // OS X "BU_TMSkinnedPushButton"
+
+    NSLog(@"-- %@", d);
+    
+    /*
+     struct TFCGImage {
+         struct TRef<CGImage *, TRetainReleasePolicy<CGImageRef> > {
+             struct CGImage {} *fRef;
+         } fRef;
+     } fDisabledImage;
+     */
+}
+
+- (void)testStructInStruct {
+    RTBTypeDecoder2 *td = [[RTBTypeDecoder2 alloc] init];
+    
+    NSDictionary *d = [td decodeType:@"{CGRect=\"origin\"{CGPoint=\"x\"d\"y\"d}\"size\"{CGSize=\"width\"d\"height\"d}}"]; // OS X "NSLayerContentsFacet"
+
+    NSLog(@"-- %@", d);
+    
+    //XCTAssertEqual(d[@""], <#expression2, ...#>)
+    
 }
 
 @end
