@@ -23,6 +23,7 @@
 	<string>int32_t</string>
 	<string>int64_t</string>
 	<string>default</string>
+	<string>atomic</string>
 	<string>assign</string>
 	<string>strong</string>
 	<string>retain</string>
