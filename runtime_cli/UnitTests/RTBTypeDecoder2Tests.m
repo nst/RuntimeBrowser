@@ -122,9 +122,31 @@
     
     NSDictionary *d = [td decodeType:@"{TFCGImage=\"fRef\"{TRef<CGImage *, TRetainReleasePolicy<CGImageRef> >=\"fRef\"^{CGImage}}}"]; // OS X "BU_TMSkinnedPushButton"
 
-    NSLog(@"-- %@", d);
+//    NSLog(@"-- %@", d);
     
+    XCTAssertEqualObjects(d[@"kind"], @"STRUCT");
+    XCTAssertEqualObjects(d[@"name"], @"TFCGImage");
     
+    XCTAssertEqual([d[@"encodedTypes"] count], 2);
+
+    XCTAssertEqualObjects([d[@"encodedTypes"] objectAtIndex:0][@"kind"], @"NAME");
+    XCTAssertEqualObjects([d[@"encodedTypes"] objectAtIndex:0][@"name"], @"fRef");
+
+    XCTAssertEqualObjects([d[@"encodedTypes"] objectAtIndex:1][@"kind"], @"STRUCT");
+    XCTAssertEqualObjects([d[@"encodedTypes"] objectAtIndex:1][@"name"], @"TRef<CGImage *, TRetainReleasePolicy<CGImageRef> >");
+
+    XCTAssertEqual([[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] count], 2);
+    
+    XCTAssertEqualObjects([[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] objectAtIndex:0][@"kind"], @"NAME");
+    XCTAssertEqualObjects([[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] objectAtIndex:0][@"name"], @"fRef");
+    
+    XCTAssertEqualObjects([[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] objectAtIndex:1][@"kind"], @"POINTER");
+    XCTAssertEqualObjects([[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] objectAtIndex:1][@"encodedType"][@"kind"], @"STRUCT");
+    
+    NSLog(@"--- %@", [[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] objectAtIndex:1][@"encodedType"]);
+    
+    XCTAssertEqual([[[d[@"encodedTypes"] objectAtIndex:1][@"encodedTypes"] objectAtIndex:1][@"encodedType"][@"encodedTypes"] count], 1);
+
     
     /*
      struct TFCGImage {
@@ -146,8 +168,14 @@
     
     NSLog(@"-- %@", encodedTypes);
     
-    XCTAssertEquals([encodedTypes count], 4);
+    XCTAssertEqual([encodedTypes count], 4);
 
+    XCTAssertEqualObjects([encodedTypes objectAtIndex:0][@"kind"], @"NAME");
+    XCTAssertEqualObjects([encodedTypes objectAtIndex:1][@"kind"], @"STRUCT");
+    XCTAssertEqualObjects([encodedTypes objectAtIndex:2][@"kind"], @"NAME");
+    XCTAssertEqualObjects([encodedTypes objectAtIndex:3][@"kind"], @"STRUCT");
+
+                          
     
     //XCTAssertEqual(d[@""], <#expression2, ...#>)
     
