@@ -124,6 +124,8 @@
 
     NSLog(@"-- %@", d);
     
+    
+    
     /*
      struct TFCGImage {
          struct TRef<CGImage *, TRetainReleasePolicy<CGImageRef> > {
@@ -138,7 +140,14 @@
     
     NSDictionary *d = [td decodeType:@"{CGRect=\"origin\"{CGPoint=\"x\"d\"y\"d}\"size\"{CGSize=\"width\"d\"height\"d}}"]; // OS X "NSLayerContentsFacet"
 
-    NSLog(@"-- %@", d);
+    //NSLog(@"-- %@", d);
+    
+    NSArray *encodedTypes = d[@"encodedTypes"];
+    
+    NSLog(@"-- %@", encodedTypes);
+    
+    XCTAssertEquals([encodedTypes count], 4);
+
     
     //XCTAssertEqual(d[@""], <#expression2, ...#>)
     

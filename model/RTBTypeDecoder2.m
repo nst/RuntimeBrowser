@@ -15,7 +15,7 @@
     self.simpeTypesDictionary = @{@"@":@"id",
                                   @"#":@"Class",
                                   @":":@"SEL",
-                                  @"c":@"char", // BOOL
+                                  @"c":@"BOOL", // char
                                   @"C":@"unsigned char",
                                   @"s":@"short",
                                   @"S":@"unsigned short",
@@ -132,25 +132,17 @@
     }
     
     NSString *s = [encodedType substringWithRange:NSMakeRange(1, closeIndex-1)]; // CGPoint="x"d"y"d
-
-//    if([s containsString:@"="]) {
-//    
-//    }
     
     NSString *name = [[self class] nameBeforeEqualInString:s]; // CGPoint
 
     NSString *longTail = [encodedType substringFromIndex:closeIndex+1];
     
-    NSString *structTail = @"";
-    if(name) {
-        NSUInteger equalLength = name ? 1 : 0;
-        NSUInteger rangeLocation = [name length] + equalLength; // {asd=
-        NSUInteger rangeLength = [s length] - rangeLocation;
-        structTail = [s substringWithRange:NSMakeRange(rangeLocation, rangeLength)]; // "origin"{CGPoint="x"d"y"d}"size"{CGSize="width"d"height"d}
-    } else {
-        name = s; // found '{NAME}' instead of '{NAME=TYPE}'
-//        structTail = s;
-    }
+    NSUInteger equalSignLength = name ? 1 : 0;
+    NSUInteger rangeLocation = [name length] + equalSignLength; // {asd=
+    NSUInteger rangeLength = [s length] - rangeLocation;
+    NSString *structTail = [s substringWithRange:NSMakeRange(rangeLocation, rangeLength)]; // "origin"{CGPoint="x"d"y"d}"size"{CGSize="width"d"height"d}
+    
+    NSLog(@"- %@", structTail);
     
     NSMutableArray *typesInStruct = [NSMutableArray array];
     
@@ -238,10 +230,12 @@
         return [self decodeStruct:encodedType];
     } else if([firstCharacter isEqualToString:@"["]) {
         return [self decodeArray:encodedType];
-    } else if (_simpeTypesDictionary[firstCharacter]) {
-        return [self decodeSimpleType:encodedType];
     } else if ([firstCharacter isEqualToString:@"\""]) {
         return [self decodeName:encodedType];
+    } else if (_simpeTypesDictionary[firstCharacter]) {
+        return [self decodeSimpleType:encodedType];
+    } else {
+        return [self decodeName:[NSString stringWithFormat:@"\"%@\"", encodedType]];
     }
     
     NSAssert(NO, @"cannot decode type %@", encodedType);
@@ -250,6 +244,7 @@
 }
 
 + (NSString *)descriptionForTypeDictionary:(NSDictionary *)d {
+    
     if([d[@"kind"] isEqualToString:@"POINTER"]) {
         return [NSString stringWithFormat:@"%@*", [self descriptionForTypeDictionary:d[@"encodedType"]]];
     } else if ([d[@"kind"] isEqualToString:@"SIMPLE_TYPE"]) {
