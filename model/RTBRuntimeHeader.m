@@ -267,13 +267,14 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
                 [header appendString:@"\n"];
             }
             
-#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-            // device, don't show category name because it's unreliable, most often "<redacted>"
-#else
             NSString *categoryName = methodsByCategories[@"categoryName"];
-            [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+            // device, category name because it's unreliable, most often "<redacted>"
+            categoryName = @"/*?*/";
 #endif
-            
+
+            [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
+
             unichar previousSign = '\0';
             
             for(RTBMethod *m in methods) {
