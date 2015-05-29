@@ -89,8 +89,8 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
                          argumentTypes:(NSArray *)argumentsTypes
                       newlineAfterArgs:(BOOL)newlineAfterArgs
                          isClassMethod:(BOOL)isClassMethod {
-    
-    //NSLog(@"-- methodName: %@", methodName);
+
+    NSString *signAndReturnTypeString = [NSString stringWithFormat:@"%c (%@)", (isClassMethod ? '+' : '-'), returnType];
     
     NSArray *methodNameParts = [methodName componentsSeparatedByString:@":"];
     if([[methodNameParts lastObject] length] == 0) {
@@ -98,24 +98,26 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     NSAssert([methodNameParts count] > 0, @"");
     
+    //NSAssert([methodNameParts count] == [argumentsTypes count] - 2, @"%d methodNameParts for %d argTypes", [methodNameParts count], [argumentsTypes count] - 2);
+    
     NSMutableArray *ma = [NSMutableArray array];
     
     __block NSMutableString *ms = [NSMutableString string];
-    
-    NSString *signAndReturnTypeString = [NSString stringWithFormat:@"%c (%@)", (isClassMethod ? '+' : '-'), returnType];
     
     [ms appendString:signAndReturnTypeString];
     
     BOOL hasArgs = [argumentsTypes count] > 2;
     
     __block NSUInteger paddingIndex = 0;
+
+    BOOL hasBadNumberOfArgTypes = (hasArgs && (([methodNameParts count]) != ([argumentsTypes count] - 2)));
     
     [methodNameParts enumerateObjectsUsingBlock:^(NSString *part, NSUInteger i, BOOL *stop) {
         
         [ms appendString:part];
         
         if(hasArgs) {
-            NSString *argType = argumentsTypes[i+2];
+            NSString *argType = hasBadNumberOfArgTypes ? @"void *" : argumentsTypes[i+2];
             if([argType hasPrefix:@"<"] && [argType hasSuffix:@"> *"]) { // eg. "<MyProtocol> *" -> "id <MyProtocol>"
                 argType = [NSString stringWithFormat:@"id %@", [argType substringToIndex:[argType length] - 2]];
             }
@@ -131,7 +133,18 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
             
             BOOL isLastPart = i == [methodNameParts count] - 1;
             
-            [ms appendString:(isLastPart ? @";" : @" ")];
+            if(isLastPart) {
+                [ms appendString:@";"];
+                if(hasBadNumberOfArgTypes) {
+                    NSArray *subArgumentTypes = [argumentsTypes subarrayWithRange:NSMakeRange(2, [argumentsTypes count]-2)];
+                    [ms appendFormat:@" // needed %@ arg types, found %@: %@",
+                     @([methodNameParts count]),
+                     @([subArgumentTypes count]),
+                     [subArgumentTypes componentsJoinedByString:@", "]];
+                }
+            } else {
+                [ms appendString:@" "];
+            }
         }
         
         [ma addObject:ms];
