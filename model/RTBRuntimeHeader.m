@@ -268,11 +268,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
             }
             
             NSString *categoryName = methodsByCategories[@"categoryName"];
-#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-            // device, category name because it's unreliable, most often "<redacted>"
-            categoryName = @"/*?*/";
-#endif
-
+            
             [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
 
             unichar previousSign = '\0';

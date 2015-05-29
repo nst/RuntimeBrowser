@@ -59,11 +59,10 @@
     NSString *symbolName = [NSString stringWithFormat:@"%s", info.dli_sname];
 #endif
     
-    NSUInteger startIndex = [symbolName rangeOfString:@"("].location;
-    NSUInteger stopIndex = [symbolName rangeOfString:@")"].location;
-    
     NSString *categoryName = nil;
     
+    NSUInteger startIndex = [symbolName rangeOfString:@"("].location;
+    NSUInteger stopIndex = [symbolName rangeOfString:@")"].location;
     if(startIndex != NSNotFound && stopIndex != NSNotFound && startIndex < stopIndex) {
         categoryName = [symbolName substringWithRange:NSMakeRange(startIndex+1, (stopIndex - startIndex)-1)];
     }
