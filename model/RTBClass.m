@@ -253,7 +253,7 @@
     if(imageNameC) {
         image = [NSString stringWithCString:imageNameC encoding:NSUTF8StringEncoding];
     } else {
-        NSLog(@"-- cannot find image for class %@", className);
+        NSLog(@"-- [ERROR] cannot find image for class %@", className);
         //image = [[NSBundle bundleForClass:klass] bundlePath];
     }
     

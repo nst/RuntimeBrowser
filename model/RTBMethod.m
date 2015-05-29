@@ -35,6 +35,10 @@
     return [NSString stringWithFormat:@"%@ %@", superDescription, [self selectorString]];
 }
 
+- (Method)method {
+    return _method;
+}
+
 - (NSDictionary *)dyldInfo {
     
     IMP imp = method_getImplementation(_method);
@@ -146,6 +150,7 @@
     free(returnTypeCString);
     NSString *returnType = [RTBTypeDecoder decodeType:returnTypeEncoded flat:YES];
     NSString *methodName = NSStringFromSelector(method_getName(_method));
+    
     NSArray *argumentTypes = [self argumentsTypesDecoded];
     
     return [RTBRuntimeHeader descriptionForMethodName:methodName

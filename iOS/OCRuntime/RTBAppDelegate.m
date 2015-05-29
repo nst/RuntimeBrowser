@@ -157,6 +157,11 @@
     BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
     NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
     
+    if(header == nil) {
+        NSLog(@"-- [ERROR] empty header for path %@", headerPath);
+        header = @"/* empty header */\n";
+    }
+    
     return [GCDWebServerDataResponse responseWithText:header];
 }
 
@@ -400,6 +405,8 @@
                                       
                                       __strong typeof(weakSelf) strongSelf = weakSelf;
                                       if(strongSelf == nil) return nil;
+                                      
+                                      //NSLog(@"-- %@ %@", request.method, request.path);
                                       
                                       return [strongSelf responseForPath:request.path];
                                       

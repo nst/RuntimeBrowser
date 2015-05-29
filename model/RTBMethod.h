@@ -28,4 +28,6 @@
 - (NSString *)symbolName;
 - (NSString *)categoryName;
 
+- (Method)method;
+
 @end

@@ -98,8 +98,6 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     NSAssert([methodNameParts count] > 0, @"");
     
-    //NSAssert([methodNameParts count] == [argumentsTypes count] - 2, @"%d methodNameParts for %d argTypes", [methodNameParts count], [argumentsTypes count] - 2);
-    
     NSMutableArray *ma = [NSMutableArray array];
     
     __block NSMutableString *ms = [NSMutableString string];
@@ -135,9 +133,9 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
             
             if(isLastPart) {
                 [ms appendString:@";"];
-                if(hasBadNumberOfArgTypes) {
+                if(hasBadNumberOfArgTypes) { // happens on iOS 8.3 in SceneKit.framework -[SCNCameraControlEventHandler rotateWithVector:mode:]
                     NSArray *subArgumentTypes = [argumentsTypes subarrayWithRange:NSMakeRange(2, [argumentsTypes count]-2)];
-                    [ms appendFormat:@" // needed %@ arg types, found %@: %@",
+                    [ms appendFormat:@" // needs %@ arg types, found %@: %@",
                      @([methodNameParts count]),
                      @([subArgumentTypes count]),
                      [subArgumentTypes componentsJoinedByString:@", "]];
@@ -181,6 +179,10 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     }
     
     NSString *s = [ma componentsJoinedByString:joinerString];
+    
+    if(hasBadNumberOfArgTypes) {
+        NSLog(@"-- %@", s);
+    }
     
     return s;
 }
