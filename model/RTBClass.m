@@ -134,12 +134,12 @@
     
     if(_cachedMethodsNamePartsLowercase == nil) {
         
-        Class klass = NSClassFromString(classObjectName);
-        Class metaClass = objc_getMetaClass(class_getName(klass));
+        Class class = NSClassFromString(classObjectName);
+        Class metaClass = objc_getMetaClass(class_getName(class));
         
         NSMutableSet *ms = [NSMutableSet set];
         
-        [ms addObjectsFromArray:[[[self class] methodsNamePartsLowercaseForClass:klass] allObjects]];
+        [ms addObjectsFromArray:[[[self class] methodsNamePartsLowercaseForClass:class] allObjects]];
         [ms addObjectsFromArray:[[[self class] methodsNamePartsLowercaseForClass:metaClass] allObjects]];
         
         [ms removeObject:@""];
@@ -430,13 +430,13 @@
     NSString *classFilePath = d[@"filePath"];
     
     NSMutableDictionary *groupsByImage = [NSMutableDictionary dictionary];
-
+    
     for(NSNumber *n in @[@(1), @(0)]) { // for class and metaClass
-
+        
         BOOL isClassMethod = [n boolValue];
-
+        
         Class inspectedClass = aClass;
-
+        
         if(isClassMethod) {
             inspectedClass = objc_getMetaClass(class_getName(aClass));
             assert(inspectedClass);
@@ -470,7 +470,7 @@
         
         free(methodList);
     }
-
+    
     NSMutableArray *groupsOfGroupsByImageAndThenCategory = [NSMutableArray array];
     
     NSMutableArray *sortedImages = [[[groupsByImage allKeys] sortedArrayUsingSelector:@selector(compare:)] mutableCopy];

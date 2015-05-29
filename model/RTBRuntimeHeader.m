@@ -226,10 +226,11 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         for(NSDictionary *d in sortedIvarDictionaries) {
             [header appendFormat:@"%@\n", d[@"description"]];
         }
-        [header appendString:@"}"];
+        [header appendString:@"}\n\n"];
+    } else {
+        [header appendString:@"\n\n"];
     }
-    [header appendString:@"\n\n"];
-    
+
     // properties
     NSArray *propertiesDictionaries = [class sortedPropertiesDictionariesWithDisplayPropertiesDefaultValues:displayPropertiesDefaultValues];
     for(NSDictionary *d in propertiesDictionaries) {
@@ -242,11 +243,15 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     // class and instance methods
     NSArray *sortedMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategory];
     
+    __block BOOL hasOneOrMoreMethods = NO;
+    
     [sortedMethods enumerateObjectsUsingBlock:^(NSDictionary *d, NSUInteger idx, BOOL *stop) {
         
         NSString *filePath = d[@"filePath"];
         
         if([d[@"methodsByCategories"] count] == 0) return;
+        
+        hasOneOrMoreMethods = YES;
         
         if(idx > 0) [header appendString:@"\n"];
         
@@ -285,7 +290,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         
     }];
     
-    if([sortedMethods count] > 0) {
+    if(hasOneOrMoreMethods) {
         [header appendString:@"\n"];
     }
     
