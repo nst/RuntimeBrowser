@@ -6,5 +6,7 @@
 	<false/>
 	<key>RTBEnableWebServer</key>
 	<true/>
+	<key>RTBAddCommentsForBlocks</key>
+	<true/>
 </dict>
 </plist>
