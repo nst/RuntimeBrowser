@@ -264,16 +264,19 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     
     __block BOOL hasOneOrMoreMethods = NO;
     
+    __block BOOL hasMetMethodsInACategory = NO; // NSStream.h no methods in CoreFoundation, everything in Foundation
+    
     [sortedMethods enumerateObjectsUsingBlock:^(NSDictionary *d, NSUInteger idx, BOOL *stop) {
         
         NSString *filePath = d[@"filePath"];
         
         if([d[@"methodsByCategories"] count] == 0) return;
         
+        if(hasMetMethodsInACategory) [header appendString:@"\n"];
+        hasMetMethodsInACategory = YES;
+
         hasOneOrMoreMethods = YES;
-        
-        if(idx > 0) [header appendString:@"\n"];
-        
+
         if(hasMethodsFromMoreThanOneImage) {
             [header appendFormat:@"// Image: %@\n\n", filePath];
         }

@@ -430,7 +430,9 @@
     NSString *classFilePath = d[@"filePath"];
     
     NSMutableDictionary *groupsByImage = [NSMutableDictionary dictionary];
-    
+
+    NSString *runtimeBrowserPath = [NSString stringWithCString:class_getImageName([self class]) encoding:NSUTF8StringEncoding];
+
     for(NSNumber *n in @[@(1), @(0)]) { // for class and metaClass
         
         BOOL isClassMethod = [n boolValue];
@@ -454,6 +456,11 @@
             
             NSString *filePath = [m filePath];
             NSString *categoryName = [m categoryName];
+            
+            // optionally ignore categories defindes in RuntimeBrowser
+            if([[NSUserDefaults standardUserDefaults] boolForKey:@"RTBShowOCRuntimeClasses"] == NO) {
+                if([filePath isEqualToString:runtimeBrowserPath]) continue;
+            };
             
             if(categoryName == nil) categoryName = @"";
             
