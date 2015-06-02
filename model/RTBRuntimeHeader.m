@@ -149,7 +149,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         ms = [NSMutableString string];
     }];
     
-    if([[ma lastObject] hasSuffix:@";"] == NO) {
+    if([[ma lastObject] hasSuffix:@";"] == NO && hasBadNumberOfArgTypes == NO) {
         [[ma lastObject] appendString:@";"];
     }
     
@@ -258,6 +258,10 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
     // class and instance methods
     NSArray *sortedMethods = [class sortedMethodsGroupsOfGroupsByImageAndThenCategory];
     
+    NSArray *imagePaths = [sortedMethods valueForKey:@"filePath"];
+    NSSet *imagePathsSet = [NSSet setWithArray:imagePaths];
+    BOOL hasMethodsFromMoreThanOneImage = [imagePathsSet count] > 1;
+    
     __block BOOL hasOneOrMoreMethods = NO;
     
     [sortedMethods enumerateObjectsUsingBlock:^(NSDictionary *d, NSUInteger idx, BOOL *stop) {
@@ -270,7 +274,9 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
         
         if(idx > 0) [header appendString:@"\n"];
         
-        [header appendFormat:@"// Image: %@\n\n", filePath];
+        if(hasMethodsFromMoreThanOneImage) {
+            [header appendFormat:@"// Image: %@\n\n", filePath];
+        }
         
         NSArray *allMethodsByCategories = d[@"methodsByCategories"];
         
@@ -284,7 +290,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
             
             NSString *categoryName = methodsByCategories[@"categoryName"];
             
-            [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
+            if([categoryName length] > 0) [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
 
             unichar previousSign = '\0';
             
