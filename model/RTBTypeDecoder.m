@@ -699,11 +699,11 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
         
         BOOL isBlock = *ivT == '?';
         if(isBlock && [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"]) {
-            ++ivT;
             typeS = (spaceAfter ? @"id /* block */ " : @"id /* block */");
         } else {
             typeS = (spaceAfter ? @"id " : @"id");
         }
+        ++ivT;
     }
     
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
