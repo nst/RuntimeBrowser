@@ -7,6 +7,7 @@ libdispatch.dylib
 libextension.dylib
 libLinearAlgebra.dylib
 libmecabra.dylib
+libnfshared.dylib
 libobjc.A.dylib
 libsystem_blocks.dylib
 libsystem_network.dylib

@@ -205,6 +205,7 @@ NanoSetupUISupport.framework
 NanoSystemSettings.framework
 NanoTimeKitCompanion.framework
 NCLaunchStats.framework
+NearField.framework
 Notes.framework
 NotificationsUI.framework
 OAuth.framework
@@ -257,9 +258,6 @@ SoftwareBehaviorServices.framework
 SoftwareUpdateBridge.framework
 SoftwareUpdateServices.framework
 SplashBoard.framework
-SportsTrainer.framework
-SportsVoices.framework
-SportsWorkout.framework
 Spotlight.framework
 SpringBoardFoundation.framework
 SpringBoardServices.framework
