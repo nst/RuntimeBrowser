@@ -35,9 +35,15 @@
 
 #import "RTBClass.h"
 #import "RTBRuntimeHeader.h"
-#import "RTBTypeDecoder.h"
 #import "RTBMethod.h"
 #import "dlfcn.h"
+
+#if USE_NEW_DECODER
+#import "RTBTypeDecoder2.h"
+@compatibility_alias RTBTypeDecoder RTBTypeDecoder2;
+#else
+#import "RTBTypeDecoder.h"
+#endif
 
 #if (! TARGET_OS_IPHONE)
 #import <objc/objc-runtime.h>
@@ -340,7 +346,7 @@
         // TODO: compiler may generate ivar entries with NULL ivar_name (e.g. for anonymous bit fields).
         NSString *name = [NSString stringWithFormat:@"%s", ivar_getName(ivar)];
         
-        NSString *s = [NSString stringWithFormat:@"    %@%@;", decodedType, name];
+        NSString *s = [NSString stringWithFormat:@"    %@ %@;", decodedType, name];
         
         [ivarDictionaries addObject:@{@"name":name, @"description":s}];
         

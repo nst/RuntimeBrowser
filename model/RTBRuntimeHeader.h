@@ -6,6 +6,8 @@
 //
 //
 
+#define USE_NEW_DECODER 0
+
 #import <Foundation/Foundation.h>
 #import "RTBProtocol.h"
 

@@ -18,8 +18,11 @@
     return [NSString stringWithFormat:@"%@-%@", argA, argB];
 }
 
-- (NSString *)sayHello {
-    return @"hello";
+- (MyCStruct)sayHello {
+    
+    MyCStruct s;
+    
+    return s;
 }
 
 @end

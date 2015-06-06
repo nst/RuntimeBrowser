@@ -7,9 +7,15 @@
 //
 
 #import "RTBMethod.h"
-#import "RTBTypeDecoder.h"
 #import "RTBRuntimeHeader.h"
 #include "dlfcn.h"
+
+#if USE_NEW_DECODER
+#import "RTBTypeDecoder2.h"
+@compatibility_alias RTBTypeDecoder RTBTypeDecoder2;
+#else
+#import "RTBTypeDecoder.h"
+#endif
 
 @interface RTBMethod ()
 @property (nonatomic) Method method;

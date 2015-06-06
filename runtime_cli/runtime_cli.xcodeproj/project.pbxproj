@@ -19,7 +19,7 @@
 		0308D74A1B009C85000CEC87 /* RTBMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308D7481B009C73000CEC87 /* RTBMethod.m */; };
 		0308E6201B12353200E3E503 /* RTBTypeDecoder2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0308E61F1B12353200E3E503 /* RTBTypeDecoder2Tests.m */; };
 		0331C1FF1AE66368002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
-		0331C2001AE6636B002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
+		035A50691B237EC60042FBCB /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1FE1AE66368002A641E /* RTBTypeDecoder.m */; };
 		038B807A1B110C1800E20E71 /* RTBTypeDecoder2.m in Sources */ = {isa = PBXBuildFile; fileRef = 038B80791B110C1800E20E71 /* RTBTypeDecoder2.m */; };
 		038B807B1B110C1800E20E71 /* RTBTypeDecoder2.m in Sources */ = {isa = PBXBuildFile; fileRef = 038B80791B110C1800E20E71 /* RTBTypeDecoder2.m */; };
 		03CE2D231ACD2FAF00C1519C /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE2D221ACD2FAF00C1519C /* UnitTests.m */; };
@@ -289,9 +289,9 @@
 				0308D73A1AFA37ED000CEC87 /* RTBProtocol.m in Sources */,
 				03CE2D231ACD2FAF00C1519C /* UnitTests.m in Sources */,
 				0308D7371AFA37E8000CEC87 /* RTBRuntimeHeader.m in Sources */,
-				0331C2001AE6636B002A641E /* RTBTypeDecoder.m in Sources */,
 				0308D7381AFA37E9000CEC87 /* RTBRuntime.m in Sources */,
 				0308D7391AFA37EB000CEC87 /* RTBClass.m in Sources */,
+				035A50691B237EC60042FBCB /* RTBTypeDecoder.m in Sources */,
 				0308D74A1B009C85000CEC87 /* RTBMethod.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

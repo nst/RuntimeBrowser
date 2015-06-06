@@ -13,14 +13,15 @@
 		0315C2780E47D3A200DFB2F3 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0315C2770E47D3A200DFB2F3 /* Defaults.plist */; };
 		033148A3131157A200695BB1 /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 033148A2131157A200695BB1 /* BrowserNode.m */; };
 		03314FCD131251A500695BB1 /* BrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 03314FCC131251A500695BB1 /* BrowserCell.m */; };
-		0331C1FA1AE59C0B002A641E /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F71AE59C0B002A641E /* RTBTypeDecoder.m */; };
 		0331C1FB1AE59C0B002A641E /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */; };
 		0333858A131D9738002654D3 /* RuntimeBrowser.icns in Resources */ = {isa = PBXBuildFile; fileRef = 03338589131D9738002654D3 /* RuntimeBrowser.icns */; };
 		03561DB40E4BA18A002FEBCD /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 03561DB30E4BA18A002FEBCD /* Credits.html */; };
+		035A506D1B2390050042FBCB /* RTBTypeDecoder2.m in Sources */ = {isa = PBXBuildFile; fileRef = 035A506C1B2390050042FBCB /* RTBTypeDecoder2.m */; };
 		0379BB80179D0B4000F4B8BF /* NSString+SyntaxColoring.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */; };
 		0379BB86179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0379BB85179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m */; };
 		037EDADC1307102300298C79 /* RTBClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 037EDADB1307102300298C79 /* RTBClass.m */; };
 		03CAF3461AEAD7D100282C77 /* RTBProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CAF3451AEAD7D100282C77 /* RTBProtocol.m */; };
+		03D65AEE1B17C4A700E1D697 /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0331C1F71AE59C0B002A641E /* RTBTypeDecoder.m */; };
 		03F830D81AEAF9C900425494 /* RuntimeBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 03F830D61AEAF9C900425494 /* RuntimeBrowser.xib */; };
 		03F830DA1AEAFA3500425494 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03F830D91AEAFA3500425494 /* Images.xcassets */; };
 		03F830DC1AEBD0AF00425494 /* protocol.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 03F830DB1AEBD0AF00425494 /* protocol.tiff */; };
@@ -54,6 +55,8 @@
 		033C39A61B068639004A3E41 /* BBB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BBB.h; path = ../iOS/BBB.h; sourceTree = "<group>"; };
 		033C39A71B068639004A3E41 /* BBB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BBB.m; path = ../iOS/BBB.m; sourceTree = "<group>"; };
 		03561DB30E4BA18A002FEBCD /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
+		035A506B1B2390050042FBCB /* RTBTypeDecoder2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTBTypeDecoder2.h; sourceTree = "<group>"; };
+		035A506C1B2390050042FBCB /* RTBTypeDecoder2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTBTypeDecoder2.m; sourceTree = "<group>"; };
 		0379BB7E179D0B4000F4B8BF /* NSString+SyntaxColoring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SyntaxColoring.h"; sourceTree = "<group>"; };
 		0379BB7F179D0B4000F4B8BF /* NSString+SyntaxColoring.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SyntaxColoring.m"; sourceTree = "<group>"; };
 		0379BB84179D0BD200F4B8BF /* NSMutableAttributedString+RTB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableAttributedString+RTB.h"; sourceTree = "<group>"; };
@@ -102,6 +105,8 @@
 				033C39A71B068639004A3E41 /* BBB.m */,
 				0331C1F61AE59C0B002A641E /* RTBTypeDecoder.h */,
 				0331C1F71AE59C0B002A641E /* RTBTypeDecoder.m */,
+				035A506B1B2390050042FBCB /* RTBTypeDecoder2.h */,
+				035A506C1B2390050042FBCB /* RTBTypeDecoder2.m */,
 				0331C1F81AE59C0B002A641E /* RTBRuntimeHeader.h */,
 				0331C1F91AE59C0B002A641E /* RTBRuntimeHeader.m */,
 				030706D0130FCAD2009E6B08 /* RTBRuntime.h */,
@@ -294,8 +299,9 @@
 			files = (
 				0379BB86179D0BD200F4B8BF /* NSMutableAttributedString+RTB.m in Sources */,
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
-				0331C1FA1AE59C0B002A641E /* RTBTypeDecoder.m in Sources */,
 				B736487D0E3FCD710053523F /* AppController.m in Sources */,
+				03D65AEE1B17C4A700E1D697 /* RTBTypeDecoder.m in Sources */,
+				035A506D1B2390050042FBCB /* RTBTypeDecoder2.m in Sources */,
 				0379BB80179D0B4000F4B8BF /* NSString+SyntaxColoring.m in Sources */,
 				037EDADC1307102300298C79 /* RTBClass.m in Sources */,
 				030706D2130FCAD3009E6B08 /* RTBRuntime.m in Sources */,
@@ -333,6 +339,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -354,7 +361,6 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -391,7 +397,6 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -424,7 +429,6 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -451,6 +455,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
@@ -468,6 +473,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;

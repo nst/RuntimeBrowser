@@ -7,9 +7,15 @@
 //
 
 #import "RTBRuntimeHeader.h"
-#import "RTBTypeDecoder.h"
 #import "RTBMethod.h"
 #import "RTBClass.h"
+
+#if USE_NEW_DECODER
+#import "RTBTypeDecoder2.h"
+@compatibility_alias RTBTypeDecoder RTBTypeDecoder2;
+#else
+#import "RTBTypeDecoder.h"
+#endif
 
 OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL isRequiredMethod, BOOL isInstanceMethod) __OSX_AVAILABLE_STARTING(__MAC_10_8, __IPHONE_6_0);
 

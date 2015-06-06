@@ -120,7 +120,7 @@
 
 - (NSDictionary *)decodeStruct:(NSString *)encodedType {
     
-    NSLog(@"**** %@", encodedType); // {CGPoint="x"d"y"d}"size"{CGSize="width"d"height"d}
+    //NSLog(@"**** %@", encodedType); // {CGPoint="x"d"y"d}"size"{CGSize="width"d"height"d}
     
     NSInteger closeIndex = [[self class] indexOfClosingCharForString:encodedType
                                                          openingChar:'{'
@@ -248,6 +248,16 @@
     if([d[@"kind"] isEqualToString:@"POINTER"]) {
         return [NSString stringWithFormat:@"%@*", [self descriptionForTypeDictionary:d[@"encodedType"]]];
     } else if ([d[@"kind"] isEqualToString:@"SIMPLE_TYPE"]) {
+        
+        NSString *tail = d[@"tail"];
+        NSString *decodedType = d[@"decodedType"];
+        
+        if([decodedType isEqualToString:@"id"] && [tail hasPrefix:@"\""]) {
+            RTBTypeDecoder2 *decoded = [[RTBTypeDecoder2 alloc] init];
+            NSString *name = [decoded decodeType:tail][@"name"];
+            return [NSString stringWithFormat:@"%@ *", name];
+        }
+        
         return d[@"decodedType"];
     } else if ([d[@"kind"] isEqualToString:@"STRUCT"]) {
         NSMutableString *ms = [NSMutableString string];
@@ -263,6 +273,8 @@
         return ms;
     } else if ([d[@"kind"] isEqualToString:@"ARRAY"]) {
         return [NSString stringWithFormat:@"%@ x[%@];", [self descriptionForTypeDictionary:d[@"encodedType"]], d[@"count"]];
+    } else if ([d[@"kind"] isEqualToString:@"NAME"]) {
+        return d[@"name"];
     }
     NSAssert(NO, @"unhandled kind: %@", d[@"kind"]);
     return nil;
