@@ -2,8 +2,8 @@
 
 # $ python draw_frameworks_history.py && open ios_framweorks.png
 
+from PIL import Image, ImageDraw, ImageFont
 import os
-import Image, ImageDraw, ImageFont
 
 def build_data(path):
     d = {} # {'symbol':[('6.0', 'private'), ('6.1', 'public')]}
