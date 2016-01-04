@@ -136,7 +136,7 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
         // draw symbols lines
         let x = CGFloat(versions.count * BOX_WIDTH + 3)
         let y = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * LINE_HEIGHT)
-        s.drawAtPoint(NSMakePoint(x, y), withAttributes:textAttributes)
+        s.drawAtPoint(CGPointMake(x, y), withAttributes:textAttributes)
         
         // fill boxes
         for (version, status) in d[s]! {
@@ -163,7 +163,7 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
             major = current_major
         }
         // draw column headers
-        v.drawAtPoint(NSMakePoint(CGFloat(i * BOX_WIDTH + 7), bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT)), withAttributes:textAttributes)
+        v.drawAtPoint(CGPointMake(CGFloat(i * BOX_WIDTH + 7), bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT)), withAttributes:textAttributes)
     }
     
     let p1 = CGPointMake(CGFloat(versions.count * BOX_WIDTH), bitmap.size.height)
