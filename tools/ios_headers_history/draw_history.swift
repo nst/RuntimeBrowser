@@ -74,8 +74,8 @@ func versionAndStatus(filename s: String) -> VersionAndStatus? {
     return nil
 }
 
-func buildData(path:String) -> [String:[VersionAndStatus]]? {
-    
+func buildDataDictionary(path:String) -> [String:[VersionAndStatus]]? {
+        
     var d : [String:[VersionAndStatus]] = [:]
     
     do {
@@ -115,8 +115,8 @@ func colorForStatus(status: Status) -> NSColor {
         return NSColor.redColor()
     case .Lib:
         return NSColor.blueColor()
-    //default:
-    //    return NSColor.grayColor()
+        //default:
+        //    return NSColor.grayColor()
     }
 }
 
@@ -207,9 +207,9 @@ public func main() -> Int {
         return 1
     }
     
-    let optionalData = buildData(existingPathArg)
+    let optionalDictionary = buildDataDictionary(existingPathArg)
     
-    guard let d = optionalData else {
+    guard let d = optionalDictionary else {
         fatalError("Cannot build data")
     }
     
@@ -219,7 +219,7 @@ public func main() -> Int {
     let HEIGHT = CGFloat(d.count * LINE_HEIGHT + TOP_MARGIN_HEIGHT)
     let SIZE = CGSize(width: WIDTH, height: HEIGHT)
     
-    let optGrass = NSBitmapImageRep(bitmapDataPlanes:nil,
+    let optBitmapImageRep = NSBitmapImageRep(bitmapDataPlanes:nil,
         pixelsWide:Int(SIZE.width),
         pixelsHigh:Int(SIZE.height),
         bitsPerSample:8,
@@ -230,10 +230,9 @@ public func main() -> Int {
         bytesPerRow:0,
         bitsPerPixel:0)
     
-    guard let bitmap = optGrass else { fatalError("can't create bitmap image rep") }
+    guard let bitmap = optBitmapImageRep else { fatalError("can't create bitmap image rep") }
     
     drawIntoBitmap(bitmap, data:d)
-    
     
     let currentPath : NSString = NSFileManager.defaultManager().currentDirectoryPath
     let outPath = currentPath.stringByAppendingPathComponent("ios_frameworks.png")
