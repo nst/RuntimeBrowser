@@ -21,6 +21,11 @@ func sortedVersions(d: [String:[VersionAndStatus]]) -> [String] {
     return allVersionsUniqueSorted
 }
 
+enum Error : ErrorType {
+    case BadFormat
+    case BadStatusName
+}
+
 enum Status {
     case Public
     case Private
@@ -37,7 +42,7 @@ enum Status {
         }
     }
     
-    static func statusWithName(name: String) -> Status? {
+    static func statusWithName(name: String) throws -> Status {
         switch name {
         case "pub":
             return .Public
@@ -46,7 +51,7 @@ enum Status {
         case "lib":
             return .Lib
         default:
-            return nil
+            throw Error.BadStatusName
         }
     }
 }
@@ -67,47 +72,32 @@ func matches(string s: String, pattern: String) throws -> [String] {
 
 typealias VersionAndStatus = (version: String, status: Status)
 
-func versionAndStatus(filename s: String) -> VersionAndStatus? {
+func versionAndStatus(filename s: String) throws -> VersionAndStatus {
     
-    do {
-        let results = try matches(string: s, pattern: "(\\d)_(\\d)_(\\S*)\\.txt")
-        guard results.count == 3 else { return nil}
-        
-        let (major, minor, statusString) = (results[0], results[1], results[2])
-        
-        if let status = Status.statusWithName(statusString) {
-            return ("\(major).\(minor)", status)
-        }
-    } catch {
-        print(error)
-    }
+    let results = try matches(string: s, pattern: "(\\d)_(\\d)_(\\S*)\\.txt")
+    guard results.count == 3 else { throw Error.BadFormat }
     
-    return nil
+    let (major, minor, statusString) = (results[0], results[1], results[2])
+    
+    let status = try Status.statusWithName(statusString)
+    return ("\(major).\(minor)", status)
 }
 
-func buildDataDictionary(path:String) -> [String:[VersionAndStatus]]? {
-        
+func buildDataDictionary(path:String) throws -> [String:[VersionAndStatus]] {
+    
     var d : [String:[VersionAndStatus]] = [:]
     
-    do {
-        let filenames = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).filter{ $0.hasSuffix(".txt") }
+    let filenames = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).filter{ $0.hasSuffix(".txt") }
+    
+    for filename in filenames {
+        let (version, status) = try versionAndStatus(filename: filename)
+        let filepath = (path as NSString).stringByAppendingPathComponent(filename)
+        let contents = try String(contentsOfFile: filepath, encoding: NSUTF8StringEncoding)
         
-        for filename in filenames {
-            if let (version, status) = versionAndStatus(filename: filename) {
-                
-                let filepath = (path as NSString).stringByAppendingPathComponent(filename)
-                let contents = try String(contentsOfFile: filepath, encoding: NSUTF8StringEncoding)
-                
-                contents.enumerateLines({ (symbol, stop) -> () in
-                    if(d[symbol] == nil) { d[symbol] = [] }
-                    d[symbol]!.append((version, status))
-                })
-            }
-        }
-        
-    } catch {
-        print(error)
-        return nil
+        contents.enumerateLines({ (symbol, stop) -> () in
+            if(d[symbol] == nil) { d[symbol] = [] }
+            d[symbol]!.append((version, status))
+        })
     }
     
     return d
@@ -149,19 +139,15 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
         s.drawAtPoint(NSMakePoint(x, y), withAttributes:textAttributes)
         
         // fill boxes
-        if let versionAndStatuses = d[s] {
-            for (version, status) in versionAndStatuses {
-                status.color().setFill()
-                
-                let x1 = CGFloat(versions.indexOf(version)! * BOX_WIDTH) + 1
-                let x2 = x1 + CGFloat(BOX_WIDTH) - 1
-                let y1 = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * LINE_HEIGHT - 1)
-                let y2 = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + (i+1) * LINE_HEIGHT - 2)
-                
-                let rect = CGRectMake(x1, y1, x2-x1, y1-y2)
-                
-                NSRectFill(rect)
-            }
+        for (version, status) in d[s]! {
+            status.color().setFill()
+            
+            let x = CGFloat(versions.indexOf(version)! * BOX_WIDTH) + 1
+            let y = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * LINE_HEIGHT - 1)
+            
+            let rect = CGRectMake(x, y, CGFloat(BOX_WIDTH) - 1, CGFloat(LINE_HEIGHT - 1))
+            
+            NSRectFill(rect)
         }
     }
     
@@ -189,7 +175,6 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
     NSBezierPath.strokeLineFromPoint(p3, toPoint: p4)
     
     CGContextRestoreGState(cgContext)
-    
 }
 
 public func main() -> Int {
@@ -200,10 +185,13 @@ public func main() -> Int {
         return 1
     }
     
-    let optionalDictionary = buildDataDictionary(existingPathArg)
+    let d : [String:[VersionAndStatus]]
     
-    guard let d = optionalDictionary else {
-        fatalError("Cannot build data")
+    do {
+        d = try buildDataDictionary(existingPathArg)
+    } catch {
+        print(error)
+        return 1
     }
     
     let versions = sortedVersions(d)
