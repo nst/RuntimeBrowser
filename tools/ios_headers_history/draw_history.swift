@@ -79,22 +79,18 @@ func buildDataDictionary(path:String) -> [String:[VersionAndStatus]]? {
     var d : [String:[VersionAndStatus]] = [:]
     
     do {
-        let directoryContents = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path)
-        let filenames = directoryContents.filter{ $0.hasSuffix(".txt") }
+        let filenames = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).filter{ $0.hasSuffix(".txt") }
         
         for filename in filenames {
-            let nsPath = path as NSString
-            let filepath = nsPath.stringByAppendingPathComponent(filename)
             if let (version, status) = versionAndStatus(filename: filename) {
                 
+                let filepath = (path as NSString).stringByAppendingPathComponent(filename)
                 let contents = try String(contentsOfFile: filepath, encoding: NSUTF8StringEncoding)
                 contents.enumerateLines({ (symbol, stop) -> () in
                     
-                    if let _ = d[symbol] {
-                        d[symbol]?.append((version, status))
-                    } else {
-                        d[symbol] = [(version, status)]
-                    }
+                    if(d[symbol] == nil) { d[symbol] = [] }
+                    
+                    d[symbol]!.append((version, status))
                 })
             }
         }
