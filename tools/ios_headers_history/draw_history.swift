@@ -25,18 +25,29 @@ enum Status {
     case Public
     case Private
     case Lib
-}
-
-func status(s: String) -> Status? {
-    switch s {
-    case "pub":
-        return .Public
-    case "pri":
-        return .Private
-    case "lib":
-        return .Lib
-    default:
-        return nil
+    
+    func color() -> NSColor {
+        switch(self) {
+        case .Public:
+            return NSColor(calibratedRed:0.0, green: 102.0/255.0, blue:0.0, alpha:1.0)
+        case .Private:
+            return NSColor.redColor()
+        case .Lib:
+            return NSColor.blueColor()
+        }
+    }
+    
+    static func statusWithName(name: String) -> Status? {
+        switch name {
+        case "pub":
+            return .Public
+        case "pri":
+            return .Private
+        case "lib":
+            return .Lib
+        default:
+            return nil
+        }
     }
 }
 
@@ -64,7 +75,7 @@ func versionAndStatus(filename s: String) -> VersionAndStatus? {
         
         let (major, minor, statusString) = (results[0], results[1], results[2])
         
-        if let status = status(statusString) {
+        if let status = Status.statusWithName(statusString) {
             return ("\(major).\(minor)", status)
         }
     } catch {
@@ -86,10 +97,9 @@ func buildDataDictionary(path:String) -> [String:[VersionAndStatus]]? {
                 
                 let filepath = (path as NSString).stringByAppendingPathComponent(filename)
                 let contents = try String(contentsOfFile: filepath, encoding: NSUTF8StringEncoding)
+                
                 contents.enumerateLines({ (symbol, stop) -> () in
-                    
                     if(d[symbol] == nil) { d[symbol] = [] }
-                    
                     d[symbol]!.append((version, status))
                 })
             }
@@ -101,19 +111,6 @@ func buildDataDictionary(path:String) -> [String:[VersionAndStatus]]? {
     }
     
     return d
-}
-
-func colorForStatus(status: Status) -> NSColor {
-    switch status {
-    case .Public:
-        return NSColor(calibratedRed:0.0, green: 102.0/255.0, blue:0.0, alpha:1.0)
-    case .Private:
-        return NSColor.redColor()
-    case .Lib:
-        return NSColor.blueColor()
-        //default:
-        //    return NSColor.grayColor()
-    }
 }
 
 private func saveAsPNGWithName(fileName: String, bitmap: NSBitmapImageRep) -> Bool {
@@ -154,7 +151,7 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
         // fill boxes
         if let versionAndStatuses = d[s] {
             for (version, status) in versionAndStatuses {
-                colorForStatus(status).setFill()
+                status.color().setFill()
                 
                 let x1 = CGFloat(versions.indexOf(version)! * BOX_WIDTH) + 1
                 let x2 = x1 + CGFloat(BOX_WIDTH) - 1
