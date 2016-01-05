@@ -13,14 +13,6 @@ let RIGHT_MARGIN_WIDTH = 260
 let LINE_HEIGHT = 12
 let BOX_WIDTH = 32
 
-func sortedVersions(d: [String:[VersionAndStatus]]) -> [String] {
-    let allVersionAndStatuses : [[VersionAndStatus]] = [[VersionAndStatus]](d.values)
-    let flattenedVersionsAndStatuses = Array(allVersionAndStatuses.flatten())
-    let allVersions = flattenedVersionsAndStatuses.map { $0.version }
-    let allVersionsUniqueSorted = Array(Set(allVersions)).sort()
-    return allVersionsUniqueSorted
-}
-
 enum Error : ErrorType {
     case BadFormat
     case BadStatusName
@@ -70,9 +62,7 @@ func matches(string s: String, pattern: String) throws -> [String] {
     return results
 }
 
-typealias VersionAndStatus = (version: String, status: Status)
-
-func versionAndStatus(filename s: String) throws -> VersionAndStatus {
+func versionAndStatus(filename s: String) throws -> (version:String, status:Status) {
     
     let results = try matches(string: s, pattern: "(\\d)_(\\d)_(\\S*)\\.txt")
     guard results.count == 3 else { throw Error.BadFormat }
@@ -80,12 +70,14 @@ func versionAndStatus(filename s: String) throws -> VersionAndStatus {
     let (major, minor, statusString) = (results[0], results[1], results[2])
     
     let status = try Status.statusWithName(statusString)
-    return ("\(major).\(minor)", status)
+    return (version:"\(major).\(minor)", status:status)
 }
 
-func buildDataDictionary(path:String) throws -> [String:[VersionAndStatus]] {
+func readData(path path:String) throws -> ([String], [String:[String:Status]]) {
     
-    var d : [String:[VersionAndStatus]] = [:]
+    var d : [String:[String:Status]] = [:]
+    
+    var versions = Set<String>()
     
     let filenames = try NSFileManager.defaultManager().contentsOfDirectoryAtPath(path).filter{ $0.hasSuffix(".txt") }
     
@@ -94,13 +86,15 @@ func buildDataDictionary(path:String) throws -> [String:[VersionAndStatus]] {
         let filepath = (path as NSString).stringByAppendingPathComponent(filename)
         let contents = try String(contentsOfFile: filepath, encoding: NSUTF8StringEncoding)
         
+        versions.insert(version)
+        
         contents.enumerateLines({ (symbol, stop) -> () in
-            if(d[symbol] == nil) { d[symbol] = [] }
-            d[symbol]!.append((version, status))
+            if(d[symbol] == nil) { d[symbol] = [:] }
+            d[symbol]![version] = status
         })
     }
     
-    return d
+    return (versions.sort(), d)
 }
 
 private func saveAsPNGWithName(fileName: String, bitmap: NSBitmapImageRep) -> Bool {
@@ -110,7 +104,7 @@ private func saveAsPNGWithName(fileName: String, bitmap: NSBitmapImageRep) -> Bo
     return false
 }
 
-private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAndStatus]] ) {
+private func drawIntoBitmap(bitmap: NSBitmapImageRep, versions: [String], data d:[String:[String:Status]] ) {
     let context = NSGraphicsContext(bitmapImageRep: bitmap)
     let cgContext : CGContextRef? = context?.CGContext
     
@@ -126,8 +120,6 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
     ]
     
     let sortedSymbols = Array(d.keys).sort()
-    
-    let versions = sortedVersions(d)
     
     NSColor.lightGrayColor().setFill()
     NSRectFill(CGRectMake(0, 0, bitmap.size.width, bitmap.size.height))
@@ -179,22 +171,20 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, data d:[String:[VersionAnd
 
 public func main() -> Int {
     
-    let histoPath = NSUserDefaults.standardUserDefaults().valueForKey("data")
-    guard let existingPathArg = histoPath as? String else {
-        print("Usage: $ swift draw_history.swift -data path/to/data")
+    guard Process.arguments.count == 2 else {
+        print("Usage: $ swift draw_history.swift path/to/data")
         return 1
     }
     
-    let d : [String:[VersionAndStatus]]
+    let versions : [String]
+    let d : [String:[String:Status]]
     
     do {
-        d = try buildDataDictionary(existingPathArg)
+        (versions, d) = try readData(path:Process.arguments[1])
     } catch {
         print(error)
         return 1
     }
-    
-    let versions = sortedVersions(d)
     
     let WIDTH = CGFloat(versions.count * BOX_WIDTH + RIGHT_MARGIN_WIDTH)
     let HEIGHT = CGFloat(d.count * LINE_HEIGHT + TOP_MARGIN_HEIGHT)
@@ -213,7 +203,7 @@ public func main() -> Int {
     
     guard let bitmap = optBitmapImageRep else { fatalError("can't create bitmap image rep") }
     
-    drawIntoBitmap(bitmap, data:d)
+    drawIntoBitmap(bitmap, versions: versions, data:d)
     
     let currentPath : NSString = NSFileManager.defaultManager().currentDirectoryPath
     let outPath = currentPath.stringByAppendingPathComponent("ios_frameworks.png")
