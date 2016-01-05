@@ -10,42 +10,12 @@ import Cocoa
 
 let TOP_MARGIN_HEIGHT = 12
 let RIGHT_MARGIN_WIDTH = 260
-let LINE_HEIGHT = 12
-let BOX_WIDTH = 32
+let ROW_HEIGHT = 12
+let COL_WIDTH = 32
 
 enum Error : ErrorType {
     case BadFormat
     case BadStatusName
-}
-
-enum Status {
-    case Public
-    case Private
-    case Lib
-    
-    func color() -> NSColor {
-        switch(self) {
-        case .Public:
-            return NSColor(calibratedRed:0.0, green: 102.0/255.0, blue:0.0, alpha:1.0)
-        case .Private:
-            return NSColor.redColor()
-        case .Lib:
-            return NSColor.blueColor()
-        }
-    }
-    
-    static func statusWithName(name: String) throws -> Status {
-        switch name {
-        case "pub":
-            return .Public
-        case "pri":
-            return .Private
-        case "lib":
-            return .Lib
-        default:
-            throw Error.BadStatusName
-        }
-    }
 }
 
 func matches(string s: String, pattern: String) throws -> [String] {
@@ -62,20 +32,15 @@ func matches(string s: String, pattern: String) throws -> [String] {
     return results
 }
 
-func versionAndStatus(filename s: String) throws -> (version:String, status:Status) {
-    
+func versionAndStatus(filename s: String) throws -> (version:String, status:String) {
     let results = try matches(string: s, pattern: "(\\d)_(\\d)_(\\S*)\\.txt")
     guard results.count == 3 else { throw Error.BadFormat }
-    
-    let (major, minor, statusString) = (results[0], results[1], results[2])
-    
-    let status = try Status.statusWithName(statusString)
-    return (version:"\(major).\(minor)", status:status)
+    return (version:"\(results[0]).\(results[1])", status:results[2])
 }
 
-func readData(path path:String) throws -> ([String], [String:[String:Status]]) {
+func readData(path path:String) throws -> ([String], [String:[String:String]]) {
     
-    var d : [String:[String:Status]] = [:]
+    var d : [String:[String:String]] = [:]
     
     var versions = Set<String>()
     
@@ -104,7 +69,16 @@ private func saveAsPNGWithName(fileName: String, bitmap: NSBitmapImageRep) -> Bo
     return false
 }
 
-private func drawIntoBitmap(bitmap: NSBitmapImageRep, versions: [String], data d:[String:[String:Status]] ) {
+private func color(status:String) -> NSColor {
+    switch status {
+    case "pub": return NSColor(calibratedRed:0.0, green: 102.0/255.0, blue:0.0, alpha:1.0)
+    case "pri": return NSColor.redColor()
+    case "lib": return NSColor.blueColor()
+    default: return NSColor.whiteColor()
+    }
+}
+
+private func drawIntoBitmap(bitmap: NSBitmapImageRep, versions: [String], data d:[String:[String:String]] ) {
     let context = NSGraphicsContext(bitmapImageRep: bitmap)
     let cgContext : CGContextRef? = context?.CGContext
     
@@ -125,19 +99,21 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, versions: [String], data d
     NSRectFill(CGRectMake(0, 0, bitmap.size.width, bitmap.size.height))
     
     for (i, s) in sortedSymbols.enumerate() {
-        // draw symbols lines
-        let x = CGFloat(versions.count * BOX_WIDTH + 3)
-        let y = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * LINE_HEIGHT)
+        // draw symbols
+        let x = CGFloat(versions.count * COL_WIDTH + 3)
+        let y = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * ROW_HEIGHT)
         s.drawAtPoint(CGPointMake(x, y), withAttributes:textAttributes)
         
         // fill boxes
         for (version, status) in d[s]! {
-            status.color().setFill()
+            color(status).setFill()
             
-            let x = CGFloat(versions.indexOf(version)! * BOX_WIDTH) + 1
-            let y = bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * LINE_HEIGHT - 1)
-            
-            let rect = CGRectMake(x, y, CGFloat(BOX_WIDTH) - 1, CGFloat(LINE_HEIGHT - 1))
+            let rect = CGRectMake(
+                CGFloat(versions.indexOf(version)! * COL_WIDTH) + 1,
+                bitmap.size.height - CGFloat(2 * TOP_MARGIN_HEIGHT + i * ROW_HEIGHT - 1),
+                CGFloat(COL_WIDTH) - 1,
+                CGFloat(ROW_HEIGHT - 1)
+            )
             
             NSRectFill(rect)
         }
@@ -148,22 +124,22 @@ private func drawIntoBitmap(bitmap: NSBitmapImageRep, versions: [String], data d
     for (i, v) in versions.enumerate() {
         let current_major : String = v.componentsSeparatedByString(".")[0]
         if current_major != major {
-            let p1 = CGPointMake(CGFloat(i * BOX_WIDTH), 0)
-            let p2 = CGPointMake(CGFloat(i * BOX_WIDTH), CGFloat(d.count * LINE_HEIGHT + TOP_MARGIN_HEIGHT))
+            let p1 = CGPointMake(CGFloat(i * COL_WIDTH), 0)
+            let p2 = CGPointMake(CGFloat(i * COL_WIDTH), CGFloat(d.count * ROW_HEIGHT + TOP_MARGIN_HEIGHT))
             NSBezierPath.strokeLineFromPoint(p1, toPoint: p2)
             
             major = current_major
         }
         // draw column headers
-        v.drawAtPoint(CGPointMake(CGFloat(i * BOX_WIDTH + 7), bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT)), withAttributes:textAttributes)
+        v.drawAtPoint(CGPointMake(CGFloat(i * COL_WIDTH + 7), bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT)), withAttributes:textAttributes)
     }
     
-    let p1 = CGPointMake(CGFloat(versions.count * BOX_WIDTH), bitmap.size.height)
-    let p2 = CGPointMake(CGFloat(versions.count * BOX_WIDTH), bitmap.size.height - CGFloat(d.count * LINE_HEIGHT + TOP_MARGIN_HEIGHT))
+    let p1 = CGPointMake(CGFloat(versions.count * COL_WIDTH), bitmap.size.height)
+    let p2 = CGPointMake(CGFloat(versions.count * COL_WIDTH), bitmap.size.height - CGFloat(d.count * ROW_HEIGHT + TOP_MARGIN_HEIGHT))
     NSBezierPath.strokeLineFromPoint(p1, toPoint: p2)
     
     let p3 = CGPointMake(0, bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT))
-    let p4 = CGPointMake(CGFloat(versions.count * BOX_WIDTH), bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT))
+    let p4 = CGPointMake(CGFloat(versions.count * COL_WIDTH), bitmap.size.height - CGFloat(TOP_MARGIN_HEIGHT))
     NSBezierPath.strokeLineFromPoint(p3, toPoint: p4)
     
     CGContextRestoreGState(cgContext)
@@ -177,7 +153,7 @@ public func main() -> Int {
     }
     
     let versions : [String]
-    let d : [String:[String:Status]]
+    let d : [String:[String:String]]
     
     do {
         (versions, d) = try readData(path:Process.arguments[1])
@@ -186,11 +162,12 @@ public func main() -> Int {
         return 1
     }
     
-    let WIDTH = CGFloat(versions.count * BOX_WIDTH + RIGHT_MARGIN_WIDTH)
-    let HEIGHT = CGFloat(d.count * LINE_HEIGHT + TOP_MARGIN_HEIGHT)
+    let WIDTH = CGFloat(versions.count * COL_WIDTH + RIGHT_MARGIN_WIDTH)
+    let HEIGHT = CGFloat(d.count * ROW_HEIGHT + TOP_MARGIN_HEIGHT)
     let SIZE = CGSize(width: WIDTH, height: HEIGHT)
     
-    let optBitmapImageRep = NSBitmapImageRep(bitmapDataPlanes:nil,
+    let optBitmapImageRep = NSBitmapImageRep(
+        bitmapDataPlanes:nil,
         pixelsWide:Int(SIZE.width),
         pixelsHigh:Int(SIZE.height),
         bitsPerSample:8,
@@ -199,7 +176,8 @@ public func main() -> Int {
         isPlanar:false,
         colorSpaceName:NSDeviceRGBColorSpace,
         bytesPerRow:0,
-        bitsPerPixel:0)
+        bitsPerPixel:0
+    )
     
     guard let bitmap = optBitmapImageRep else { fatalError("can't create bitmap image rep") }
     
@@ -218,4 +196,4 @@ public func main() -> Int {
     return success ? 0 : 1
 }
 
-main()
+//main()
