@@ -23,10 +23,14 @@ func matches(string s: String, pattern: String) throws -> [String] {
     let regex = try NSRegularExpression(pattern: pattern, options: [])
     let matches = regex.matchesInString(s, options: [], range: NSMakeRange(0, s.characters.count))
     
+    guard matches.count > 0 else { return [] }
+    
+    let textCheckingResult = matches[0]
+    
     var results = [String]()
     
-    for index in 1..<matches[0].numberOfRanges {
-        results.append((s as NSString).substringWithRange(matches[0].rangeAtIndex(index)))
+    for index in 1..<textCheckingResult.numberOfRanges {
+        results.append((s as NSString).substringWithRange(textCheckingResult.rangeAtIndex(index)))
     }
     
     return results
@@ -196,4 +200,4 @@ public func main() -> Int {
     return success ? 0 : 1
 }
 
-//main()
+main()
