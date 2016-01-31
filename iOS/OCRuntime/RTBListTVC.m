@@ -25,7 +25,7 @@
 
 - (void)setupIndexedClassStubs {
     
-    self.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", self.titleForNavigationItem, [self.classStubs count]];
+    self.navigationItem.title = [NSString stringWithFormat:@"%@ (%lu)", self.titleForNavigationItem, (unsigned long)[self.classStubs count]];
     
     NSMutableArray *ma = [[NSMutableArray alloc] init];
     
