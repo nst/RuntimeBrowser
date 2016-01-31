@@ -53,7 +53,7 @@
     
     for(RTBProtocol *p in self.protocolStubs) {
         
-        if(_filterStringLowercase != nil && [[p.protocolName lowercaseString] containsString:_filterStringLowercase] == NO) {
+        if(_filterStringLowercase != nil && [[p.protocolName lowercaseString] rangeOfString:_filterStringLowercase].location == NSNotFound) {
             continue;
         }
         

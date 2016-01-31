@@ -35,7 +35,7 @@
     
     for(RTBClass *cs in self.classStubs) {
         
-        if(_filterStringLowercase && [[cs.classObjectName lowercaseString] containsString:_filterStringLowercase] == NO) {
+        if(_filterStringLowercase && [[cs.classObjectName lowercaseString] rangeOfString:_filterStringLowercase].location == NSNotFound) {
             continue;
         }
 
