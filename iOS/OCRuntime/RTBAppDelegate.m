@@ -219,7 +219,7 @@
     
     [allClassesByImagesPath enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         BOOL isDylib = [[key pathExtension] isEqualToString:@"dylib"];
-        if([key containsString:name] || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
+        if([key rangeOfString:name].location != NSNotFound || (isDylib && [[key lastPathComponent] isEqualToString:[name lastPathComponent]])) {
             classes = obj;
             *stop = YES;
         }

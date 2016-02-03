@@ -25,7 +25,7 @@
 
 - (void)setupIndexedClassStubs {
     
-    self.navigationItem.title = [NSString stringWithFormat:@"%@ (%d)", self.titleForNavigationItem, [self.classStubs count]];
+    self.navigationItem.title = [NSString stringWithFormat:@"%@ (%lu)", self.titleForNavigationItem, (unsigned long)[self.classStubs count]];
     
     NSMutableArray *ma = [[NSMutableArray alloc] init];
     
@@ -35,7 +35,7 @@
     
     for(RTBClass *cs in self.classStubs) {
         
-        if(_filterStringLowercase && [[cs.classObjectName lowercaseString] containsString:_filterStringLowercase] == NO) {
+        if(_filterStringLowercase && [[cs.classObjectName lowercaseString] rangeOfString:_filterStringLowercase].location == NSNotFound) {
             continue;
         }
 

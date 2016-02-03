@@ -43,7 +43,7 @@
 
 - (void)setupIndexedClassStubs {
 
-    self.navigationItem.title = [NSString stringWithFormat:@"All Protocols (%d)", [self.protocolStubs count]];
+    self.navigationItem.title = [NSString stringWithFormat:@"All Protocols (%lu)", (unsigned long)[self.protocolStubs count]];
 
     NSMutableArray *ma = [[NSMutableArray alloc] init];
     
@@ -53,7 +53,7 @@
     
     for(RTBProtocol *p in self.protocolStubs) {
         
-        if(_filterStringLowercase != nil && [[p.protocolName lowercaseString] containsString:_filterStringLowercase] == NO) {
+        if(_filterStringLowercase != nil && [[p.protocolName lowercaseString] rangeOfString:_filterStringLowercase].location == NSNotFound) {
             continue;
         }
         

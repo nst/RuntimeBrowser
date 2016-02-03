@@ -162,7 +162,7 @@
             if (idx <= 1) return; // skip id and SEL
 
             // eg. "(unsigned long)arg1"
-            NSString *s = [NSString stringWithFormat:@"(%@)arg%d", argType, idx-1];
+            NSString *s = [NSString stringWithFormat:@"(%@)arg%lu", argType, idx-1];
             [params addObject:s];
         }];
         
@@ -510,7 +510,7 @@
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"int"].location != NSNotFound) {
                     // int
-                    int obj = [[parameters objectAtIndex:x] integerValue];
+                    NSInteger obj = [[parameters objectAtIndex:x] integerValue];
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"id"].location != NSNotFound) {
                     // id
@@ -568,7 +568,7 @@
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"int"].location != NSNotFound) {
                     // int
-                    int obj = [[parameters objectAtIndex:x] integerValue];
+                    NSInteger obj = [[parameters objectAtIndex:x] integerValue];
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"id"].location != NSNotFound) {
                     // id
@@ -614,7 +614,7 @@
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"int"].location != NSNotFound) {
                     // int
-                    int obj = [[parameters objectAtIndex:x] integerValue];
+                    NSInteger obj = [[parameters objectAtIndex:x] integerValue];
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"id"].location != NSNotFound) {
                     // id
@@ -666,7 +666,7 @@
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"int"].location != NSNotFound) {
                     // int
-                    int obj = [[parameters objectAtIndex:x] integerValue];
+                    NSInteger obj = [[parameters objectAtIndex:x] integerValue];
                     [inv setArgument:&obj atIndex:(x + 2)];
                 } else if ([[removing objectAtIndex:x] rangeOfString:@"id"].location != NSNotFound) {
                     // id
@@ -725,7 +725,7 @@
         if([returnTypeDecoded isEqualToString:@"NSInteger"] || [returnTypeDecoded isEqualToString:@"NSUInteger"] || [returnTypeDecoded hasSuffix:@"int"]) {
             o = [NSString stringWithFormat:@"%d", (int)o];
         } else if([returnTypeDecoded isEqualToString:@"double"] || [returnTypeDecoded isEqualToString:@"float"]) {
-            o = [NSString stringWithFormat:@"%f", o];
+            o = [NSString stringWithFormat:@"%f", [o floatValue]];
         } else if([returnTypeDecoded isEqualToString:@"BOOL"]) {
             o = ([o boolValue]) ? @"YES" : @"NO";
         } else if ([returnTypeDecoded isEqualToString:@"void"]) {
