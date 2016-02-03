@@ -725,7 +725,7 @@
         if([returnTypeDecoded isEqualToString:@"NSInteger"] || [returnTypeDecoded isEqualToString:@"NSUInteger"] || [returnTypeDecoded hasSuffix:@"int"]) {
             o = [NSString stringWithFormat:@"%d", (int)o];
         } else if([returnTypeDecoded isEqualToString:@"double"] || [returnTypeDecoded isEqualToString:@"float"]) {
-            o = [NSString stringWithFormat:@"%@", o];
+            o = [NSString stringWithFormat:@"%f", [o floatValue]];
         } else if([returnTypeDecoded isEqualToString:@"BOOL"]) {
             o = ([o boolValue]) ? @"YES" : @"NO";
         } else if ([returnTypeDecoded isEqualToString:@"void"]) {
