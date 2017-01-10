@@ -38,9 +38,9 @@ static const NSUInteger kPrivateFrameworks = 1;
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if(section == kPublicFrameworks) {
-        return [_publicFrameworks count];
+        return [_filteredPublicFrameworks count];
     } else if (section == kPrivateFrameworks) {
-        return [_privateFrameworks count];
+        return [_filteredPrivateFrameworks count];
     }
     return 0;
 }
@@ -52,9 +52,9 @@ static const NSUInteger kPrivateFrameworks = 1;
     NSBundle *b = nil;
     
     if(indexPath.section == kPublicFrameworks) {
-        b = [_publicFrameworks objectAtIndex:indexPath.row];
+        b = [_filteredPublicFrameworks objectAtIndex:indexPath.row];
     } else {
-        b = [_privateFrameworks objectAtIndex:indexPath.row];
+        b = [_filteredPrivateFrameworks objectAtIndex:indexPath.row];
     }
     
     NSString *name = [[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];
@@ -68,9 +68,9 @@ static const NSUInteger kPrivateFrameworks = 1;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSBundle *b = nil;
     if(indexPath.section == kPublicFrameworks) {
-        b = [_publicFrameworks objectAtIndex:indexPath.row];
+        b = [_filteredPublicFrameworks objectAtIndex:indexPath.row];
     } else {
-        b = [_privateFrameworks objectAtIndex:indexPath.row];
+        b = [_filteredPrivateFrameworks objectAtIndex:indexPath.row];
     }
     
     NSString *bundlePath = [b bundlePath];
@@ -108,6 +108,23 @@ static const NSUInteger kPrivateFrameworks = 1;
     listTVC.titleForNavigationItem = name;
     
     [self.navigationController pushViewController:listTVC animated:YES];
+}
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
+	NSString *filter = [searchController.searchBar.text lowercaseString];
+	if ([filter length] != 0) {
+        NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+            return [[[[[evaluatedObject bundlePath] lastPathComponent] stringByDeletingPathExtension] lowercaseString] containsString:filter];
+        }];
+        self.filteredPublicFrameworks = [self.publicFrameworks filteredArrayUsingPredicate:predicate];
+        self.filteredPrivateFrameworks = [self.privateFrameworks filteredArrayUsingPredicate:predicate];
+    } else {
+        self.filteredPublicFrameworks = self.publicFrameworks;
+        self.filteredPrivateFrameworks = self.privateFrameworks;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
 }
 
 - (IBAction)loadAllFrameworks:(id)sender {
@@ -217,6 +234,18 @@ static const NSUInteger kPrivateFrameworks = 1;
     return a;
 }
 
+- (void)setPublicFrameworks:(NSArray *)publicFrameworks {
+	_publicFrameworks = publicFrameworks;
+	_filteredPublicFrameworks = publicFrameworks;
+	[self updateSearchResultsForSearchController:self.searchController];
+}
+
+- (void)setPrivateFrameworks:(NSArray *)privateFrameworks {
+	_privateFrameworks = privateFrameworks;
+	_filteredPrivateFrameworks = privateFrameworks;
+	[self updateSearchResultsForSearchController:self.searchController];
+}
+
 - (void)viewDidLoad {
     self.title = @"Frameworks";
     
@@ -226,6 +255,13 @@ static const NSUInteger kPrivateFrameworks = 1;
     
     self.privateFrameworks = [self frameworksAtPath:@"/System/Library/PrivateFrameworks"];
     self.publicFrameworks = [self frameworksAtPath:@"/System/Library/Frameworks"];
+	
+	self.searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
+	self.definesPresentationContext = YES;
+	self.searchController.searchResultsUpdater = self;
+	self.searchController.dimsBackgroundDuringPresentation = NO;
+    self.searchController.hidesNavigationBarDuringPresentation = NO;
+	self.tableView.tableHeaderView = self.searchController.searchBar;
     
     [super viewDidLoad];
 }
