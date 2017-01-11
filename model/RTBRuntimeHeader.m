@@ -301,10 +301,16 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
             
             if([categoryName length] > 0) [header appendFormat:@"// %@ (%@)\n\n", NSStringFromClass(aClass), categoryName];
 
-            unichar previousSign = '\0';
+            __block unichar previousSign = '\0';
             
-            for(RTBMethod *m in methods) {
+            [methods enumerateObjectsUsingBlock:^(RTBMethod *m, NSUInteger idx, BOOL * _Nonnull stop) {
                 NSString *headerDescription = [m headerDescriptionWithNewlineAfterArgs:NO];
+                
+                if([headerDescription length] == 0) {
+                    [header appendFormat:@"/* MISSING HEADER DESCRIPTION FOR METHOD %@ */\n", NSStringFromSelector(m.selector)];
+                    return;
+                }
+                
                 assert([headerDescription length] > 0);
                 unichar currentSign = [headerDescription characterAtIndex:0];
                 if(previousSign != '\0' && currentSign != previousSign) {
@@ -312,7 +318,7 @@ OBJC_EXPORT const char *_protocol_getMethodTypeEncoding(Protocol *, SEL, BOOL is
                 }
                 previousSign = currentSign;
                 [header appendFormat:@"%@\n", headerDescription];
-            }
+            }];
         }];
         
     }];

@@ -12,6 +12,7 @@
 
 - (void)setTextColor:(UIColor *)color font:(UIFont *)font range:(NSRange)range {
     NSDictionary *d = @{ NSForegroundColorAttributeName : color, NSFontAttributeName : font };
+    if(range.location + range.length > [self length]) return;
     [self setAttributes:d range:range];
 }
 
