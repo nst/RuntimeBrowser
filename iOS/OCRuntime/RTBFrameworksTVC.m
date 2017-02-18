@@ -207,20 +207,29 @@ static const NSUInteger kPrivateFrameworks = 1;
 }
 
 - (NSArray *)frameworksAtPath:(NSString *)path {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSError *error = nil;
-    NSArray *c = [fm contentsOfDirectoryAtPath:path error:&error];
-    if(c == nil) NSLog(@"-- %@", error);
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    NSMutableArray *ma = [NSMutableArray array];
-    for(NSString *s in c) {
-        if([[s pathExtension] isEqualToString:@"framework"]) {
-            NSBundle *b = [NSBundle bundleWithPath:[path stringByAppendingPathComponent:s]];
-            if(b) [ma addObject:b];
+    NSDirectoryEnumerator *directoryEnumerator = [fileManager enumeratorAtURL:[NSURL fileURLWithPath:path] includingPropertiesForKeys:@[] options:0 errorHandler:^BOOL(NSURL *url, NSError *error) {
+        NSLog(@"Error for framework at URL %@ -- %@", url, error);
+        return YES;
+    }];
+    
+    NSMutableArray<NSString *> *frameworks = [NSMutableArray array];
+    for( NSURL *fileURL in directoryEnumerator ) {
+        if ( [fileURL.absoluteString.pathExtension isEqualToString:@"framework"] ) {
+            [frameworks addObject:fileURL.relativePath];
         }
     }
     
-    return ma;
+    NSMutableArray *bundles = [NSMutableArray array];
+    for( NSString *frameworkPath in frameworks ) {
+        NSBundle *bundle = [NSBundle bundleWithPath:frameworkPath];
+        if( bundle ) {
+            [bundles addObject:bundle];
+        }
+    }
+    
+    return bundles;
 }
 
 - (NSArray *)loadedBundleFrameworks {
