@@ -128,16 +128,20 @@ static const NSUInteger kPrivateFrameworks = 1;
 }
 
 - (IBAction)loadAllFrameworks:(id)sender {
-    _alertView = [[UIAlertView alloc] init];
-    _alertView.title = @"Loading All Frameworks";
-    _alertView.message = nil;
     
-    _progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(20.0, 60.0, 245.0, 9.0)];
-    _progressView.progress = 0.0;
-    [_alertView addSubview:_progressView];
-    [_alertView show];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Loading All Frameworks" message:nil preferredStyle:UIAlertControllerStyleAlert];
     
     __weak typeof(self) weakSelf = self;
+    
+    [self presentViewController:alertController animated:YES completion:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if(strongSelf == nil) return;
+        CGFloat margin = 8.0;
+        CGFloat progressHeight = 2;
+        strongSelf.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(margin, alertController.view.frame.size.height - progressHeight, alertController.view.frame.size.width - margin * 2.0 , progressHeight)];
+        strongSelf.progressView.progress = 0.0;
+        [alertController.view addSubview:strongSelf.progressView];
+    }];
     
     NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
         
@@ -217,7 +221,7 @@ static const NSUInteger kPrivateFrameworks = 1;
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
             
-            [strongSelf.alertView dismissWithClickedButtonIndex:0 animated:YES];
+            [strongSelf dismissViewControllerAnimated:YES completion:nil];
             
             [strongSelf.allClasses emptyCachesAndReadAllRuntimeClasses];
             

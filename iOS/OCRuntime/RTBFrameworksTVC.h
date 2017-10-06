@@ -20,7 +20,6 @@
 @property (strong, nonatomic) NSArray *filteredPublicFrameworks;
 @property (strong, nonatomic) NSArray *filteredPrivateFrameworks;
 
-@property (strong, nonatomic) UIAlertView *alertView;
 @property (strong, nonatomic) UIProgressView *progressView;
 @property (strong, nonatomic) UISearchController *searchController;
 
