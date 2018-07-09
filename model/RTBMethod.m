@@ -132,9 +132,13 @@
     if(_cachedArgumentsTypesDecoded == nil) {
         /*
         NSString *methodName = [NSString stringWithCString:method_getName(_method) encoding:NSUTF8StringEncoding];
+        NSLog(@"-- methodName: %@", methodName);
         
-        if([self.filePath isEqualToString:@"/System/Library/PrivateFrameworks/CoreKnowledge.framework/CoreKnowledge"] && [methodName isEqualToString:@"identifier"]) {
-            return _cachedArgumentsTypesDecoded;
+        if([self.filePath isEqualToString:@"/System/Library/PrivateFrameworks/CoreKnowledge.framework/CoreKnowledge"]) {
+            NSArray *blacklistCoreKnowledgeSelectors = @[@"identifier", @"sql", @"writeBatch"];
+            if([blacklistCoreKnowledgeSelectors containsObject:methodName]) {
+                return _cachedArgumentsTypesDecoded;
+            }
         }
         */
         unsigned int numberOfArguments = method_getNumberOfArguments(_method);

@@ -55,30 +55,15 @@
 		03959DE2176AFC4D002A1FCC /* RTBAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DE1176AFC4D002A1FCC /* RTBAppDelegate.m */; };
 		03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 03959DE3176AFC4D002A1FCC /* Main.storyboard */; };
 		03959DED176AFC4D002A1FCC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03959DEC176AFC4D002A1FCC /* Images.xcassets */; };
-		03959DF5176AFC4E002A1FCC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD1176AFC4D002A1FCC /* Foundation.framework */; };
-		03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03959DD5176AFC4D002A1FCC /* UIKit.framework */; };
-		03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03959DFC176AFC4E002A1FCC /* InfoPlist.strings */; };
-		03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */; };
 		039CD1CD1AE8F94C001922CB /* RTBTypeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 039CD1CA1AE8F94C001922CB /* RTBTypeDecoder.m */; };
 		039CD1CE1AE8F94C001922CB /* RTBRuntimeHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 039CD1CC1AE8F94C001922CB /* RTBRuntimeHeader.m */; };
 		03B0E3661AED353900A9DAC3 /* RTBRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B0E3611AED353900A9DAC3 /* RTBRuntime.m */; };
 		03B0E3671AED353900A9DAC3 /* RTBClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B0E3631AED353900A9DAC3 /* RTBClass.m */; };
 		03B0E3681AED353900A9DAC3 /* RTBProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B0E3651AED353900A9DAC3 /* RTBProtocol.m */; };
 		03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
-		03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03F2FECE179C5B0A00D2DDF8 /* Keywords.plist */; };
 		03FA8B771AEE3D2500D55C16 /* RTBProtocolsTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA8B761AEE3D2500D55C16 /* RTBProtocolsTVC.m */; };
 		4CE3702117E375DD00CD4BF2 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CE3702017E375DD00CD4BF2 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		03959DF7176AFC4E002A1FCC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03959DC6176AFC4D002A1FCC /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 03959DCD176AFC4D002A1FCC;
-			remoteInfo = OCRuntime;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0308D73E1AFA3BB2000CEC87 /* RTBMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTBMethod.h; path = ../model/RTBMethod.h; sourceTree = "<group>"; };
@@ -167,7 +152,6 @@
 		03959DE1176AFC4D002A1FCC /* RTBAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RTBAppDelegate.m; sourceTree = "<group>"; };
 		03959DE4176AFC4D002A1FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		03959DEC176AFC4D002A1FCC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		03959DF2176AFC4E002A1FCC /* OCRuntimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OCRuntimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		03959DFB176AFC4E002A1FCC /* OCRuntimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCRuntimeTests-Info.plist"; sourceTree = "<group>"; };
 		03959DFD176AFC4E002A1FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03959DFF176AFC4E002A1FCC /* OCRuntimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCRuntimeTests.m; sourceTree = "<group>"; };
@@ -198,15 +182,6 @@
 				03959DD4176AFC4D002A1FCC /* CoreGraphics.framework in Frameworks */,
 				03959DD6176AFC4D002A1FCC /* UIKit.framework in Frameworks */,
 				03959DD2176AFC4D002A1FCC /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		03959DEF176AFC4E002A1FCC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				03959DF6176AFC4E002A1FCC /* UIKit.framework in Frameworks */,
-				03959DF5176AFC4E002A1FCC /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,7 +306,6 @@
 			isa = PBXGroup;
 			children = (
 				03959DCE176AFC4D002A1FCC /* OCRuntime.app */,
-				03959DF2176AFC4E002A1FCC /* OCRuntimeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -442,24 +416,6 @@
 			productReference = 03959DCE176AFC4D002A1FCC /* OCRuntime.app */;
 			productType = "com.apple.product-type.application";
 		};
-		03959DF1176AFC4E002A1FCC /* OCRuntimeTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 03959E06176AFC4E002A1FCC /* Build configuration list for PBXNativeTarget "OCRuntimeTests" */;
-			buildPhases = (
-				03959DEE176AFC4E002A1FCC /* Sources */,
-				03959DEF176AFC4E002A1FCC /* Frameworks */,
-				03959DF0176AFC4E002A1FCC /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				03959DF8176AFC4E002A1FCC /* PBXTargetDependency */,
-			);
-			name = OCRuntimeTests;
-			productName = OCRuntimeTests;
-			productReference = 03959DF2176AFC4E002A1FCC /* OCRuntimeTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -470,10 +426,8 @@
 				ORGANIZATIONNAME = "Nicolas Seriot";
 				TargetAttributes = {
 					03959DCD176AFC4D002A1FCC = {
-						DevelopmentTeam = HK64RUWW3P;
-					};
-					03959DF1176AFC4E002A1FCC = {
-						TestTargetID = 03959DCD176AFC4D002A1FCC;
+						DevelopmentTeam = VBYRKYS73S;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -492,7 +446,6 @@
 			projectRoot = "";
 			targets = (
 				03959DCD176AFC4D002A1FCC /* OCRuntime */,
-				03959DF1176AFC4E002A1FCC /* OCRuntimeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -516,15 +469,6 @@
 				0360F50817969FDA00F58672 /* header.png in Resources */,
 				03F2FECF179C5B0A00D2DDF8 /* Keywords.plist in Resources */,
 				03959DE5176AFC4D002A1FCC /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		03959DF0176AFC4E002A1FCC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				03F2FED0179C5B0A00D2DDF8 /* Keywords.plist in Resources */,
-				03959DFE176AFC4E002A1FCC /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -575,23 +519,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		03959DEE176AFC4E002A1FCC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				03959E00176AFC4E002A1FCC /* OCRuntimeTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		03959DF8176AFC4E002A1FCC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 03959DCD176AFC4D002A1FCC /* OCRuntime */;
-			targetProxy = 03959DF7176AFC4E002A1FCC /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		03959DDA176AFC4D002A1FCC /* InfoPlist.strings */ = {
@@ -625,6 +553,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = armv7;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -670,6 +599,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = armv7;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -707,19 +637,19 @@
 		03959E04176AFC4E002A1FCC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = VBYRKYS73S;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OCRuntime/OCRuntime-Prefix.pch";
 				INFOPLIST_FILE = "OCRuntime/OCRuntime-Info.plist";
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "ch.seriot.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -728,63 +658,21 @@
 		03959E05176AFC4E002A1FCC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = VBYRKYS73S;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OCRuntime/OCRuntime-Prefix.pch";
 				INFOPLIST_FILE = "OCRuntime/OCRuntime-Info.plist";
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "ch.seriot.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
-			};
-			name = Release;
-		};
-		03959E07176AFC4E002A1FCC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/OCRuntime.app/OCRuntime";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "OCRuntime/OCRuntime-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "OCRuntimeTests/OCRuntimeTests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "ch.seriot.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Debug;
-		};
-		03959E08176AFC4E002A1FCC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/OCRuntime.app/OCRuntime";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(SYSTEM_APPS_DIR)/Xcode5-DP.app/Contents/Developer/Library/Frameworks",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "OCRuntime/OCRuntime-Prefix.pch";
-				INFOPLIST_FILE = "OCRuntimeTests/OCRuntimeTests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "ch.seriot.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -805,15 +693,6 @@
 			buildConfigurations = (
 				03959E04176AFC4E002A1FCC /* Debug */,
 				03959E05176AFC4E002A1FCC /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		03959E06176AFC4E002A1FCC /* Build configuration list for PBXNativeTarget "OCRuntimeTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				03959E07176AFC4E002A1FCC /* Debug */,
-				03959E08176AFC4E002A1FCC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
