@@ -155,11 +155,36 @@ static const NSUInteger kPrivateFrameworks = 1;
         NSUInteger total = [allFrameworks count];
         
         for(NSBundle *b in allFrameworks) {
-            
+            NSString *bundlePath = [b bundlePath];
 #if TARGET_IPHONE_SIMULATOR
-            if([[b bundlePath] isEqualToString:@"/System/Library/PrivateFrameworks/Safari.framework"]) {
-                NSLog(@"-- skip /System/Library/PrivateFrameworks/Safari.framework, known to be a crasher on simulator");
+            if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_8_0
+                && [bundlePath isEqualToString:@"/System/Library/PrivateFrameworks/Safari.framework"]) {
+                NSLog(@"-- skip %@, known to be a crasher on simulator", bundlePath);
                 continue;
+            
+            }
+            if (NSFoundationVersionNumber >= 1400
+                && [bundlePath isEqualToString:@"/System/Library/PrivateFrameworks/Spotlight.framework"]) {
+                NSLog(@"-- skip %@, known to be a crasher on simulator", bundlePath);
+                continue;
+            }
+#else
+            if (NSFoundationVersionNumber >= 1400) {
+                static NSSet *skipedFrameworks = nil;
+                if (!skipedFrameworks) {
+                    skipedFrameworks = [NSSet setWithObjects:
+                                        @"/System/Library/PrivateFrameworks/PowerlogLiteOperators.framework",
+                                        @"/System/Library/PrivateFrameworks/PowerlogCore.framework",
+                                        @"/System/Library/PrivateFrameworks/PowerlogHelperdOperators.framework",
+                                        @"/System/Library/PrivateFrameworks/PowerlogFullOperators.framework",
+                                        @"/System/Library/PrivateFrameworks/PowerlogAccounting.framework",
+                                        @"/System/Library/PrivateFrameworks/Accessibility.framework/Frameworks/AXSpringBoardServerInstance.framework", // It will stuck
+                                        nil];
+                }
+                if ([skipedFrameworks containsObject:bundlePath]) {
+                    NSLog(@"-- skip %@, known to be a crasher on device", bundlePath);
+                    continue;
+                }
             }
 #endif
             
