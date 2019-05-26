@@ -67,15 +67,18 @@ static NSString *IVAR_TAB = @"    ";
 //static NSMutableDictionary *cachedDecodedTypesForEncodedTypes = nil;
 //static NSMutableDictionary *cachedDecodedTypesForEncodedTypesFlat = nil;
 
-#define isTypeSpecifier(fc) (fc=='r'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='!')
+#define isTypeSpecifier(fc) (fc=='r'||fc=='R'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='A'||fc=='j'||fc=='!')
 
 NSString * rtb_argTypeSpecifierForEncoding(char fc) {
     if(fc == 'r') return @"const ";
+    if(fc == 'R') return @"byref ";
     if(fc == 'n') return @"in ";
     if(fc == 'N') return @"inout ";
     if(fc == 'o') return @"out ";
     if(fc == 'O') return @"bycopy ";
     if(fc == 'V') return @"oneway ";
+    if(fc == 'A') return @"_Atomic ";
+    if(fc == 'j') return @"_Complex ";
     if(fc == '!') return @""; // garbage-collector marked invisible -> ignore
     return nil;
 }
@@ -654,10 +657,6 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
                 if (typeSpec == nil) typeSpec = @"";
                 typeSpec = [typeSpec stringByAppendingString:rtb_argTypeSpecifierForEncoding(*ivT)];
                 // typeSpec = [typeSpec stringByAppendingString:(inParam ? argTypeSpecifierForEnoding(*ivT) : nil)];
-                ++ivT;
-            }
-            
-            while (*ivT == 'A') { // no idea what 'A' means, happens on BRNotificationReceiver _suspendCount
                 ++ivT;
             }
             
