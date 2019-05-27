@@ -709,9 +709,9 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     if (isUnnamedType) {
         
         BOOL isBlock = *ivT == '?';
+        ivT += isBlock; // only increament ivT if the next character is actually being consumed
         if(isBlock && [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"]) {
             typeS = (spaceAfter ? @"id /* block */ " : @"id /* block */");
-            ++ivT;
         } else {
             typeS = (spaceAfter ? @"id " : @"id");
         }
