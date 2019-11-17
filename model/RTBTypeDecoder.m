@@ -67,15 +67,18 @@ static NSString *IVAR_TAB = @"    ";
 //static NSMutableDictionary *cachedDecodedTypesForEncodedTypes = nil;
 //static NSMutableDictionary *cachedDecodedTypesForEncodedTypesFlat = nil;
 
-#define isTypeSpecifier(fc) (fc=='r'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='!')
+#define isTypeSpecifier(fc) (fc=='r'||fc=='R'||fc=='n'||fc=='N'||fc=='o'||fc=='O'||fc=='V'||fc=='A'||fc=='j'||fc=='!')
 
 NSString * rtb_argTypeSpecifierForEncoding(char fc) {
     if(fc == 'r') return @"const ";
+    if(fc == 'R') return @"byref ";
     if(fc == 'n') return @"in ";
     if(fc == 'N') return @"inout ";
     if(fc == 'o') return @"out ";
     if(fc == 'O') return @"bycopy ";
     if(fc == 'V') return @"oneway ";
+    if(fc == 'A') return @"_Atomic ";
+    if(fc == 'j') return @"_Complex ";
     if(fc == '!') return @""; // garbage-collector marked invisible -> ignore
     return nil;
 }
@@ -657,10 +660,6 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
                 ++ivT;
             }
             
-            while (*ivT == 'A') { // no idea what 'A' means, happens on BRNotificationReceiver _suspendCount
-                ++ivT;
-            }
-            
             if (typeSpec == nil) { // most common case: types are NOT modified by a specifier
                 
                 type = [self typeForFilerCode:*ivT spaceAfter:spaceAfter];
@@ -710,12 +709,12 @@ NSString *rtb_functionSignatureNote(BOOL showFunctionSignatureNote) {
     if (isUnnamedType) {
         
         BOOL isBlock = *ivT == '?';
+        ivT += isBlock; // only increament ivT if the next character is actually being consumed
         if(isBlock && [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBAddCommentsForBlocks"]) {
             typeS = (spaceAfter ? @"id /* block */ " : @"id /* block */");
         } else {
             typeS = (spaceAfter ? @"id " : @"id");
         }
-        ++ivT;
     }
     
     return [NSDictionary dictionaryWithObjectsAndKeys:typeS, TYPE_LABEL, modifierS, MODIFIER_LABEL, nil];
