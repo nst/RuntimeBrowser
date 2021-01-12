@@ -195,6 +195,13 @@ static const NSUInteger kPrivateFrameworks = 1;
                                         @"/System/Library/PrivateFrameworks/SpringBoardUI.framework",
                                         @"/System/Library/PrivateFrameworks/UserNotificationsUIKit.framework",
                                         @"/System/Library/PrivateFrameworks/VoiceShortcutsUI.framework",//ios 13.3
+                                        @"/System/Library/PrivateFrameworks/ActionKit.framework",
+                                        @"/System/Library/PrivateFrameworks/WorkflowUI.framework",
+                                        @"/System/Library/PrivateFrameworks/WorkflowEditor.framework",
+                                        @"/System/Library/PrivateFrameworks/AXSpringBoardServerInstance.framework",
+                                        @"/System/Library/PrivateFrameworks/HomeUI.framework",
+                                        @"/System/Library/PrivateFrameworks/ActionKitUI.framework",
+                                        @"/System/Library/PrivateFrameworks/VoiceShortcutsUICardKitProviderSupport.framework",
                                         nil];
                 }
                 if ([skipedFrameworks containsObject:bundlePath]) {
