@@ -469,16 +469,18 @@
             };
             
             if(categoryName == nil) categoryName = @"";
-            
-            if(groupsByImage[filePath] == nil) {
-                groupsByImage[filePath] = [NSMutableDictionary dictionary];
+
+            if (filePath != nil) {
+                if(groupsByImage[filePath] == nil) {
+                    groupsByImage[filePath] = [NSMutableDictionary dictionary];
+                }
+
+                if(groupsByImage[filePath][categoryName] == nil) {
+                    groupsByImage[filePath][categoryName] = [NSMutableArray array];
+                }
+                
+                [groupsByImage[filePath][categoryName] addObject:m];
             }
-            
-            if(groupsByImage[filePath][categoryName] == nil) {
-                groupsByImage[filePath][categoryName] = [NSMutableArray array];
-            }
-            
-            [groupsByImage[filePath][categoryName] addObject:m];
         }
         
         free(methodList);
