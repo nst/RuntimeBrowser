@@ -602,6 +602,9 @@
     [_classBrowser setCellClass:[BrowserCell class]];
     
     [_headerTextView setFont:[NSFont userFixedPitchFontOfSize:11.0]]; // TODO -- make size and font a default
+    if (@available(macOS 10.14, *)) {
+        [_headerTextView setUsesAdaptiveColorMappingForDarkAppearance:YES];
+    }
     
     RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
     [self changeViewTypeTo:viewType];
