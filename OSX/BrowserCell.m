@@ -32,7 +32,7 @@
         return [[NSWorkspace sharedWorkspace] iconForFile:path];
     }
     
-    NSArray *extensions = [NSArray arrayWithObjects:@".dylib", @".framework", @".bundle", @".dylib", nil];
+    NSArray *extensions = @[@".dylib", @".framework", @".bundle"];
     for(NSString *ext in extensions) {
         if([s rangeOfString:ext].location != NSNotFound) return [NSImage imageNamed:@"framework.tiff"];
     }

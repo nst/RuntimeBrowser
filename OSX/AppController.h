@@ -45,40 +45,21 @@ Boston, MA  02111-1307  USA
 @class RTBRuntime;
 @class BrowserNode;
 
-typedef enum {
-	RBBrowserViewTypeImages = 0,
-	RBBrowserViewTypeList = 1,
-	RBBrowserViewTypeTree = 2,
+typedef NS_ENUM(NSInteger, RBBrowserViewType) {
+    RBBrowserViewTypeImages = 0,
+    RBBrowserViewTypeList = 1,
+    RBBrowserViewTypeTree = 2,
     RBBrowserViewTypeProtocols = 3
-} RBBrowserViewType;
+};
 
-@interface AppController : NSObject <NSOpenSavePanelDelegate, NSBrowserDelegate> {
-    
-#ifdef DEBUG
-    double searchStart;
-#endif
-    
-    BrowserNode *searchResultsNode;
-	
-	RTBRuntime *allClasses;
-    
-	NSString *openDir;
-	NSURL *saveDirURL;
-	
-	NSArray *keywords;
-	NSArray *classes;
-
-	NSMutableArray *searchResults;
-    
-    NSOperationQueue *searchQueue;
-}
+@interface AppController : NSObject <NSOpenSavePanelDelegate, NSBrowserDelegate>
 
 @property (nonatomic, strong) IBOutlet NSTextField *label;
 @property (nonatomic, strong) IBOutlet NSBrowser *classBrowser;
 @property (nonatomic, strong) IBOutlet NSTextView *headerTextView;
 @property (nonatomic, strong) IBOutlet NSSegmentedControl *segmentedControl;
 @property (nonatomic, strong) IBOutlet NSSearchField *searchField;
-@property (nonatomic, strong) NSWindow *mainWindow;
+@property (nonatomic, strong) IBOutlet NSWindow *mainWindow;
 @property (nonatomic, strong) NSURL *saveDirURL;
 @property (nonatomic, strong) NSArray *keywords;
 @property (nonatomic, strong) RTBRuntime *allClasses;

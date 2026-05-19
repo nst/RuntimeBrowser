@@ -8,13 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface BrowserNode : NSObject {
-	NSString *nodeName;
-	NSArray *children;
-}
+@interface BrowserNode : NSObject
 
-@property (nonatomic, retain) NSString *nodeName;
-@property (nonatomic, retain) NSArray *children;
+@property (nonatomic, strong) NSString *nodeName;
+@property (nonatomic, strong) NSArray *children;
 
 + (BrowserNode *)rootNodeImages;
 + (BrowserNode *)rootNodeList;

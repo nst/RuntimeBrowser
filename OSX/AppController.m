@@ -48,31 +48,21 @@
 
 @implementation AppController
 
-@synthesize saveDirURL;
-//@synthesize openDir;
-@synthesize keywords;
-@synthesize classes;
-@synthesize allClasses;
-@synthesize segmentedControl;
-@synthesize searchResultsNode;
-@synthesize mainWindow;
-@synthesize searchResults;
-@synthesize searchQueue;
-
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
-- (id)init {
+- (instancetype)init {
     self = [super init];
-    
+    if(self == nil) return nil;
+
     NSString *keywordsPath = [[NSBundle mainBundle] pathForResource:@"Keywords" ofType:@"plist"];
-    
     self.keywords = [NSArray arrayWithContentsOfFile:keywordsPath];
-    
+
     self.allClasses = [RTBRuntime sharedInstance];
-    
-    NSDictionary *defaultsPath = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"]];
-    [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsPath];
-    
+
+    NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
+    NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+
     return self;
 }
 
@@ -81,11 +71,15 @@
     return [item canBeSavedAsHeader];
 }
 
+- (RBBrowserViewType)currentViewType {
+    return (RBBrowserViewType)[[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
+}
+
 - (void)loadBundlesURLs:(NSArray *)bundlesURLs {
     BOOL loadedNew = NO;
-    
+
     NSMutableArray *errors = [NSMutableArray array];
-    
+
     for (NSURL *url in bundlesURLs) {
         NSBundle *bundle = [NSBundle bundleWithURL:url];
         NSError *error = nil;
@@ -94,125 +88,103 @@
             [errors addObject:error];
         }
     }
-    
+
     // we show only one error
     NSError *error = [errors lastObject];
     if(error) {
         NSAlert *alert = [NSAlert alertWithError:error];
         [alert runModal];
     }
-    
+
     if (loadedNew) {
-        //[classBrowser scrollColumnToVisible:0];
-        [allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
+        [self.allClasses emptyCachesAndReadAllRuntimeClasses]; // TODO: read only classes from bundles instead of everything
         [_classBrowser loadColumnZero];
-        
-        //self.openDir = [[bundlesURLs lastObject] stringByDeletingLastPathComponent];
+
         [_label setStringValue:@"Select a Class"];
         [_headerTextView setString:@""];
-        
-        RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
-        if(viewType == RBBrowserViewTypeImages) {
-            NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[allClasses allClassStubsByImagePath] count]];
+
+        if([self currentViewType] == RBBrowserViewTypeImages) {
+            NSString *rootTitle = [NSString stringWithFormat:@"%lu images", (unsigned long)[[self.allClasses allClassStubsByImagePath] count]];
             [_classBrowser setTitle:rootTitle ofColumn:0];
         }
-        
-        // empty search cache
+
         self.cachedClassStubsMatchingForSearchStringLowercase = nil;
     }
 }
 
-- (void)application:(NSApplication *)sender openFiles:(NSArray *)filenames {
-    
-    NSMutableArray *urls = [NSMutableArray arrayWithCapacity:[filenames count]];
-    
-    for(NSString *path in filenames) {
-        NSURL *url = [NSURL URLWithString:path];
-        [urls addObject:url];
-    }
-    
+- (void)application:(NSApplication *)application openURLs:(NSArray<NSURL *> *)urls {
     [self loadBundlesURLs:urls];
 }
 
 - (NSArray *)acceptableExtensions {
-    return [NSArray arrayWithObjects:@"dylib", @"framework", @"bundle", @"app", nil];//@"EOMbundle", @"EOMplugin", @"woa", @"dll", @"exe"
+    return @[@"dylib", @"framework", @"bundle", @"app"];
 }
 
 - (IBAction)openAction:(id)sender {
-    
+
     NSOpenPanel *oPanel = [NSOpenPanel openPanel];
-    
+
     [oPanel setAllowsMultipleSelection:YES];
     [oPanel setCanChooseDirectories:YES];
     [oPanel setCanChooseFiles:YES];
-    
-    [oPanel beginSheetModalForWindow:mainWindow completionHandler:^(NSInteger result) {
+
+    [oPanel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSModalResponse result) {
         if (result == NSModalResponseOK) {
-            NSArray *urlsToOpen = [oPanel URLs];
-            [self loadBundlesURLs:urlsToOpen];
+            [self loadBundlesURLs:[oPanel URLs]];
         }
     }];
 }
 
 - (IBAction)saveAction:(id)sender {
-    
+
     NSString *className = [[_classBrowser selectedCell] stringValue];
     if ([className length] == 0) {
-        NSRunAlertPanel(nil, @"Select a class before saving.", @"OK", nil, nil);
+        NSAlert *alert = [[NSAlert alloc] init];
+        alert.messageText = @"Select a class before saving.";
+        [alert addButtonWithTitle:@"OK"];
+        [alert runModal];
         return;
     }
-    
+
     NSSavePanel *sp = [NSSavePanel savePanel];
-    [sp setDirectoryURL:saveDirURL];
-    [sp setAllowedFileTypes:[NSArray arrayWithObject:@"h"]];
+    [sp setDirectoryURL:self.saveDirURL];
+    [sp setAllowedFileTypes:@[@"h"]];
     [sp setNameFieldStringValue:className];
-    
+
     __weak typeof(self) weakSelf = self;
-    
-    [sp beginSheetModalForWindow:[_classBrowser window] completionHandler:^(NSInteger result) {
-        
+
+    [sp beginSheetModalForWindow:[_classBrowser window] completionHandler:^(NSModalResponse result) {
+
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if(strongSelf == nil) return;
-        
+
         if ( result != NSModalResponseOK ) return;
-        
+
         NSString *fileContents = [strongSelf.headerTextView string];
         NSURL *fileURL = [sp URL];
-        
+
         NSError *error = nil;
         [[NSProcessInfo processInfo] disableSuddenTermination];
-        //        if(canUseLionAPIs) {
-        //            [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
-        //        }
-        
+
         BOOL success = [fileContents writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error];
         [[NSProcessInfo processInfo] enableSuddenTermination];
-        //        if(canUseLionAPIs) {
-        //            [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
-        //		}
-        
+
         if (success) {
-            self.saveDirURL = [fileURL URLByDeletingLastPathComponent];
+            strongSelf.saveDirURL = [fileURL URLByDeletingLastPathComponent];
         } else {
-            
-            NSAlert *alert = [NSAlert alertWithMessageText:@"Save Failed :( !"
-                                             defaultButton:@"OK"
-                                           alternateButton:nil
-                                               otherButton:nil
-                                 informativeTextWithFormat:@"Please try again, perhaps selecting a different file/directory. Error: %@", error];
-            
-            [alert beginSheetModalForWindow:self.mainWindow completionHandler:^(NSModalResponse returnCode) {
-                //
-            }];
-            
+            NSAlert *alert = [[NSAlert alloc] init];
+            alert.messageText = @"Save Failed :( !";
+            alert.informativeText = [NSString stringWithFormat:@"Please try again, perhaps selecting a different file/directory. Error: %@", error];
+            [alert addButtonWithTitle:@"OK"];
+            [alert beginSheetModalForWindow:strongSelf.mainWindow completionHandler:nil];
         }
     }];
 }
 
 - (IBAction)saveAllAction:(id)sender {
-    
+
     NSOpenPanel *sp = [NSOpenPanel openPanel]; // we want to open a folder to save
-    
+
     [sp setAllowsMultipleSelection:NO];
     [sp setCanChooseDirectories:YES];
     [sp setCanChooseFiles:NO];
@@ -220,40 +192,37 @@
     [sp setMessage:@"Choose a folder where to save all headers."];
     [sp setTitle:@"Save All Classes"];
     [sp setPrompt:@"Save"];
-    
+
     __weak typeof(self) weakSelf = self;
-    
-    [sp beginSheetModalForWindow:[_classBrowser window] completionHandler:^(NSInteger result) {
-        
+
+    [sp beginSheetModalForWindow:[_classBrowser window] completionHandler:^(NSModalResponse result) {
+
         if ( result != NSModalResponseOK ) return;
-        
+
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperationWithBlock:^{
-            
+
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
-            
+
             NSUInteger saved = 0;
             NSUInteger failed = 0;
             NSURL *dirURL = [sp URL];
-            
+
             NSArray *classNames = [[[strongSelf.allClasses allClassStubsByName] allKeys] copy];
-            
+
             [[NSProcessInfo processInfo] disableSuddenTermination];
-            //               if(canUseLionAPIs) {
-            //                   [[NSProcessInfo processInfo] disableAutomaticTermination:@"writing files"];
-            //               }
-            
+
             for(NSString *className in classNames) {
                 NSString *filename = [NSString stringWithFormat:@"%@.h", className];
                 NSURL *url = [dirURL URLByAppendingPathComponent:filename];
-                
+
                 BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
                 NSString *header = [RTBRuntimeHeader headerForClass:NSClassFromString(className) displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-                
+
                 NSError *error = nil;
                 BOOL success = [header writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
-                
+
                 if (success) {
                     ++saved;
                 } else {
@@ -261,28 +230,18 @@
                     NSLog(@"-- error, could not save class %@ at URL %@, error %@", className, url, error);
                 }
             }
-            
+
             [[NSProcessInfo processInfo] enableSuddenTermination];
-            //               if(canUseLionAPIs) {
-            //                   [[NSProcessInfo processInfo] enableAutomaticTermination:@"did finish writing files"];
-            //               }
-            
+
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                NSAlert *alert = [NSAlert alertWithMessageText:@"Save All Finished"
-                                                 defaultButton:@"OK"
-                                               alternateButton:nil
-                                                   otherButton:nil
-                                     informativeTextWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %@ classes failed to save.", [dirURL path], (unsigned long)saved, @(failed)];
-                
-                [alert beginSheetModalForWindow:self.mainWindow completionHandler:^(NSModalResponse returnCode) {
-                    //
-                }];
+                NSAlert *alert = [[NSAlert alloc] init];
+                alert.messageText = @"Save All Finished";
+                alert.informativeText = [NSString stringWithFormat:@"Done saving all classes into %@. \n  %lu classes saved. \n  %lu classes failed to save.", [dirURL path], (unsigned long)saved, (unsigned long)failed];
+                [alert addButtonWithTitle:@"OK"];
+                [alert beginSheetModalForWindow:strongSelf.mainWindow completionHandler:nil];
             }];
-            
         }];
-    }
-     ];
+    }];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)aMenuItem {
@@ -292,8 +251,7 @@
 }
 
 - (BOOL)shouldShowDisclosureIndicatorOnClasses {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
-    return viewType == RBBrowserViewTypeTree;
+    return [self currentViewType] == RBBrowserViewTypeTree;
 }
 
 - (BOOL)isInSearchMode {
@@ -336,22 +294,22 @@
 }
 
 - (IBAction)changeViewTypeFromSegmentedControl:(NSSegmentedControl *)sender {
-    RBBrowserViewType viewType = sender.selectedSegment;
+    RBBrowserViewType viewType = (RBBrowserViewType)sender.selectedSegment;
     if(viewType != RBBrowserViewTypeList) [_searchField setStringValue:@""];
-    
-    [self changeViewTypeTo:sender.selectedSegment];
+
+    [self changeViewTypeTo:viewType];
 }
 
 - (IBAction)changeViewTypeFromMenuItem:(NSMenuItem *)sender {
-    RBBrowserViewType viewType = [sender tag];
-    
+    RBBrowserViewType viewType = (RBBrowserViewType)[sender tag];
+
     if([self isInSearchMode]) {
         if(viewType != RBBrowserViewTypeList) [_searchField setStringValue:@""];
-        [segmentedControl setEnabled:YES forSegment:0];
-        [segmentedControl setEnabled:YES forSegment:2];
+        [self.segmentedControl setEnabled:YES forSegment:0];
+        [self.segmentedControl setEnabled:YES forSegment:2];
     }
-    
-    [self changeViewTypeTo:[sender tag]];
+
+    [self changeViewTypeTo:viewType];
 }
 
 - (void)foundMatchingClass:(RTBClass *)classStub forSearchString:(NSString *)searchString {
@@ -396,130 +354,108 @@
 }
 
 - (IBAction)search:(id)sender {
-    
+
     BOOL isInSearchMode = [self isInSearchMode];
-    
-    [searchQueue cancelAllOperations];
-    
-    [segmentedControl setEnabled:!isInSearchMode forSegment:0];
-    [segmentedControl setEnabled:!isInSearchMode forSegment:2];
-    [segmentedControl setEnabled:!isInSearchMode forSegment:3];
-    
+
+    [self.searchQueue cancelAllOperations];
+
+    [self.segmentedControl setEnabled:!isInSearchMode forSegment:0];
+    [self.segmentedControl setEnabled:!isInSearchMode forSegment:2];
+    [self.segmentedControl setEnabled:!isInSearchMode forSegment:3];
+
     if(isInSearchMode == NO) {
         [self changeViewTypeTo:RBBrowserViewTypeList];
         return;
     }
-    
+
     self.searchResults = [NSMutableArray array];
-    
+
     self.searchResultsNode = [[BrowserNode alloc] init];
-    
+
     NSString *searchString = [[_searchField stringValue] copy];
-    
+
     NSArray *classStubs = [[RTBRuntime sharedInstance] sortedClassStubs];
-    
+
     // lookup in search caches
-    
     NSString *searchStringLowercase = [searchString lowercaseString];
-    
+
     if(_cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase]) {
-        
+
         NSSet *set = _cachedClassStubsMatchingForSearchStringLowercase[searchStringLowercase];
-        
         NSMutableArray *ma = [[set allObjects] mutableCopy];
-        
         [ma sortUsingSelector:@selector(compare:)];
-        
+
         self.searchResults = ma;
-        
         self.searchResultsNode.children = self.searchResults;
-        
+
         [self.classBrowser loadColumnZero];
-        
         [self didFinishSearchingForString:searchString];
-        
+
         return;
     }
-    
+
     self.searchQueue = [[NSOperationQueue alloc] init];
-    
-    //    NSUInteger maxConcurrentOperationCount = [[NSProcessInfo processInfo] processorCount] + 1;
-    
-    //    [searchQueue setMaxConcurrentOperationCount:maxConcurrentOperationCount];
-    
+
     NSBlockOperation *op = [[NSBlockOperation alloc] init];
-    
+
     __weak NSBlockOperation *weakOp = op;
-    
     __weak typeof(self) weakSelf = self;
-    
+
     [op addExecutionBlock:^{
-        
+
         __strong NSBlockOperation *strongOp = weakOp;
-        if(strongOp == nil) return;
-        
-        if([strongOp isCancelled]) {
-            return;
-        }
-        
+        if(strongOp == nil || [strongOp isCancelled]) return;
+
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if(strongSelf == nil) return;
-        
+
         for (RTBClass *classStub in classStubs) {
-            
-            BOOL found = [classStub containsSearchString:searchString];
-            
-            if(found) {
-                
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    
-                    __strong typeof(weakSelf) strongSelf = weakSelf;
-                    if(strongSelf == nil) return;
-                    
-                    if([searchString isEqualToString:[strongSelf.searchField stringValue]] == NO) {
-                        //rNSLog(@"-- discard results for %@", searchString);
-                        [strongOp cancel];
-                        return;
-                    }
-                    
-                    [strongSelf foundMatchingClass:classStub forSearchString:searchString];
-                }];
-            }
+
+            if(![classStub containsSearchString:searchString]) continue;
+
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+
+                __strong typeof(weakSelf) innerSelf = weakSelf;
+                if(innerSelf == nil) return;
+
+                if([searchString isEqualToString:[innerSelf.searchField stringValue]] == NO) {
+                    [strongOp cancel];
+                    return;
+                }
+
+                [innerSelf foundMatchingClass:classStub forSearchString:searchString];
+            }];
         }
     }];
-    
+
     [op setCompletionBlock:^{
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if(strongSelf == nil) return;
-            
             [strongSelf didFinishSearchingForString:searchString];
-            
         }];
     }];
-    
-    [searchQueue addOperation:op];
-    
+
+    [self.searchQueue addOperation:op];
+
     [self changeViewTypeTo:RBBrowserViewTypeList];
 }
 
 #pragma mark NSDraggingDestination
 
+- (NSArray<NSURL *> *)acceptableFileURLsFromPasteboard:(NSPasteboard *)pboard {
+    NSArray<NSURL *> *urls = [pboard readObjectsForClasses:@[[NSURL class]]
+                                                   options:@{NSPasteboardURLReadingFileURLsOnlyKey: @YES}];
+    NSArray *acceptable = [self acceptableExtensions];
+    NSPredicate *p = [NSPredicate predicateWithBlock:^BOOL(NSURL *url, NSDictionary *bind) {
+        return [acceptable containsObject:[url pathExtension]];
+    }];
+    return [urls filteredArrayUsingPredicate:p];
+}
+
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-    
-    NSPasteboard *pboard = [sender draggingPasteboard];
-    
-    if ([[pboard types] containsObject:NSFilenamesPboardType]) {
-        NSArray *paths = [pboard propertyListForType:NSFilenamesPboardType];
-        
-        for(NSString *path in paths) {
-            NSString *ext = [[path lastPathComponent] pathExtension];
-            if([[self acceptableExtensions] containsObject:ext]) return NSDragOperationLink;
-        }
-    }
-    
-    return NSDragOperationNone;
+    NSArray *urls = [self acceptableFileURLsFromPasteboard:[sender draggingPasteboard]];
+    return [urls count] > 0 ? NSDragOperationLink : NSDragOperationNone;
 }
 
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
@@ -527,30 +463,9 @@
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-    
-    NSPasteboard *pboard = [sender draggingPasteboard];
-    
-    if ([[pboard types] containsObject:NSFilenamesPboardType]) {
-        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-        //NSLog(@"-- files: %@", files);
-        
-        NSPredicate *p = [NSPredicate predicateWithBlock: ^BOOL(id obj, NSDictionary *bind) {
-            NSString *ext = [[obj lastPathComponent] pathExtension];
-            return [[self acceptableExtensions] containsObject:ext];
-        }];
-        
-        NSArray *bundlePaths = [files filteredArrayUsingPredicate:p];
-        
-        NSMutableArray *bundleURLs = [NSMutableArray arrayWithCapacity:[bundlePaths count]];
-        
-        for(NSString *path in bundlePaths) {
-            NSURL *url = [NSURL fileURLWithPath:path];
-            [bundleURLs addObject:url];
-        }
-        
-        //NSLog(@"-- bundlesToOpen: %@", bundlesToOpen);
-        [self loadBundlesURLs:bundleURLs];
-        
+    NSArray<NSURL *> *urls = [self acceptableFileURLsFromPasteboard:[sender draggingPasteboard]];
+    if([urls count] > 0) {
+        [self loadBundlesURLs:urls];
     }
     return YES;
 }
@@ -574,37 +489,19 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    
-    //    SInt32 MacVersion;
-    //
-    //    if (Gestalt(gestaltSystemVersion, &MacVersion) == noErr) {
-    //        canUseLionAPIs = MacVersion >= 0x1070;
-    //    }
-    //
-    //    NSLog(@"-- canUseLionAPIs: %d", canUseLionAPIs);
-    //
-    //    if(canUseLionAPIs) {
-    //        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-    //
-    //    //    [mainWindow setRestorable:YES];
-    //    //    [mainWindow setRestorationClass:[mainWindow class]];
-    //
-    //        [[NSProcessInfo processInfo] setAutomaticTerminationSupportEnabled: YES];
-    //    }
-    
-    [mainWindow registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
-    
+
+    [self.mainWindow registerForDraggedTypes:@[NSPasteboardTypeFileURL]];
+
     [_classBrowser setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
     [_classBrowser setAllowsMultipleSelection:YES];
-    
-    [_classBrowser setRowHeight:18];
+
+    [_classBrowser setRowHeight:20];
     [_classBrowser setAutohidesScroller:YES];
     [_classBrowser setCellClass:[BrowserCell class]];
-    
+
     [_headerTextView setFont:[NSFont userFixedPitchFontOfSize:11.0]]; // TODO -- make size and font a default
-    
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
-    [self changeViewTypeTo:viewType];
+
+    [self changeViewTypeTo:[self currentViewType]];
 }
 
 - (void)cellClickedAction:(id)sender {
@@ -633,10 +530,10 @@
         
         RTBProtocol *protocolStub = (RTBProtocol *)item;
         NSString *header = [RTBRuntimeHeader headerForProtocol:protocolStub];
-        
-        NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
+
+        NSAttributedString *attributedString = [header colorizeWithKeywords:self.keywords classes:self.classes colorize:colorize];
         [[_headerTextView textStorage] setAttributedString:attributedString];
-        
+
         return;
     }
     
@@ -658,15 +555,12 @@
     BOOL displayPropertiesDefaultValues = [[NSUserDefaults standardUserDefaults] boolForKey:@"RTBDisplayPropertiesDefaultValues"];
     
     NSString *header = [RTBRuntimeHeader headerForClass:klass displayPropertiesDefaultValues:displayPropertiesDefaultValues];
-    
-    NSAttributedString *attributedString = [header colorizeWithKeywords:keywords classes:classes colorize:colorize];
-    
+
+    NSAttributedString *attributedString = [header colorizeWithKeywords:self.keywords classes:self.classes colorize:colorize];
+
     [[_headerTextView textStorage] setAttributedString:attributedString];
-    
-    /* highlight search string */
-    
+
     // TODO: highlight each occurrence
-    
     NSString *searchString = [_searchField stringValue];
     if([searchString length] > 0) {
         NSRange range = [header rangeOfString:searchString options:NSCaseInsensitiveSearch];
@@ -675,43 +569,28 @@
             [_headerTextView showFindIndicatorForRange:range];
         }
     }
-    
-    /*
-     NSMutableSet *protocols = [NSMutableSet set];
-     NSMutableSet *classnames = [NSMutableSet set];
-     
-     for(ClassStub *cs in [allClasses sortedClassStubs]) {
-     [protocols addObjectsFromArray:[cs protocolsTokens]];
-     [classnames addObject:[[cs stubClassname] lowercaseString]];
-     }
-     
-     [protocols intersectSet:classnames];
-     
-     NSLog(@"-- %@", protocols);
-     */
 }
 
 #pragma mark NSBrowserDelegate
 
 - (BrowserNode *)rootItemForBrowser:(NSBrowser *)browser {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
-    
     NSString *searchString = [_searchField stringValue];
     if([searchString length] > 0) {
-        return searchResultsNode;
+        return self.searchResultsNode;
     }
-    
-    if(viewType == RBBrowserViewTypeList)   return [BrowserNode rootNodeList];
-    if(viewType == RBBrowserViewTypeTree)   return [BrowserNode rootNodeTree];
-    if(viewType == RBBrowserViewTypeImages) return [BrowserNode rootNodeImages];
-    if(viewType == RBBrowserViewTypeProtocols) return [BrowserNode rootNodeProtocols];
+
+    switch([self currentViewType]) {
+        case RBBrowserViewTypeList:      return [BrowserNode rootNodeList];
+        case RBBrowserViewTypeTree:      return [BrowserNode rootNodeTree];
+        case RBBrowserViewTypeImages:    return [BrowserNode rootNodeImages];
+        case RBBrowserViewTypeProtocols: return [BrowserNode rootNodeProtocols];
+    }
     return nil;
 }
 
 - (NSInteger)browser:(NSBrowser *)browser numberOfChildrenOfItem:(id)item {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
-    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBClass class]]) return 0;
-    
+    if([self currentViewType] == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBClass class]]) return 0;
+
     return [[item children] count];
 }
 
@@ -720,13 +599,12 @@
 }
 
 - (BOOL)browser:(NSBrowser *)browser isLeafItem:(id)item {
-    RBBrowserViewType viewType = [[NSUserDefaults standardUserDefaults] integerForKey:@"RTBViewType"];
-    
-    if(viewType == RBBrowserViewTypeList) return YES;
-    if(viewType == RBBrowserViewTypeTree) return [[item children] count] == 0;
-    if(viewType == RBBrowserViewTypeImages) return [item isKindOfClass:[RTBClass class]];
-    if(viewType == RBBrowserViewTypeProtocols && [item isKindOfClass:[RTBProtocol class]]) return [[item children] count] == 0;
-    
+    switch([self currentViewType]) {
+        case RBBrowserViewTypeList:      return YES;
+        case RBBrowserViewTypeTree:      return [[item children] count] == 0;
+        case RBBrowserViewTypeImages:    return [item isKindOfClass:[RTBClass class]];
+        case RBBrowserViewTypeProtocols: return [item isKindOfClass:[RTBProtocol class]] ? [[item children] count] == 0 : YES;
+    }
     return YES;
 }
 

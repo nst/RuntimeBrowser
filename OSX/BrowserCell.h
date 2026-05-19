@@ -8,8 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface BrowserCell : NSBrowserCell {
-
-}
+@interface BrowserCell : NSBrowserCell
 
 @end

@@ -12,9 +12,6 @@
 
 @implementation BrowserNode
 
-@synthesize nodeName;
-@synthesize children;
-
 + (BrowserNode *)rootNodeList {
 	BrowserNode *rn = [[BrowserNode alloc] init];
 	rn.children = [[RTBRuntime sharedInstance] sortedClassStubs];
@@ -61,27 +58,27 @@
 
 - (NSImage *)icon {
 
-    NSArray *extensions = [NSArray arrayWithObjects:@".app", @".framework", @".bundle", @".dylib", nil];
+    NSArray *extensions = @[@".app", @".framework", @".bundle", @".dylib"];
     for(NSString *ext in extensions) {
-		NSRange range = [nodeName rangeOfString:ext];
-		if(range.location != NSNotFound) {
-			NSString *bundlePath = [nodeName substringToIndex:(range.location + [ext length])];
-			return [[NSWorkspace sharedWorkspace] iconForFile:bundlePath];
-		}
-	}
-	
-	return nil;
+        NSRange range = [_nodeName rangeOfString:ext];
+        if(range.location != NSNotFound) {
+            NSString *bundlePath = [_nodeName substringToIndex:(range.location + [ext length])];
+            return [[NSWorkspace sharedWorkspace] iconForFile:bundlePath];
+        }
+    }
+
+    return nil;
 }
 
 + (void)thisClassIsPartOfTheRuntimeBrowser {}
 
 - (NSComparisonResult)compare:(BrowserNode *)otherNode {
-    return [nodeName compare:[otherNode nodeName]];
+    return [_nodeName compare:[otherNode nodeName]];
 }
 
 - (NSString *)nodeInfo {
-    NSArray *pathComponents = [nodeName componentsSeparatedByString:@"/"];
-    return [NSString stringWithFormat:@"%@ (%lu)", [pathComponents lastObject], (unsigned long)[children count]];
+    NSArray *pathComponents = [_nodeName componentsSeparatedByString:@"/"];
+    return [NSString stringWithFormat:@"%@ (%lu)", [pathComponents lastObject], (unsigned long)[_children count]];
 }
 
 - (BOOL)canBeSavedAsHeader {
