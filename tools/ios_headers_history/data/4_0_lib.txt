@@ -1,2 +1,0 @@
-libSystem.B.dylib
-libobjc.A.dylib
